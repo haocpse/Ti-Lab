@@ -1,6 +1,5 @@
-package com.haocp.tilab.dto.response.User;
+package com.haocp.tilab.dto.request.Customer;
 
-import com.haocp.tilab.enums.UserRole;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -9,12 +8,13 @@ import lombok.experimental.FieldDefaults;
 @Data
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserResponse {
+public class RegisterRequest {
 
-    String id;
     String username;
     String email;
+    String phone;
+    String firstName;
+    String lastName;
     String password;
-    UserRole role;
 
 }
