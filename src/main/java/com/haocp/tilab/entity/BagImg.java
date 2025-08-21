@@ -1,4 +1,4 @@
 package com.haocp.tilab.entity;
 
-public class Role {
+public class BagImg {
 }
