@@ -22,16 +22,6 @@ public class CustomerServiceImpl implements CustomerService {
     CustomerRepository customerRepository;
 
     @Override
-    public CustomerResponse register(RegisterRequest registerRequest) {
-        return null;
-    }
-
-    @Override
-    public CustomerResponse login(LoginRequest loginRequest) {
-        return null;
-    }
-
-    @Override
     public List<CustomerResponse> getAllCustomer() {
         return List.of();
     }

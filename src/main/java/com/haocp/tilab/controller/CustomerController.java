@@ -35,18 +35,4 @@ public class CustomerController {
                 .build();
     }
 
-    @PostMapping("/api/register")
-    public ApiResponse<CustomerResponse> register(@RequestBody RegisterRequest registerRequest) {
-        return ApiResponse.<CustomerResponse>builder()
-                .data(customerService.register(registerRequest))
-                .build();
-    }
-
-    @PostMapping("/api/login")
-    public ApiResponse<CustomerResponse> login(@RequestBody LoginRequest loginRequest) {
-        return ApiResponse.<CustomerResponse>builder()
-                .data(customerService.login(loginRequest))
-                .build();
-    }
-
 }

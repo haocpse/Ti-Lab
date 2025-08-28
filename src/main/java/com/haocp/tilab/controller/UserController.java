@@ -1,7 +1,11 @@
 package com.haocp.tilab.controller;
 
 import com.haocp.tilab.dto.ApiResponse;
+import com.haocp.tilab.dto.request.Customer.LoginRequest;
+import com.haocp.tilab.dto.request.Customer.RegisterRequest;
 import com.haocp.tilab.dto.request.User.CreateUserRequest;
+import com.haocp.tilab.dto.response.Customer.CustomerResponse;
+import com.haocp.tilab.dto.response.Token.LoginResponse;
 import com.haocp.tilab.dto.response.User.UserResponse;
 import com.haocp.tilab.service.UserService;
 import lombok.AccessLevel;
@@ -37,6 +41,20 @@ public class UserController {
     public ApiResponse<UserResponse> createUser(@RequestBody CreateUserRequest request){
         return ApiResponse.<UserResponse>builder()
                 .data(userService.createUser(request))
+                .build();
+    }
+
+    @PostMapping("/api/register")
+    public ApiResponse<LoginResponse> register(@RequestBody RegisterRequest registerRequest) {
+        return ApiResponse.<LoginResponse>builder()
+                .data(userService.register(registerRequest))
+                .build();
+    }
+
+    @PostMapping("/api/login")
+    public ApiResponse<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
+        return ApiResponse.<LoginResponse>builder()
+                .data(userService.login(loginRequest))
                 .build();
     }
 

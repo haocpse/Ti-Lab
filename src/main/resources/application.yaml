@@ -2,9 +2,9 @@ spring:
   application:
     name: tilab
   datasource:
-    url: jdbc:mysql://localhost:3306/ti_lab
-    username: root
-    password: 12345
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:ti_lab}
+    username: ${DB_USER:root}
+    password: ${DB_PASS:12345}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
@@ -26,6 +26,7 @@ logging:
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
 
-
+jwt:
+  signerKey: ${SIGNER_KEY}

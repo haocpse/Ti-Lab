@@ -8,8 +8,6 @@ import java.util.List;
 
 public interface CustomerService {
 
-    CustomerResponse register(RegisterRequest registerRequest);
-    CustomerResponse login(LoginRequest loginRequest);
     List<CustomerResponse> getAllCustomer();
     CustomerResponse getCustomerById(String id);
 }

@@ -37,6 +37,10 @@ public class Customer {
     @ToString.Exclude
     Set<CustomerAddress> addresses = new HashSet<>();
 
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    Set<CouponUsage> coupons = new HashSet<>();
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "membership_id", nullable = false)
     @ToString.Exclude
