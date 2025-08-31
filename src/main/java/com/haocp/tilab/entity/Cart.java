@@ -25,21 +25,21 @@ public class Cart {
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
-    @Column(nullable = false)
-    int numberOfBag;
-
-    @Column(nullable = false)
-    double subTotal;
-
-    @Column(nullable = false)
-    int feeOfDelivery;
-
-    @Column(nullable = false)
-    double total;
-
-    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "bag_id")
     @ToString.Exclude
-    Set<CartDetail> details = new HashSet<>();
+    Bag bag;
+
+    @Column(nullable = false)
+    int quantity;
+
+    @Column(nullable = false)
+    double totalPrice;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "customer_id", nullable = false)
+    @ToString.Exclude
+    Customer customer;
 
     @Column(nullable = false, updatable = false)
     @CreationTimestamp

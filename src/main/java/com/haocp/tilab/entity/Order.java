@@ -55,6 +55,11 @@ public class Order {
     @ToString.Exclude
     Set<OrderDetail> details = new HashSet<>();
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "customer_id", nullable = false)
+    @ToString.Exclude
+    Customer customer;
+
     @Column(nullable = false, updatable = false)
     @CreationTimestamp
     Instant createdAt;

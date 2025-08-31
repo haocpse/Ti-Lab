@@ -28,24 +28,14 @@ CREATE TABLE bag_img
 
 CREATE TABLE cart
 (
-    id              VARCHAR(255) NOT NULL,
-    number_of_bag   INT          NOT NULL,
-    sub_total       DOUBLE       NOT NULL,
-    fee_of_delivery INT          NOT NULL,
-    total           DOUBLE       NOT NULL,
-    created_at      datetime     NOT NULL,
-    updated_at      datetime     NOT NULL,
+    id          VARCHAR(255) NOT NULL,
+    bag_id      VARCHAR(255) NOT NULL,
+    quantity    INT          NOT NULL,
+    total_price DOUBLE       NOT NULL,
+    customer_id VARCHAR(255) NOT NULL,
+    created_at  datetime     NOT NULL,
+    updated_at  datetime     NOT NULL,
     CONSTRAINT pk_cart PRIMARY KEY (id)
-);
-
-CREATE TABLE cart_detail
-(
-    id          BIGINT AUTO_INCREMENT NOT NULL,
-    bag_id      VARCHAR(255)          NOT NULL,
-    quantity    INT                   NOT NULL,
-    total_price DOUBLE                NOT NULL,
-    cart_id     VARCHAR(255)          NOT NULL,
-    CONSTRAINT pk_cart_detail PRIMARY KEY (id)
 );
 
 CREATE TABLE coupon
@@ -109,6 +99,7 @@ CREATE TABLE `order`
     method          VARCHAR(255) NOT NULL,
     status          VARCHAR(255) NOT NULL,
     coupon_id       BIGINT       NOT NULL,
+    customer_id     VARCHAR(255) NOT NULL,
     created_at      datetime     NOT NULL,
     updated_at      datetime     NOT NULL,
     CONSTRAINT pk_order PRIMARY KEY (id)
@@ -161,8 +152,8 @@ CREATE TABLE user
     CONSTRAINT pk_user PRIMARY KEY (id)
 );
 
-ALTER TABLE cart_detail
-    ADD CONSTRAINT uc_cart_detail_bag UNIQUE (bag_id);
+ALTER TABLE cart
+    ADD CONSTRAINT uc_cart_bag UNIQUE (bag_id);
 
 ALTER TABLE `order`
     ADD CONSTRAINT uc_order_coupon UNIQUE (coupon_id);
@@ -182,11 +173,11 @@ ALTER TABLE user
 ALTER TABLE bag_img
     ADD CONSTRAINT FK_BAG_IMG_ON_BAG FOREIGN KEY (bag_id) REFERENCES bag (id);
 
-ALTER TABLE cart_detail
-    ADD CONSTRAINT FK_CART_DETAIL_ON_BAG FOREIGN KEY (bag_id) REFERENCES bag (id);
+ALTER TABLE cart
+    ADD CONSTRAINT FK_CART_ON_BAG FOREIGN KEY (bag_id) REFERENCES bag (id);
 
-ALTER TABLE cart_detail
-    ADD CONSTRAINT FK_CART_DETAIL_ON_CART FOREIGN KEY (cart_id) REFERENCES cart (id);
+ALTER TABLE cart
+    ADD CONSTRAINT FK_CART_ON_CUSTOMER FOREIGN KEY (customer_id) REFERENCES customer (id);
 
 ALTER TABLE coupon_usage
     ADD CONSTRAINT FK_COUPON_USAGE_ON_COUPON FOREIGN KEY (coupon_id) REFERENCES coupon (id);
@@ -211,6 +202,9 @@ ALTER TABLE order_detail
 
 ALTER TABLE `order`
     ADD CONSTRAINT FK_ORDER_ON_COUPON FOREIGN KEY (coupon_id) REFERENCES coupon (id);
+
+ALTER TABLE `order`
+    ADD CONSTRAINT FK_ORDER_ON_CUSTOMER FOREIGN KEY (customer_id) REFERENCES customer (id);
 
 ALTER TABLE payment
     ADD CONSTRAINT FK_PAYMENT_ON_ORDER FOREIGN KEY (order_id) REFERENCES `order` (id);
