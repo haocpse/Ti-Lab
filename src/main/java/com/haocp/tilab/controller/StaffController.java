@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/staffs/")
+@RequestMapping("/api/staffs")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class StaffController {
 
@@ -29,7 +29,7 @@ public class StaffController {
                 .build();
     }
 
-    @GetMapping("{id}")
+    @GetMapping("/{id}")
     public ApiResponse<StaffResponse> getStaffById(@PathVariable("id") String id) {
         return ApiResponse.<StaffResponse>builder()
                 .data(staffService.getStaffById(id))

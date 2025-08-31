@@ -9,8 +9,11 @@ import com.haocp.tilab.entity.Customer;
 import com.haocp.tilab.entity.Staff;
 import com.haocp.tilab.entity.User;
 import com.haocp.tilab.enums.UserRole;
+import com.haocp.tilab.exception.AppException;
+import com.haocp.tilab.exception.ErrorCode;
 import com.haocp.tilab.mapper.UserMapper;
 import com.haocp.tilab.repository.CustomerRepository;
+import com.haocp.tilab.repository.MembershipRepository;
 import com.haocp.tilab.repository.StaffRepository;
 import com.haocp.tilab.repository.UserRepository;
 import com.haocp.tilab.service.UserService;
@@ -24,9 +27,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -41,38 +43,48 @@ public class UserServiceImpl implements UserService {
     @Autowired
     CustomerRepository customerRepository;
     @Autowired
-    UserMapper userMapper;
-    @Autowired
     StaffRepository staffRepository;
     @Autowired
     PasswordEncoder passwordEncoder;
     @Value("${jwt.signerKey}")
     String SIGNER_KEY;
+    @Autowired
+    MembershipRepository membershipRepository;
+    @Autowired
+    UserMapper userMapper;
 
     @Override
+    @Transactional
     public LoginResponse register(RegisterRequest registerRequest) {
-        User user = User.builder()
-                .username(registerRequest.getUsername())
-                .password(passwordEncoder.encode(registerRequest.getPassword()))
-                .email(registerRequest.getEmail())
-                .phone(registerRequest.getPhone())
-                .role(UserRole.CUSTOMER)
-                .build();
-        userRepository.save(user);
-
-        customerRepository.save(Customer.builder()
+        User user = userMapper.toUser(registerRequest);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setRole(UserRole.CUSTOMER);
+        user.setActive(true);
+        Customer customer = customerRepository.save(Customer.builder()
                         .user(user)
                         .firstName(registerRequest.getFirstName())
                         .lastName(registerRequest.getLastName())
+                        .membership(membershipRepository.findByMin(0)
+                                .orElseThrow(() -> new AppException(ErrorCode.THERE_NO_MEMBERSHIP)))
                 .build());
         return LoginResponse.builder()
-                .accessToken(generateToken(user))
+                .accessToken(generateToken(customer.getUser()))
                 .build();
     }
 
     @Override
     public LoginResponse login(LoginRequest loginRequest) {
-        return null;
+        User user = userRepository.findByUsername(loginRequest.getUsername())
+                .orElseThrow(() -> new AppException(ErrorCode.USERNAME_INCORRECT));
+        if(!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+            throw new AppException(ErrorCode.PASSWORD_INCORRECT);
+        }
+        if(!user.isActive()){
+            throw new AppException(ErrorCode.ACCOUNT_BANNED);
+        }
+        return LoginResponse.builder()
+                .accessToken(generateToken(user))
+                .build();
     }
 
     @Override
@@ -93,7 +105,8 @@ public class UserServiceImpl implements UserService {
     String generateToken(User user){
         String claimJWT = user.getRole().toString();
         if (claimJWT.matches("STAFF")) {
-            Staff staff = staffRepository.getReferenceById(user.getId());
+            Staff staff = staffRepository.findById(user.getId())
+                    .orElseThrow(() -> new AppException(ErrorCode.STAFF_NOT_FOUND));
             claimJWT = claimJWT + "_" + staff.getRole().toString();
         }
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);

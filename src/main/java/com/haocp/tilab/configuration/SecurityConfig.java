@@ -3,6 +3,7 @@ package com.haocp.tilab.configuration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -30,11 +31,19 @@ public class SecurityConfig {
     @Value("${jwt.signerKey}")
     String SIGNER_KEY;
 
-    private final String[] PUBLIC_ENDPOINTS = { "/", "/api/login", "/api/register"};
+    private static final String[] PUBLIC_ENDPOINTS = {
+            "/",
+            "/api/login",
+            "/api/register",
+            "/swagger-ui/**",
+            "/v3/api-docs/**"
+    };
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(request -> request
+                .requestMatchers(HttpMethod.GET, "/api/bags").permitAll()
+                .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
                 .anyRequest().authenticated());
 
         http.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer

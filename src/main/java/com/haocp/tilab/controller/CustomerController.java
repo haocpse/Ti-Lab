@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/customers/")
+@RequestMapping("/api/customers")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CustomerController {
 
@@ -28,7 +28,7 @@ public class CustomerController {
                 .build();
     }
 
-    @GetMapping("{id}")
+    @GetMapping("/{id}")
     public ApiResponse<CustomerResponse> getCustomerById(@PathVariable String id) {
         return ApiResponse.<CustomerResponse>builder()
                 .data(customerService.getCustomerById(id))
