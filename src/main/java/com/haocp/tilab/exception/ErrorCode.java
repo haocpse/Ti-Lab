@@ -18,7 +18,9 @@ public enum ErrorCode {
     STAFF_NOT_FOUND(404, "Staff not found", HttpStatus.NOT_FOUND),
     BAG_NOT_FOUND(404, "Bag not found", HttpStatus.NOT_FOUND),
     USER_NOT_EXIST(404, "User not exist", HttpStatus.NOT_FOUND),
-    CUSTOMER_NOT_FOUND(404, "Customer not found", HttpStatus.NOT_FOUND),;
+    CUSTOMER_NOT_FOUND(404, "Customer not found", HttpStatus.NOT_FOUND),
+    COUPON_NOT_EXIST(404, "Coupon not exist", HttpStatus.NOT_FOUND),
+    ORDER_DETAIL_NOT_FOUND(404, "Order detail not found", HttpStatus.NOT_FOUND),;
 
     int code;
     String message;

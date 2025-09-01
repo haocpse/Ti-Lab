@@ -45,7 +45,7 @@ public class CartServiceImpl implements CartService {
     @Override
     @Transactional
     public CartResponse addToCart(AddToCartRequest request) {
-        Customer customer = Identify();
+        Customer customer = IdentifyUser.getCurrentCustomer(customerRepository, userRepository);
         Bag bag = bagRepository.findById(request.getBagId())
                 .orElseThrow(() -> new AppException(ErrorCode.BAG_NOT_FOUND));
         Cart cart = cartRepository.save(Cart.builder()
@@ -70,13 +70,4 @@ public class CartServiceImpl implements CartService {
         return List.of();
     }
 
-    Customer Identify(){
-        String username = IdentifyUser.Identify();
-        if (username == null) {
-            throw new AppException(ErrorCode.HAVE_NOT_LOGIN);
-        }
-        return customerRepository.findById(userRepository.findByUsername(username)
-                        .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXIST)).getId())
-                .orElseThrow(() -> new AppException(ErrorCode.CUSTOMER_NOT_FOUND));
-    }
 }

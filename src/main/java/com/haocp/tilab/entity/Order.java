@@ -38,6 +38,9 @@ public class Order {
     @Column(nullable = false)
     double total;
 
+    @Column(nullable = false, length = 100)
+    String addressToDelivery;
+
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     PayMethod method;
@@ -46,7 +49,7 @@ public class Order {
     @Enumerated(EnumType.STRING)
     OrderStatus status;
 
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "coupon_id")
     @ToString.Exclude
     Coupon coupon;

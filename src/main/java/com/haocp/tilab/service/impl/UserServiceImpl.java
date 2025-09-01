@@ -57,7 +57,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public LoginResponse register(RegisterRequest registerRequest) {
         User user = userMapper.toUser(registerRequest);
-        user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+        user.setPassword(passwordEncoder.encode(registerRequest.getRawPassword()));
         user.setRole(UserRole.CUSTOMER);
         user.setActive(true);
         Customer customer = customerRepository.save(Customer.builder()

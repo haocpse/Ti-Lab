@@ -91,17 +91,18 @@ CREATE TABLE membership
 
 CREATE TABLE `order`
 (
-    id              VARCHAR(255) NOT NULL,
-    number_of_bag   INT          NOT NULL,
-    sub_total       DOUBLE       NOT NULL,
-    fee_of_delivery INT          NOT NULL,
-    total           DOUBLE       NOT NULL,
-    method          VARCHAR(255) NOT NULL,
-    status          VARCHAR(255) NOT NULL,
-    coupon_id       BIGINT       NOT NULL,
-    customer_id     VARCHAR(255) NOT NULL,
-    created_at      datetime     NOT NULL,
-    updated_at      datetime     NOT NULL,
+    id                  VARCHAR(255) NOT NULL,
+    number_of_bag       INT          NOT NULL,
+    sub_total           DOUBLE       NOT NULL,
+    fee_of_delivery     INT          NOT NULL,
+    total               DOUBLE       NOT NULL,
+    address_to_delivery VARCHAR(100) NOT NULL,
+    method              VARCHAR(255) NOT NULL,
+    status              VARCHAR(255) NOT NULL,
+    coupon_id           BIGINT       NULL,
+    customer_id         VARCHAR(255) NOT NULL,
+    created_at          datetime     NOT NULL,
+    updated_at          datetime     NOT NULL,
     CONSTRAINT pk_order PRIMARY KEY (id)
 );
 
