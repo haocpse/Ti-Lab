@@ -33,11 +33,4 @@ public class CartController {
                 .build();
     }
 
-    @GetMapping(params = "username")
-    public ApiResponse<List<CartResponse>> getAllMyCart(@RequestParam(required = false) String username) {
-        return ApiResponse.<List<CartResponse>>builder()
-                .data(cartService.getAllMyCart(username))
-                .build();
-    }
-
 }

@@ -15,7 +15,8 @@ import java.util.Set;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Getter
+@Setter
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "bag")
@@ -57,6 +58,10 @@ public class Bag {
     @OneToMany(mappedBy = "bag", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     Set<BagImg> images = new HashSet<>();
+
+    @OneToMany(mappedBy = "bag")
+    @ToString.Exclude
+    Set<OrderDetail> orderDetails = new HashSet<>();
 
     @Column(nullable = false, updatable = false)
     @CreationTimestamp

@@ -20,6 +20,10 @@ public interface OrderMapper {
     @Mapping(target = "customerResponse", expression = "java(toCustomerResponse(order.getCustomer()))")
     OrderResponse toResponse(Order order);
 
+    @Mapping(target = "customerResponse", expression = "java(toCustomerResponse(order.getCustomer()))")
+    @Mapping(target = "couponResponse", ignore = true)
+    OrderResponse toResponseWithoutCoupon(Order order);
+
     default CustomerInOrderResponse toCustomerResponse(Customer customer) {
         if (customer == null) return null;
         return CustomerInOrderResponse.builder()

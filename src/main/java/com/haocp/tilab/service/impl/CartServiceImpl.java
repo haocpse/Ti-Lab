@@ -2,10 +2,8 @@ package com.haocp.tilab.service.impl;
 
 import com.haocp.tilab.dto.request.Cart.AddToCartRequest;
 import com.haocp.tilab.dto.response.Cart.CartResponse;
-import com.haocp.tilab.entity.Bag;
-import com.haocp.tilab.entity.Cart;
-import com.haocp.tilab.entity.Customer;
-import com.haocp.tilab.entity.User;
+import com.haocp.tilab.dto.response.Order.OrderResponse;
+import com.haocp.tilab.entity.*;
 import com.haocp.tilab.exception.AppException;
 import com.haocp.tilab.exception.ErrorCode;
 import com.haocp.tilab.mapper.BagMapper;
@@ -23,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 @Service
 @Slf4j
@@ -48,12 +47,22 @@ public class CartServiceImpl implements CartService {
         Customer customer = IdentifyUser.getCurrentCustomer(customerRepository, userRepository);
         Bag bag = bagRepository.findById(request.getBagId())
                 .orElseThrow(() -> new AppException(ErrorCode.BAG_NOT_FOUND));
-        Cart cart = cartRepository.save(Cart.builder()
+        Cart cart = cartRepository.findByBag_IdAndCustomer_Id(bag.getId(), customer.getId())
+                .map(existingCart -> {
+                    int purchaseQuantity = existingCart.getQuantity() + request.getQuantity();
+                    if (bag.getQuantity() < purchaseQuantity)
+                        throw new AppException(ErrorCode.EXCEED_MAXIMUM_QUANTITY, bag.getQuantity());
+                    existingCart.setQuantity(purchaseQuantity);
+                    existingCart.setTotalPrice(existingCart.getTotalPrice() + request.getTotalPrice());
+                    return existingCart;
+                })
+                .orElseGet(() -> Cart.builder()
                         .bag(bag)
                         .customer(customer)
                         .quantity(request.getQuantity())
                         .totalPrice(request.getTotalPrice())
-                    .build());
+                        .build());
+        cartRepository.save(cart);
         CartResponse response = cartMapper.toResponse(cart);
         response.setBagResponse(bagMapper.toResponse(bag));
         response.setUsername(customer.getUser().getUsername());
@@ -62,18 +71,33 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public List<CartResponse> getAllCart() {
-        return List.of();
+        List<Cart> carts = cartRepository.findAllWithDetails();
+        return buildCartResponses(carts);
     }
 
     @Override
-    public List<CartResponse> getAllMyCart(String username) {
-        return List.of();
+    public List<CartResponse> getAllMyCart() {
+        Customer customer = IdentifyUser.getCurrentCustomer(customerRepository, userRepository);
+        List<Cart> carts = cartRepository.findAllByCustomer_IdWithDetails(customer.getId());
+        return buildCartResponses(carts);
+    }
+
+    List<CartResponse> buildCartResponses(List<Cart> carts) {
+        List<CartResponse> cartResponses = new ArrayList<>();
+        for (Cart cart : carts) {
+            CartResponse response = cartMapper.toResponse(cart);
+            response.setBagResponse(bagMapper.toResponse(cart.getBag()));
+            response.setUsername(cart.getCustomer().getUser().getUsername());
+            cartResponses.add(response);
+        }
+        return cartResponses;
     }
 
     @Override
     @Transactional
     public void deleteCartById(String cartId) {
-        cartRepository.deleteById(cartId);
+        if (!cartId.isEmpty() && !cartId.isBlank())
+            cartRepository.deleteById(cartId);
     }
 
 }

@@ -9,6 +9,6 @@ public interface CartService {
 
     CartResponse addToCart(AddToCartRequest request);
     List<CartResponse> getAllCart();
-    List<CartResponse> getAllMyCart(String username);
+    List<CartResponse> getAllMyCart();
     void deleteCartById(String cartId);
 }

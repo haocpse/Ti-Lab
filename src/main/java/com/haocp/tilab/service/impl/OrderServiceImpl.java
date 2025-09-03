@@ -21,10 +21,12 @@ import com.haocp.tilab.service.CartService;
 import com.haocp.tilab.service.OrderService;
 import com.haocp.tilab.service.PaymentService;
 import com.haocp.tilab.utils.IdentifyUser;
+import com.haocp.tilab.utils.event.OrderCreatedEvent;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,9 +58,9 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     BagMapper bagMapper;
     @Autowired
-    CouponMapper couponMapper;
-    @Autowired
     CartService cartService;
+    @Autowired
+    ApplicationEventPublisher applicationEventPublisher;
     @Autowired
     PaymentService paymentService;
 
@@ -83,10 +85,12 @@ public class OrderServiceImpl implements OrderService {
                         .customer(customer)
                         .status(OrderStatus.PREPARING)
                 .build());
-        PaymentResponse paymentResponse = createPayment(order, request.getMethod());
+        applicationEventPublisher.publishEvent(new OrderCreatedEvent(this, order, request.getMethod()));
+
         List<OrderDetailResponse> orderDetailResponses = createOrderDetail(orderDetailRequests, order);
         OrderResponse orderResponse = orderMapper.toResponse(order);
-        orderResponse.setPaymentResponse(paymentResponse);
+        orderResponse.setOrderId(order.getId());
+        orderResponse.setPaymentResponse(paymentService.getPaymentByOrderId(order.getId()));
         orderResponse.setOrderDetailResponseList(orderDetailResponses);
         return orderResponse;
     }
@@ -100,7 +104,7 @@ public class OrderServiceImpl implements OrderService {
             orderDetail.setOrder(order);
             orderDetail.setBag(bag);
             orderDetailRepository.save(orderDetail);
-            deleteCartById(request.getCartId());
+            cartService.deleteCartById(request.getCartId());
             OrderDetailResponse response = orderDetailMapper.toResponse(orderDetail);
             response.setBagResponse(bagMapper.toResponse(bag));
             responses.add(response);
@@ -110,20 +114,26 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<OrderResponse> getAllOrder() {
-        List<Order> orders = orderRepository.findAll();
-        List<OrderResponse> responses = new ArrayList<>();
-        for(Order order : orders){
-            OrderResponse response = orderMapper.toResponse(order);
-            response.setOrderDetailResponseList(buildOrderDetailResponses(order.getDetails()));
-            response.setPaymentResponse(paymentService.getPaymentByOrderId(order.getId()));
-            responses.add(response);
-        }
-        return responses;
+        List<Order> orders = orderRepository.findAllWithDetails();
+        return buildOrderResponses(orders);
     }
 
     @Override
-    public List<OrderResponse> getAllMyOrder(String username) {
-        return List.of();
+    public List<OrderResponse> getAllMyOrder() {
+        Customer customer = IdentifyUser.getCurrentCustomer(customerRepository, userRepository);
+        List<Order> orders = orderRepository.findAllByCustomer_IdWithDetails(customer.getId());
+        return buildOrderResponses(orders);
+    }
+
+    List<OrderResponse> buildOrderResponses(List<Order> orders) {
+        List<OrderResponse> responses = new ArrayList<>();
+        for(Order order : orders){
+            OrderResponse response = orderMapper.toResponseWithoutCoupon(order);
+            response.setOrderId(order.getId());
+            response.setOrderDetailResponseList(buildOrderDetailResponses(order.getDetails()));
+            responses.add(response);
+        }
+        return responses;
     }
 
     List<OrderDetailResponse> buildOrderDetailResponses(Set<OrderDetail> orderDetails) {
@@ -137,15 +147,4 @@ public class OrderServiceImpl implements OrderService {
         return responses;
     }
 
-    void deleteCartById(String cartId) {
-        if (!cartId.isEmpty() && !cartId.isBlank())
-            cartService.deleteCartById(cartId);
-    }
-
-    PaymentResponse createPayment(Order order, PayMethod method){
-        return paymentService.createPayment(CreatePaymentRequest.builder()
-                        .order(order)
-                        .method(method)
-                .build());
-    }
 }

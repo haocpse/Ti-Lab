@@ -1,11 +1,11 @@
 package com.haocp.tilab.service;
 
-import com.haocp.tilab.dto.request.Payment.CreatePaymentRequest;
 import com.haocp.tilab.dto.response.Payment.PaymentResponse;
-import com.haocp.tilab.entity.Payment;
+import com.haocp.tilab.entity.Order;
+import com.haocp.tilab.enums.PayMethod;
 
 public interface PaymentService {
 
-    PaymentResponse createPayment(CreatePaymentRequest request);
+    void createPayment(Order order, PayMethod method);
     PaymentResponse getPaymentByOrderId(String orderId);
 }

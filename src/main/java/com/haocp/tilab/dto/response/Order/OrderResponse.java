@@ -26,7 +26,6 @@ public class OrderResponse {
     double subTotal;
     int feeOfDelivery;
     double total;
-    PayMethod method;
     OrderStatus status;
     List<OrderDetailResponse> orderDetailResponseList;
     CouponResponse couponResponse;

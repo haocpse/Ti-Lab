@@ -11,6 +11,6 @@ public interface OrderService {
 
     OrderResponse createOrder(CreateOrderRequest request);
     List<OrderResponse> getAllOrder();
-    List<OrderResponse> getAllMyOrder(String username);
+    List<OrderResponse> getAllMyOrder();
 
 }

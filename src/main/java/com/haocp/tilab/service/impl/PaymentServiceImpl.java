@@ -1,6 +1,5 @@
 package com.haocp.tilab.service.impl;
 
-import com.haocp.tilab.dto.request.Payment.CreatePaymentRequest;
 import com.haocp.tilab.dto.response.Payment.PaymentResponse;
 import com.haocp.tilab.entity.Order;
 import com.haocp.tilab.entity.Payment;
@@ -28,29 +27,22 @@ public class PaymentServiceImpl implements PaymentService {
     PaymentMapper paymentMapper;
 
     @Override
-    public PaymentResponse createPayment(CreatePaymentRequest request) {
+    public void createPayment(Order order, PayMethod method) {
         PaymentStatus status = PaymentStatus.UNPAID;
-        PayMethod method = request.getMethod();
-        Order order = request.getOrder();
         if(method.equals(PayMethod.CARD))
             status = PaymentStatus.PROCESSING;
-        Payment payment = paymentRepository.save(Payment.builder()
+        paymentRepository.save(Payment.builder()
                         .total(order.getTotal())
                         .order(order)
                         .method(method)
                         .status(status)
                 .build());
-        PaymentResponse response = paymentMapper.toResponse(payment);
-        response.setPaymentId(payment.getId());
-        return response;
     }
 
     @Override
     public PaymentResponse getPaymentByOrderId(String orderId) {
         Payment payment = paymentRepository.findPaymentByOrder_Id(orderId)
                 .orElseThrow(() -> new AppException(ErrorCode.NO_PAYMENT_SUITABLE));
-        PaymentResponse response = paymentMapper.toResponse(payment);
-        response.setPaymentId(payment.getId());
-        return response;
+        return paymentMapper.toResponse(payment);
     }
 }
