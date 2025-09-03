@@ -70,4 +70,10 @@ public class CartServiceImpl implements CartService {
         return List.of();
     }
 
+    @Override
+    @Transactional
+    public void deleteCartById(String cartId) {
+        cartRepository.deleteById(cartId);
+    }
+
 }

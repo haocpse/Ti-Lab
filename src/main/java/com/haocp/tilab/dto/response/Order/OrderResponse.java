@@ -4,6 +4,7 @@ import com.haocp.tilab.dto.response.Bag.BagResponse;
 import com.haocp.tilab.dto.response.Coupon.CouponResponse;
 import com.haocp.tilab.dto.response.Customer.CustomerInOrderResponse;
 import com.haocp.tilab.dto.response.Customer.CustomerResponse;
+import com.haocp.tilab.dto.response.Payment.PaymentResponse;
 import com.haocp.tilab.enums.OrderStatus;
 import com.haocp.tilab.enums.PayMethod;
 import jakarta.persistence.*;
@@ -29,5 +30,6 @@ public class OrderResponse {
     OrderStatus status;
     List<OrderDetailResponse> orderDetailResponseList;
     CouponResponse couponResponse;
+    PaymentResponse paymentResponse;
 
 }

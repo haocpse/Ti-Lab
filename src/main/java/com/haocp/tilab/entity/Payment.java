@@ -38,6 +38,10 @@ public class Payment {
     @Enumerated(EnumType.STRING)
     PaymentStatus status;
 
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    PayMethod method;
+
     @Column(nullable = false, updatable = false)
     @CreationTimestamp
     Instant createdAt;

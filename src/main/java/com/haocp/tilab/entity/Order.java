@@ -43,10 +43,6 @@ public class Order {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    PayMethod method;
-
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
     OrderStatus status;
 
     @OneToOne(fetch = FetchType.LAZY)

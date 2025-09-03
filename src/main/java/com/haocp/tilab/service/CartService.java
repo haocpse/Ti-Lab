@@ -2,7 +2,6 @@ package com.haocp.tilab.service;
 
 import com.haocp.tilab.dto.request.Cart.AddToCartRequest;
 import com.haocp.tilab.dto.response.Cart.CartResponse;
-import com.haocp.tilab.entity.Cart;
 
 import java.util.List;
 
@@ -11,4 +10,5 @@ public interface CartService {
     CartResponse addToCart(AddToCartRequest request);
     List<CartResponse> getAllCart();
     List<CartResponse> getAllMyCart(String username);
+    void deleteCartById(String cartId);
 }
