@@ -9,10 +9,9 @@ import com.haocp.tilab.service.CouponService;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/coupons")
@@ -26,6 +25,20 @@ public class CouponController {
     public ApiResponse<CouponResponse> createCoupon(@RequestBody CreateCouponRequest request) {
         return ApiResponse.<CouponResponse>builder()
                 .data(couponService.createCoupon(request))
+                .build();
+    }
+
+    @GetMapping
+    public ApiResponse<List<CouponResponse>> getAllCoupon() {
+        return ApiResponse.<List<CouponResponse>>builder()
+                .data(couponService.getAllCoupon())
+                .build();
+    }
+
+    @GetMapping
+    public ApiResponse<List<CouponResponse>> getAllAvailableCoupon() {
+        return ApiResponse.<List<CouponResponse>>builder()
+                .data(couponService.getAllAvailableCoupon())
                 .build();
     }
 

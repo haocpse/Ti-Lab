@@ -36,7 +36,8 @@ public class SecurityConfig {
             "/api/login",
             "/api/register",
             "/swagger-ui/**",
-            "/v3/api-docs/**"
+            "/v3/api-docs/**",
+            "/api/enums/**"
     };
 
     @Bean

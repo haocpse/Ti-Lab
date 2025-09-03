@@ -1,5 +1,6 @@
 package com.haocp.tilab.entity;
 
+import com.haocp.tilab.enums.CouponStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -32,6 +33,9 @@ public class Coupon {
 
     @Column(nullable = false)
     double discount;
+
+    @Column(nullable = false)
+    CouponStatus status;
 
     @OneToMany(mappedBy = "coupon", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude

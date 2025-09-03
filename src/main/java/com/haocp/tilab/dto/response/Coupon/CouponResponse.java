@@ -1,5 +1,6 @@
 package com.haocp.tilab.dto.response.Coupon;
 
+import com.haocp.tilab.enums.CouponStatus;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -14,5 +15,6 @@ public class CouponResponse {
     String code;
     String description;
     double discount;
+    CouponStatus status;
 
 }
