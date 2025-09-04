@@ -2,6 +2,7 @@ package com.haocp.tilab.controller;
 
 import com.haocp.tilab.dto.ApiResponse;
 import com.haocp.tilab.dto.request.Coupon.CreateCouponRequest;
+import com.haocp.tilab.dto.request.Coupon.UpdateCouponRequest;
 import com.haocp.tilab.dto.request.Membership.CreateMembershipRequest;
 import com.haocp.tilab.dto.response.Coupon.CouponResponse;
 import com.haocp.tilab.dto.response.Membership.MembershipResponse;
@@ -40,6 +41,26 @@ public class CouponController {
         return ApiResponse.<List<CouponResponse>>builder()
                 .data(couponService.getAllAvailableCoupon())
                 .build();
+    }
+
+    @PutMapping
+    public ApiResponse<CouponResponse> getAllAvailableCoupon(@RequestBody UpdateCouponRequest request, @RequestParam Long id) {
+        return ApiResponse.<CouponResponse>builder()
+                .data(couponService.updateCoupon(request, id))
+                .build();
+    }
+
+    @GetMapping("{id}")
+    public ApiResponse<CouponResponse> getCoupon(@PathVariable Long id) {
+        return ApiResponse.<CouponResponse>builder()
+                .data(couponService.getCoupon(id))
+                .build();
+    }
+
+    @DeleteMapping
+    public ApiResponse<Void> deleteCoupon(@RequestParam Long id) {
+        couponService.deleteCoupon(id);
+        return ApiResponse.<Void>builder().build();
     }
 
 }

@@ -1,11 +1,14 @@
 package com.haocp.tilab.service.impl;
 
 import com.haocp.tilab.dto.request.Coupon.CreateCouponRequest;
+import com.haocp.tilab.dto.request.Coupon.UpdateCouponRequest;
 import com.haocp.tilab.dto.response.Coupon.CouponResponse;
 import com.haocp.tilab.entity.Coupon;
 import com.haocp.tilab.entity.CouponUsage;
 import com.haocp.tilab.entity.Customer;
 import com.haocp.tilab.enums.CouponStatus;
+import com.haocp.tilab.exception.AppException;
+import com.haocp.tilab.exception.ErrorCode;
 import com.haocp.tilab.mapper.CouponMapper;
 import com.haocp.tilab.repository.CouponRepository;
 import com.haocp.tilab.repository.CouponUsageRepository;
@@ -51,13 +54,26 @@ public class CouponServiceImpl implements CouponService {
     }
 
     @Override
-    public CouponResponse updateCoupon(Coupon coupon) {
-        return null;
+    @Transactional
+    public CouponResponse updateCoupon(UpdateCouponRequest request, Long id) {
+        Coupon coupon = couponRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.COUPON_NOT_EXIST));
+        coupon = couponRepository.save(couponMapper.updateToCoupon(request, coupon));
+        return couponMapper.toResponse(coupon);
     }
 
     @Override
-    public void deleteCoupon(Coupon coupon) {
+    public void deleteCoupon(Long id) {
+        Coupon coupon = couponRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.COUPON_NOT_EXIST));
+        couponRepository.delete(coupon);
+    }
 
+    @Override
+    public CouponResponse getCoupon(Long id) {
+        Coupon coupon = couponRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.COUPON_NOT_EXIST));
+        return couponMapper.toResponse(coupon);
     }
 
     @Override
