@@ -43,8 +43,8 @@ public class CouponController {
                 .build();
     }
 
-    @PutMapping
-    public ApiResponse<CouponResponse> getAllAvailableCoupon(@RequestBody UpdateCouponRequest request, @RequestParam Long id) {
+    @PutMapping("{id}")
+    public ApiResponse<CouponResponse> getAllAvailableCoupon(@RequestBody UpdateCouponRequest request, @PathVariable Long id) {
         return ApiResponse.<CouponResponse>builder()
                 .data(couponService.updateCoupon(request, id))
                 .build();
@@ -57,8 +57,8 @@ public class CouponController {
                 .build();
     }
 
-    @DeleteMapping
-    public ApiResponse<Void> deleteCoupon(@RequestParam Long id) {
+    @DeleteMapping("{id}")
+    public ApiResponse<Void> deleteCoupon(@PathVariable Long id) {
         couponService.deleteCoupon(id);
         return ApiResponse.<Void>builder().build();
     }

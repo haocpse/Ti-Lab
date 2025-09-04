@@ -3,6 +3,7 @@ package com.haocp.tilab.controller;
 import com.haocp.tilab.dto.ApiResponse;
 import com.haocp.tilab.dto.request.Bag.CreateBagRequest;
 import com.haocp.tilab.dto.request.Bag.SaveImageBagRequest;
+import com.haocp.tilab.dto.request.Bag.UpdateBagRequest;
 import com.haocp.tilab.dto.response.Bag.BagResponse;
 import com.haocp.tilab.service.BagService;
 import lombok.AccessLevel;
@@ -32,6 +33,35 @@ public class BagController {
     public ApiResponse<List<BagResponse>> getAllBag(){
         return ApiResponse.<List<BagResponse>>builder()
                 .data(bagService.getAllBag())
+                .build();
+    }
+
+    @GetMapping
+    public ApiResponse<List<BagResponse>> getAllAvailableBag(){
+        return ApiResponse.<List<BagResponse>>builder()
+                .data(bagService.getAllAvailableBag())
+                .build();
+    }
+
+    @DeleteMapping("{id}")
+    public ApiResponse<Void> deleteBag(@PathVariable String id){
+        bagService.deleteBag(id);
+        return ApiResponse.<Void>builder().build();
+    }
+
+    @GetMapping("{id}")
+    public ApiResponse<BagResponse> getBag(@PathVariable String id){
+        return ApiResponse.<BagResponse>builder()
+                .data(bagService.getBag(id))
+                .build();
+    }
+
+    @PutMapping("{id}")
+    public ApiResponse<BagResponse> updateBag(@PathVariable String id,
+                                              @RequestBody UpdateBagRequest request,
+                                              @RequestBody(required = false)SaveImageBagRequest imageBagRequest){
+        return ApiResponse.<BagResponse>builder()
+                .data(bagService.updateBag(id, request, imageBagRequest))
                 .build();
     }
 

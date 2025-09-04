@@ -23,7 +23,9 @@ public enum ErrorCode {
     ORDER_DETAIL_NOT_FOUND(404, "Order detail not found", HttpStatus.NOT_FOUND),
     NO_PAYMENT_SUITABLE(404, "There no payment is suitable", HttpStatus.NOT_FOUND),
     EXCEED_MAXIMUM_QUANTITY(400, "You can only buy up to %d items", HttpStatus.BAD_REQUEST),
-    FILE_IMAGE_NULL(400, "File image is null", HttpStatus.BAD_REQUEST),;
+    FILE_IMAGE_NULL(400, "File image is null", HttpStatus.BAD_REQUEST),
+    THERE_NO_MAIN_IMG(404, "There is no main image", HttpStatus.NOT_FOUND),
+    IMG_NOT_FOUND(404, "Image not found", HttpStatus.NOT_FOUND),;
 
     int code;
     String message;

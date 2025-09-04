@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BagImageRequest {
 
+    Long imgId;
     MultipartFile image;
     boolean main;
 

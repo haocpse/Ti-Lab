@@ -14,7 +14,6 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class SaveImageBagRequest {
 
-    String bagId;
     List<BagImageRequest> images;
 
 }

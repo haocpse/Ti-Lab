@@ -1,9 +1,8 @@
 package com.haocp.tilab.utils.listener;
 
 import com.haocp.tilab.service.BagImgService;
-import com.haocp.tilab.service.PaymentService;
 import com.haocp.tilab.utils.event.BagCreatedEvent;
-import com.haocp.tilab.utils.event.OrderCreatedEvent;
+import com.haocp.tilab.utils.event.BagUpdatedEvent;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.context.event.EventListener;
@@ -20,13 +19,13 @@ public class BagImgEventListener {
     }
 
     @EventListener
-    public void handleOrderCreatedEvent(BagCreatedEvent event) {
+    public void handleBagCreatedEvent(BagCreatedEvent event) {
         bagImgService.saveImage(event.getBag(), event.getRequest());
     }
 
-//    @EventListener
-//    public void handleOrderCreatedEvent(BagImgUpdatedEvent event) {
-//        bagImgService.saveImage(event.getBag(), event.getRequest());
-//    }
+    @EventListener
+    public void handleBagUpdatedEvent(BagUpdatedEvent event) {
+        bagImgService.updateImage(event.getBag(), event.getRequest());
+    }
 
 }

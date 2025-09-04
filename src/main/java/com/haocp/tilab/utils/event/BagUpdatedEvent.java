@@ -9,12 +9,12 @@ import org.springframework.context.ApplicationEvent;
 
 @Getter
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class BagCreatedEvent extends ApplicationEvent {
+public class BagUpdatedEvent extends ApplicationEvent {
 
     Bag bag;
     SaveImageBagRequest request;
 
-    public BagCreatedEvent(Object source, Bag bag, SaveImageBagRequest request) {
+    public BagUpdatedEvent(Object source, Bag bag, SaveImageBagRequest request) {
         super(source);
         this.bag = bag;
         this.request = request;
