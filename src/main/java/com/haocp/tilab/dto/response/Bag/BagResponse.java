@@ -5,6 +5,8 @@ import com.haocp.tilab.enums.BagType;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.List;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
@@ -22,5 +24,6 @@ public class BagResponse {
     double weight;
     BagType type;
     BagStatus status;
+    List<String> bagImages;
 
 }

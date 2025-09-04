@@ -30,3 +30,7 @@ server:
 
 jwt:
   signerKey: ${SIGNER_KEY}
+
+app:
+  image:
+    url: ${IMG_URL}

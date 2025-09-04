@@ -1,16 +1,20 @@
 package com.haocp.tilab.service.impl;
 
 import com.haocp.tilab.dto.request.Bag.CreateBagRequest;
+import com.haocp.tilab.dto.request.Bag.SaveImageBagRequest;
 import com.haocp.tilab.dto.response.Bag.BagResponse;
 import com.haocp.tilab.entity.Bag;
 import com.haocp.tilab.enums.BagStatus;
 import com.haocp.tilab.mapper.BagMapper;
 import com.haocp.tilab.repository.BagRepository;
+import com.haocp.tilab.service.BagImgService;
 import com.haocp.tilab.service.BagService;
+import com.haocp.tilab.utils.event.BagCreatedEvent;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,11 +29,15 @@ public class BagServiceImpl implements BagService {
     @Autowired
     BagRepository bagRepository;
     @Autowired
+    BagImgService bagImgService;
+    @Autowired
     BagMapper bagMapper;
+    @Autowired
+    ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     @Transactional
-    public BagResponse createBag(CreateBagRequest createBagRequest) {
+    public BagResponse createBag(CreateBagRequest createBagRequest, SaveImageBagRequest imageBagRequest) {
         BagStatus status = BagStatus.IN_STOCK;
         if (createBagRequest.getQuantity() <= 10){
             status = BagStatus.ALMOST_OOS;
@@ -38,12 +46,12 @@ public class BagServiceImpl implements BagService {
         }
         Bag bag = bagMapper.toBag(createBagRequest);
         bag.setStatus(status);
-        //bag.setImages();
         bag = bagRepository.save(bag);
-
         BagResponse bagResponse = bagMapper.toResponse(bag);
-        //bagResponse.setImage();
-
+        if (imageBagRequest != null) {
+            applicationEventPublisher.publishEvent(new BagCreatedEvent(this, bag, imageBagRequest));
+        }
+        bagResponse.setBagImages(bagImgService.fetchImage(bag));
         return bagResponse;
     }
 
@@ -53,7 +61,7 @@ public class BagServiceImpl implements BagService {
         List<BagResponse> bagResponses = new ArrayList<>();
         for(Bag bag : bags){
             BagResponse bagResponse = bagMapper.toResponse(bag);
-            //bagResponse.setImage();
+            bagResponse.setBagImages(bagImgService.fetchImage(bag));
             bagResponses.add(bagResponse);
         }
         return bagResponses;

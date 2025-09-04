@@ -22,7 +22,8 @@ public enum ErrorCode {
     COUPON_NOT_EXIST(404, "Coupon not exist", HttpStatus.NOT_FOUND),
     ORDER_DETAIL_NOT_FOUND(404, "Order detail not found", HttpStatus.NOT_FOUND),
     NO_PAYMENT_SUITABLE(404, "There no payment is suitable", HttpStatus.NOT_FOUND),
-    EXCEED_MAXIMUM_QUANTITY(400, "You can only buy up to %d items", HttpStatus.BAD_REQUEST),;
+    EXCEED_MAXIMUM_QUANTITY(400, "You can only buy up to %d items", HttpStatus.BAD_REQUEST),
+    FILE_IMAGE_NULL(400, "File image is null", HttpStatus.BAD_REQUEST),;
 
     int code;
     String message;

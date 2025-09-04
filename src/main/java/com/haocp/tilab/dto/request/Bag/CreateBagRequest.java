@@ -20,25 +20,18 @@ public class CreateBagRequest {
 
     @NotBlank
     String name;
-
     @NotBlank
     String description;
-
     @NotBlank
     String author;
-
     @Min(0)
     double price;
-
     @Min(0)
     int quantity;
-
     @Min(0)
     double length;
-
     @Min(0)
     double weight;
-
     @NotNull
     BagType type;
 
