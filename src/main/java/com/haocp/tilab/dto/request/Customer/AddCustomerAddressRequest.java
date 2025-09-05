@@ -1,6 +1,5 @@
-package com.haocp.tilab.dto.response.Customer;
+package com.haocp.tilab.dto.request.Customer;
 
-import jakarta.persistence.Column;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -9,12 +8,9 @@ import lombok.experimental.FieldDefaults;
 @Data
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CustomerAddressResponse {
+public class AddCustomerAddressRequest {
 
-    Long id;
-    String customerId;
     String address;
-    String city;
     boolean isDefaultShipping;
 
 }

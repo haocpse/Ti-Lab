@@ -1,6 +1,8 @@
 package com.haocp.tilab.repository;
 
 import com.haocp.tilab.entity.Cart;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -16,10 +18,10 @@ public interface CartRepository extends JpaRepository<Cart, String> {
 
     @EntityGraph(attributePaths = {"customer.user", "bag"})
     @Query("SELECT o FROM Cart o")
-    List<Cart> findAllWithDetails();
+    Page<Cart> findAllWithDetails(Pageable pageable);
 
     @EntityGraph(attributePaths = {"customer.user", "bag"})
     @Query("SELECT o FROM Cart o")
-    List<Cart> findAllByCustomer_IdWithDetails(String customerId);
+    Page<Cart> findAllByCustomer_IdWithDetails(String customerId, Pageable pageable);
 
 }

@@ -30,21 +30,19 @@ public class CouponController {
     }
 
     @GetMapping
-    public ApiResponse<List<CouponResponse>> getAllCoupon() {
+    public ApiResponse<List<CouponResponse>> getAllCoupon(@RequestParam(required = false) Boolean available) {
+        List<CouponResponse> responses;
+        if (available != null && available)
+            responses = couponService.getAllAvailableCoupon();
+        else
+            responses = couponService.getAllCoupon();
         return ApiResponse.<List<CouponResponse>>builder()
-                .data(couponService.getAllCoupon())
-                .build();
-    }
-
-    @GetMapping
-    public ApiResponse<List<CouponResponse>> getAllAvailableCoupon() {
-        return ApiResponse.<List<CouponResponse>>builder()
-                .data(couponService.getAllAvailableCoupon())
+                .data(responses)
                 .build();
     }
 
     @PutMapping("{id}")
-    public ApiResponse<CouponResponse> getAllAvailableCoupon(@RequestBody UpdateCouponRequest request, @PathVariable Long id) {
+    public ApiResponse<CouponResponse> getCoupon(@RequestBody UpdateCouponRequest request, @PathVariable Long id) {
         return ApiResponse.<CouponResponse>builder()
                 .data(couponService.updateCoupon(request, id))
                 .build();

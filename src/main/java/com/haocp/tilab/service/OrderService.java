@@ -4,13 +4,15 @@ import com.haocp.tilab.dto.request.Cart.AddToCartRequest;
 import com.haocp.tilab.dto.request.Order.CreateOrderRequest;
 import com.haocp.tilab.dto.response.Cart.CartResponse;
 import com.haocp.tilab.dto.response.Order.OrderResponse;
+import com.haocp.tilab.enums.OrderStatus;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
 public interface OrderService {
 
     OrderResponse createOrder(CreateOrderRequest request);
-    List<OrderResponse> getAllOrder();
-    List<OrderResponse> getAllMyOrder();
+    Page<OrderResponse> getAllOrder(int page, int size);
+    Page<OrderResponse> getAllMyOrder(OrderStatus status, int page, int size);
 
 }

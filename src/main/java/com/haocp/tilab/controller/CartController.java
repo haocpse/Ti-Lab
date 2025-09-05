@@ -7,6 +7,7 @@ import com.haocp.tilab.service.CartService;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,9 +28,10 @@ public class CartController {
     }
 
     @GetMapping
-    public ApiResponse<List<CartResponse>> getAllCart() {
-        return ApiResponse.<List<CartResponse>>builder()
-                .data(cartService.getAllCart())
+    public ApiResponse<Page<CartResponse>> getAllCart(@RequestParam(defaultValue = "0") int page,
+                                                      @RequestParam(defaultValue = "10") int size) {
+        return ApiResponse.<Page<CartResponse>>builder()
+                .data(cartService.getAllCart(page, size))
                 .build();
     }
 

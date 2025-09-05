@@ -9,6 +9,7 @@ import com.haocp.tilab.service.BagService;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,16 +31,16 @@ public class BagController {
     }
 
     @GetMapping
-    public ApiResponse<List<BagResponse>> getAllBag(){
-        return ApiResponse.<List<BagResponse>>builder()
-                .data(bagService.getAllBag())
-                .build();
-    }
-
-    @GetMapping
-    public ApiResponse<List<BagResponse>> getAllAvailableBag(){
-        return ApiResponse.<List<BagResponse>>builder()
-                .data(bagService.getAllAvailableBag())
+    public ApiResponse<Page<BagResponse>> getAllBag(@RequestParam(required = false) Boolean available,
+                                                    @RequestParam(defaultValue = "0") int page,
+                                                    @RequestParam(defaultValue = "10") int size){
+        Page<BagResponse> responses;
+        if (available != null && available)
+            responses = bagService.getAllAvailableBag(page, size);
+        else
+            responses = bagService.getAllBag(page, size);
+        return ApiResponse.<Page<BagResponse>>builder()
+                .data(responses)
                 .build();
     }
 

@@ -27,6 +27,9 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -113,27 +116,31 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderResponse> getAllOrder() {
-        List<Order> orders = orderRepository.findAllWithDetails();
+    public Page<OrderResponse> getAllOrder(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Order> orders = orderRepository.findAllWithDetails(pageable);
         return buildOrderResponses(orders);
     }
 
     @Override
-    public List<OrderResponse> getAllMyOrder() {
+    public Page<OrderResponse> getAllMyOrder(OrderStatus status, int page, int size) {
         Customer customer = IdentifyUser.getCurrentCustomer(customerRepository, userRepository);
-        List<Order> orders = orderRepository.findAllByCustomer_IdWithDetails(customer.getId());
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Order> orders;
+        if (status != null)
+            orders = orderRepository.findAllByCustomer_IdAndStatusWithDetails(customer.getId(), status, pageable);
+        else
+            orders = orderRepository.findAllByCustomer_IdWithDetails(customer.getId(), pageable);
         return buildOrderResponses(orders);
     }
 
-    List<OrderResponse> buildOrderResponses(List<Order> orders) {
-        List<OrderResponse> responses = new ArrayList<>();
-        for(Order order : orders){
+    Page<OrderResponse> buildOrderResponses(Page<Order> orders) {
+        return orders.map(order -> {
             OrderResponse response = orderMapper.toResponseWithoutCoupon(order);
             response.setOrderId(order.getId());
             response.setOrderDetailResponseList(buildOrderDetailResponses(order.getDetails()));
-            responses.add(response);
-        }
-        return responses;
+            return response;
+        });
     }
 
     List<OrderDetailResponse> buildOrderDetailResponses(Set<OrderDetail> orderDetails) {

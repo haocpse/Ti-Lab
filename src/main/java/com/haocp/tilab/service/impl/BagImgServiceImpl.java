@@ -78,7 +78,9 @@ public class BagImgServiceImpl implements BagImgService {
                 BagImg bagImg = save(file, imageName, main, bag);
                 bagImages.add(bagImg);
             } else {
-                update(file, imageName, main, bag);
+                BagImg img = bagImgRepository.findById(id)
+                        .orElseThrow(() -> new AppException(ErrorCode.IMG_NOT_FOUND));
+                update(file, imageName, main, bag, img);
             }
         }
         bag.setImages(bagImages);
@@ -132,7 +134,7 @@ public class BagImgServiceImpl implements BagImgService {
         }
     }
 
-    void update(MultipartFile file, String imageName, boolean main, Bag bag) {
+    void update(MultipartFile file, String imageName, boolean main, Bag bag, BagImg img) {
         Path uploadPath = builduploadPath(bag, imageName, main);
         try {
             if (!Files.exists(uploadPath)) {
@@ -140,6 +142,9 @@ public class BagImgServiceImpl implements BagImgService {
             }
             Path filePath = uploadPath.resolve(imageName);
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+            img.setUrl(imageName);
+            img.setMain(main);
+            bagImgRepository.save(img);
         } catch (IOException e) {
             throw new RuntimeException("Failed to store file " + file.getOriginalFilename(), e);
         }

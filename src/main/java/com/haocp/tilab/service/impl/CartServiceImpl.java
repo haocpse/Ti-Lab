@@ -18,6 +18,9 @@ import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -70,27 +73,27 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public List<CartResponse> getAllCart() {
-        List<Cart> carts = cartRepository.findAllWithDetails();
+    public Page<CartResponse> getAllCart(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Cart> carts = cartRepository.findAllWithDetails(pageable);
         return buildCartResponses(carts);
     }
 
     @Override
-    public List<CartResponse> getAllMyCart() {
+    public Page<CartResponse> getAllMyCart(int page, int size) {
         Customer customer = IdentifyUser.getCurrentCustomer(customerRepository, userRepository);
-        List<Cart> carts = cartRepository.findAllByCustomer_IdWithDetails(customer.getId());
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Cart> carts = cartRepository.findAllByCustomer_IdWithDetails(customer.getId(), pageable);
         return buildCartResponses(carts);
     }
 
-    List<CartResponse> buildCartResponses(List<Cart> carts) {
-        List<CartResponse> cartResponses = new ArrayList<>();
-        for (Cart cart : carts) {
+    Page<CartResponse> buildCartResponses(Page<Cart> carts) {
+        return carts.map(cart -> {
             CartResponse response = cartMapper.toResponse(cart);
             response.setBagResponse(bagMapper.toResponse(cart.getBag()));
             response.setUsername(cart.getCustomer().getUser().getUsername());
-            cartResponses.add(response);
-        }
-        return cartResponses;
+            return response;
+        });
     }
 
     @Override
