@@ -44,6 +44,7 @@ CREATE TABLE coupon
     code          VARCHAR(50)           NOT NULL,
     `description` VARCHAR(100)          NOT NULL,
     discount      DOUBLE                NOT NULL,
+    status        SMALLINT              NOT NULL,
     created_at    datetime              NOT NULL,
     updated_at    datetime              NOT NULL,
     CONSTRAINT pk_coupon PRIMARY KEY (id)
@@ -89,23 +90,6 @@ CREATE TABLE membership
     CONSTRAINT pk_membership PRIMARY KEY (id)
 );
 
-CREATE TABLE `order`
-(
-    id                  VARCHAR(255) NOT NULL,
-    number_of_bag       INT          NOT NULL,
-    sub_total           DOUBLE       NOT NULL,
-    fee_of_delivery     INT          NOT NULL,
-    total               DOUBLE       NOT NULL,
-    address_to_delivery VARCHAR(100) NOT NULL,
-    method              VARCHAR(255) NOT NULL,
-    status              VARCHAR(255) NOT NULL,
-    coupon_id           BIGINT       NULL,
-    customer_id         VARCHAR(255) NOT NULL,
-    created_at          datetime     NOT NULL,
-    updated_at          datetime     NOT NULL,
-    CONSTRAINT pk_order PRIMARY KEY (id)
-);
-
 CREATE TABLE order_detail
 (
     id          BIGINT AUTO_INCREMENT NOT NULL,
@@ -116,12 +100,29 @@ CREATE TABLE order_detail
     CONSTRAINT pk_order_detail PRIMARY KEY (id)
 );
 
+CREATE TABLE orders
+(
+    id                  VARCHAR(255) NOT NULL,
+    number_of_bag       INT          NOT NULL,
+    sub_total           DOUBLE       NOT NULL,
+    fee_of_delivery     INT          NOT NULL,
+    total               DOUBLE       NOT NULL,
+    address_to_delivery VARCHAR(100) NOT NULL,
+    status              VARCHAR(255) NOT NULL,
+    coupon_id           BIGINT       NULL,
+    customer_id         VARCHAR(255) NOT NULL,
+    created_at          datetime     NOT NULL,
+    updated_at          datetime     NOT NULL,
+    CONSTRAINT pk_orders PRIMARY KEY (id)
+);
+
 CREATE TABLE payment
 (
     id         VARCHAR(255) NOT NULL,
     order_id   VARCHAR(255) NOT NULL,
     total      DOUBLE       NOT NULL,
     status     VARCHAR(255) NOT NULL,
+    method     VARCHAR(255) NOT NULL,
     created_at datetime     NOT NULL,
     updated_at datetime     NOT NULL,
     CONSTRAINT pk_payment PRIMARY KEY (id)
@@ -156,11 +157,8 @@ CREATE TABLE user
 ALTER TABLE cart
     ADD CONSTRAINT uc_cart_bag UNIQUE (bag_id);
 
-ALTER TABLE `order`
-    ADD CONSTRAINT uc_order_coupon UNIQUE (coupon_id);
-
-ALTER TABLE order_detail
-    ADD CONSTRAINT uc_order_detail_bag UNIQUE (bag_id);
+ALTER TABLE orders
+    ADD CONSTRAINT uc_orders_coupon UNIQUE (coupon_id);
 
 ALTER TABLE payment
     ADD CONSTRAINT uc_payment_order UNIQUE (order_id);
@@ -195,20 +193,20 @@ ALTER TABLE customer
 ALTER TABLE customer
     ADD CONSTRAINT FK_CUSTOMER_ON_MEMBERSHIP FOREIGN KEY (membership_id) REFERENCES membership (id);
 
+ALTER TABLE orders
+    ADD CONSTRAINT FK_ORDERS_ON_COUPON FOREIGN KEY (coupon_id) REFERENCES coupon (id);
+
+ALTER TABLE orders
+    ADD CONSTRAINT FK_ORDERS_ON_CUSTOMER FOREIGN KEY (customer_id) REFERENCES customer (id);
+
 ALTER TABLE order_detail
     ADD CONSTRAINT FK_ORDER_DETAIL_ON_BAG FOREIGN KEY (bag_id) REFERENCES bag (id);
 
 ALTER TABLE order_detail
-    ADD CONSTRAINT FK_ORDER_DETAIL_ON_ORDER FOREIGN KEY (order_id) REFERENCES `order` (id);
-
-ALTER TABLE `order`
-    ADD CONSTRAINT FK_ORDER_ON_COUPON FOREIGN KEY (coupon_id) REFERENCES coupon (id);
-
-ALTER TABLE `order`
-    ADD CONSTRAINT FK_ORDER_ON_CUSTOMER FOREIGN KEY (customer_id) REFERENCES customer (id);
+    ADD CONSTRAINT FK_ORDER_DETAIL_ON_ORDER FOREIGN KEY (order_id) REFERENCES orders (id);
 
 ALTER TABLE payment
-    ADD CONSTRAINT FK_PAYMENT_ON_ORDER FOREIGN KEY (order_id) REFERENCES `order` (id);
+    ADD CONSTRAINT FK_PAYMENT_ON_ORDER FOREIGN KEY (order_id) REFERENCES orders (id);
 
 ALTER TABLE staff
     ADD CONSTRAINT FK_STAFF_ON_ID FOREIGN KEY (id) REFERENCES user (id);
