@@ -3,6 +3,7 @@ package com.haocp.tilab.service.impl;
 import com.haocp.tilab.dto.request.Bag.CreateBagRequest;
 import com.haocp.tilab.dto.request.Bag.SaveImageBagRequest;
 import com.haocp.tilab.dto.request.Bag.UpdateBagRequest;
+import com.haocp.tilab.dto.response.Bag.BagImgResponse;
 import com.haocp.tilab.dto.response.Bag.BagResponse;
 import com.haocp.tilab.entity.Bag;
 import com.haocp.tilab.enums.BagStatus;
@@ -51,6 +52,7 @@ public class BagServiceImpl implements BagService {
             if (createBagRequest.getQuantity() == 0)
                 status = BagStatus.OUT_OF_STOCK;
         }
+        log.info(createBagRequest.toString());
         Bag bag = bagMapper.toBag(createBagRequest);
         bag.setStatus(status);
         bag = bagRepository.save(bag);
@@ -63,6 +65,7 @@ public class BagServiceImpl implements BagService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<BagResponse> getAllBag(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Bag> bags = bagRepository.findAll(pageable);
@@ -70,6 +73,7 @@ public class BagServiceImpl implements BagService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<BagResponse> getAllAvailableBag(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Bag> bags = bagRepository.findAllByStatusNot(BagStatus.DELETED, pageable);
@@ -115,7 +119,9 @@ public class BagServiceImpl implements BagService {
 
     BagResponse buildBagResponse(Bag bag){
         BagResponse bagResponse = bagMapper.toResponse(bag);
-        bagResponse.setBagImages(List.of(bagImgService.fetchMainImage(bag)));
+        BagImgResponse response = bagImgService.fetchMainImage(bag);
+        if (response != null)
+            bagResponse.setBagImages(List.of(response));
         return bagResponse;
     }
 }

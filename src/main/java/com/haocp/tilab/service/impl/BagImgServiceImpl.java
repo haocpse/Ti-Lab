@@ -108,12 +108,15 @@ public class BagImgServiceImpl implements BagImgService {
 
     @Override
     public BagImgResponse fetchMainImage(Bag bag) {
-        BagImg img = bagImgRepository.findByBag_IdAndMainIsTrue(bag.getId())
-                .orElseThrow(() -> new AppException(ErrorCode.THERE_NO_MAIN_IMG));
-        return BagImgResponse.builder()
-                .id(img.getId())
-                .url(imageUrl + bag.getId() + "/main/" + img.getUrl())
-                .build();
+        if (bag.getImages() != null && !bag.getImages().isEmpty()){
+            BagImg img = bagImgRepository.findByBag_IdAndMainIsTrue(bag.getId())
+                    .orElseThrow(() -> new AppException(ErrorCode.THERE_NO_MAIN_IMG));
+            return BagImgResponse.builder()
+                    .id(img.getId())
+                    .url(imageUrl + bag.getId() + "/main/" + img.getUrl())
+                    .build();
+        }
+        return null;
     }
 
     BagImg save(MultipartFile file, String imageName, boolean main, Bag bag) {
