@@ -1,16 +1,20 @@
 package com.haocp.tilab.service.impl;
 
+import com.haocp.tilab.dto.request.Bag.ArtistBagResponse;
 import com.haocp.tilab.dto.request.Bag.CreateBagRequest;
 import com.haocp.tilab.dto.request.Bag.SaveImageBagRequest;
 import com.haocp.tilab.dto.request.Bag.UpdateBagRequest;
 import com.haocp.tilab.dto.response.Bag.BagImgResponse;
 import com.haocp.tilab.dto.response.Bag.BagResponse;
 import com.haocp.tilab.entity.Bag;
+import com.haocp.tilab.entity.Collection;
 import com.haocp.tilab.enums.BagStatus;
+import com.haocp.tilab.enums.BagType;
 import com.haocp.tilab.exception.AppException;
 import com.haocp.tilab.exception.ErrorCode;
 import com.haocp.tilab.mapper.BagMapper;
 import com.haocp.tilab.repository.BagRepository;
+import com.haocp.tilab.repository.CollectionRepository;
 import com.haocp.tilab.service.BagImgService;
 import com.haocp.tilab.service.BagService;
 import com.haocp.tilab.utils.event.BagCreatedEvent;
@@ -41,6 +45,8 @@ public class BagServiceImpl implements BagService {
     BagImgService bagImgService;
     @Autowired
     BagMapper bagMapper;
+    @Autowired
+    CollectionRepository collectionRepository;
     @Autowired
     ApplicationEventPublisher applicationEventPublisher;
 
@@ -79,6 +85,30 @@ public class BagServiceImpl implements BagService {
         Pageable pageable = PageRequest.of(page, size);
         Page<Bag> bags = bagRepository.findAllByStatusNot(BagStatus.DELETED, pageable);
         return bags.map(this::buildBagResponse);
+    }
+
+    @Override
+    public Page<BagResponse> getAllAvailableBagByType(BagType type, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Bag> bags = bagRepository.findAllByStatusNotAndType(BagStatus.DELETED, type, pageable);
+        return bags.map(this::buildBagResponse);
+    }
+
+    @Override
+    public Page<ArtistBagResponse> getAllArtistBag(int page, int size) {
+        PageRequest pageable = PageRequest.of(page, size);
+        Page<Collection> collections = collectionRepository.findAll(pageable);
+        return collections.map(collection -> {
+            PageRequest pageableBag = PageRequest.of(0, 4);
+            List<BagResponse> bags = bagRepository.findByCollection_Id(collection.getId(), pageableBag)
+                    .stream()
+                    .map(this::buildBagResponse)
+                    .toList();
+            return ArtistBagResponse.builder()
+                    .name(collection.getName())
+                    .bags(bags)
+                    .build();
+        });
     }
 
     @Override

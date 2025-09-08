@@ -107,7 +107,8 @@ public class OrderServiceImpl implements OrderService {
             orderDetail.setOrder(order);
             orderDetail.setBag(bag);
             orderDetailRepository.save(orderDetail);
-            cartService.deleteCartById(request.getCartId());
+            if(!request.getCartId().isEmpty())
+                cartService.deleteCartById(request.getCartId());
             OrderDetailResponse response = orderDetailMapper.toResponse(orderDetail);
             response.setBagResponse(bagMapper.toResponse(bag));
             responses.add(response);

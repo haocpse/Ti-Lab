@@ -26,7 +26,8 @@ public enum ErrorCode {
     FILE_IMAGE_NULL(400, "File image is null", HttpStatus.BAD_REQUEST),
     THERE_NO_MAIN_IMG(404, "There is no main image", HttpStatus.NOT_FOUND),
     IMG_NOT_FOUND(404, "Image not found", HttpStatus.NOT_FOUND),
-    IMG_NOT_HAVE_NAME(400, "Image doesn't have name", HttpStatus.BAD_REQUEST),;
+    IMG_NOT_HAVE_NAME(400, "Image doesn't have name", HttpStatus.BAD_REQUEST),
+    PAYMENT_NOT_FOUND(404, "Payment not found", HttpStatus.NOT_FOUND),;
 
     int code;
     String message;

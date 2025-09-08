@@ -1,10 +1,12 @@
 package com.haocp.tilab.controller;
 
 import com.haocp.tilab.dto.ApiResponse;
+import com.haocp.tilab.dto.request.Bag.ArtistBagResponse;
 import com.haocp.tilab.dto.request.Bag.CreateBagRequest;
 import com.haocp.tilab.dto.request.Bag.SaveImageBagRequest;
 import com.haocp.tilab.dto.request.Bag.UpdateBagRequest;
 import com.haocp.tilab.dto.response.Bag.BagResponse;
+import com.haocp.tilab.enums.BagType;
 import com.haocp.tilab.service.BagService;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
@@ -17,7 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/bags")
+@RequestMapping("/api/bags/")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BagController {
 
@@ -43,6 +45,28 @@ public class BagController {
             responses = bagService.getAllBag(page, size);
         return ApiResponse.<Page<BagResponse>>builder()
                 .data(responses)
+                .build();
+    }
+
+    @GetMapping("core")
+    public ApiResponse<Page<BagResponse>> getAllCoreBag(@RequestParam(required = false) Boolean available,
+                                                    @RequestParam(defaultValue = "0") int page,
+                                                    @RequestParam(defaultValue = "12") int size){
+        Page<BagResponse> responses;
+        if (available != null && available)
+            responses = bagService.getAllAvailableBagByType(BagType.CORE_COLLECTION, page, size);
+        else
+            responses = bagService.getAllBag(page, size);
+        return ApiResponse.<Page<BagResponse>>builder()
+                .data(responses)
+                .build();
+    }
+
+    @GetMapping("artist")
+    public ApiResponse<Page<ArtistBagResponse>> getAllArtistBag(@RequestParam(defaultValue = "0") int page,
+                                                                @RequestParam(defaultValue = "3") int size){
+        return ApiResponse.<Page<ArtistBagResponse>>builder()
+                .data(bagService.getAllArtistBag(page, size))
                 .build();
     }
 

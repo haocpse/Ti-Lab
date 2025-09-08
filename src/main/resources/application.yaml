@@ -41,3 +41,4 @@ app:
   admin:
     username: ${USERNAME_ADMIN}
     password: ${PASSWORD_ADMIN}
+  qr: ${QR_PAYMENT}

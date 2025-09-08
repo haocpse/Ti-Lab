@@ -16,46 +16,33 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/users/")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserController {
 
     @Autowired
     UserService userService;
 
-    @GetMapping("/users")
+    @GetMapping
     public ApiResponse<List<UserResponse>> getAllUser(){
         return ApiResponse.<List<UserResponse>>builder()
                 .data(userService.getAllUsers())
                 .build();
     }
 
-    @GetMapping("/users/{id}")
+    @GetMapping("{id}")
     public ApiResponse<UserResponse> getUserById(@PathVariable("id") String id){
         return ApiResponse.<UserResponse>builder()
                 .data(userService.getUserById(id))
                 .build();
     }
 
-    @PostMapping("/users")
+    @PostMapping
     public ApiResponse<UserResponse> createUser(@RequestBody CreateUserRequest request){
         return ApiResponse.<UserResponse>builder()
                 .data(userService.createUser(request))
                 .build();
     }
 
-    @PostMapping("/register")
-    public ApiResponse<LoginResponse> register(@RequestBody RegisterRequest registerRequest) {
-        return ApiResponse.<LoginResponse>builder()
-                .data(userService.register(registerRequest))
-                .build();
-    }
-
-    @PostMapping("/login")
-    public ApiResponse<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
-        return ApiResponse.<LoginResponse>builder()
-                .data(userService.login(loginRequest))
-                .build();
-    }
 
 }

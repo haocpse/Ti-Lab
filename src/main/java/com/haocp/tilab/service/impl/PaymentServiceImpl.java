@@ -1,6 +1,7 @@
 package com.haocp.tilab.service.impl;
 
 import com.haocp.tilab.dto.response.Payment.PaymentResponse;
+import com.haocp.tilab.dto.response.Payment.QRPaymentResponse;
 import com.haocp.tilab.entity.Order;
 import com.haocp.tilab.entity.Payment;
 import com.haocp.tilab.enums.PayMethod;
@@ -14,6 +15,7 @@ import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -25,18 +27,32 @@ public class PaymentServiceImpl implements PaymentService {
     PaymentRepository paymentRepository;
     @Autowired
     PaymentMapper paymentMapper;
+    @Value("${app.qr}")
+    String urlQR;
 
     @Override
     public void createPayment(Order order, PayMethod method) {
         PaymentStatus status = PaymentStatus.UNPAID;
-        if(method.equals(PayMethod.CARD))
+        if (method.equals(PayMethod.CARD)) {
             status = PaymentStatus.PROCESSING;
-        paymentRepository.save(Payment.builder()
-                        .total(order.getTotal())
-                        .order(order)
-                        .method(method)
-                        .status(status)
-                .build());
+            paymentRepository.save(Payment.builder()
+                    .total(order.getTotal())
+                    .order(order)
+                    .method(method)
+                    .status(status)
+                    .build());
+        }
+    }
+
+    @Override
+    public QRPaymentResponse createQR(double amount, String paymentId) {
+        Payment payment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new AppException(ErrorCode.PAYMENT_NOT_FOUND));
+        urlQR = urlQR.replace("-amount-", String.format("%.2f", amount));
+        urlQR = urlQR.replace("payment-", paymentId);
+        return QRPaymentResponse.builder()
+                .urlQR(urlQR)
+                .build();
     }
 
     @Override

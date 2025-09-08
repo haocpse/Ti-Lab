@@ -120,6 +120,7 @@ public class BagImgServiceImpl implements BagImgService {
     }
 
     BagImg save(MultipartFile file, String imageName, boolean main, Bag bag) {
+        imageName = imageName.replace(" ", "-");
         Path uploadPath = builduploadPath(bag, imageName, main);
         try {
             if (!Files.exists(uploadPath)) {

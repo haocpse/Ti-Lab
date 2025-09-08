@@ -37,13 +37,16 @@ public class SecurityConfig {
             "/api/register",
             "/swagger-ui/**",
             "/v3/api-docs/**",
-            "/api/enums/**"
+            "/api/enums/**",
+            "/api/payments/confirm"
     };
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(request -> request
                 .requestMatchers(HttpMethod.GET, "/api/bags").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/bags/core").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/bags/artist").permitAll()
                 .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
                 .anyRequest().authenticated());
 
