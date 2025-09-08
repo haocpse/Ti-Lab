@@ -42,14 +42,14 @@ public class BagImgServiceImpl implements BagImgService {
     String imageUrl;
 
     @Override
-    public void saveImage(Bag bag, SaveImageBagRequest request) {
-        List<BagImageRequest> images = request.getImages();
+    public void saveImage(Bag bag, List<MultipartFile> imageBags) {
         Set<BagImg> bagImages = new HashSet<>();
-        for (BagImageRequest image : images) {
-            MultipartFile file = image.getImage();
-            boolean main = image.isMain();
-            String imageName = file.getOriginalFilename();
-            BagImg bagImg = save(file, imageName, main, bag);
+        for (MultipartFile image : imageBags) {
+            String imageName = image.getOriginalFilename();
+            if(imageName == null)
+                throw new AppException(ErrorCode.IMG_NOT_HAVE_NAME);
+            boolean main = imageName.contains("_main_");
+            BagImg bagImg = save(image, imageName, main, bag);
             bagImages.add(bagImg);
         }
         bag.setImages(bagImages);
@@ -120,6 +120,7 @@ public class BagImgServiceImpl implements BagImgService {
     }
 
     BagImg save(MultipartFile file, String imageName, boolean main, Bag bag) {
+        imageName = imageName.replace(" ", "-");
         Path uploadPath = builduploadPath(bag, imageName, main);
         try {
             if (!Files.exists(uploadPath)) {

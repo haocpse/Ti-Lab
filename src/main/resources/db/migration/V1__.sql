@@ -10,6 +10,7 @@ CREATE TABLE bag
     length        DOUBLE       NOT NULL,
     weight        DOUBLE       NOT NULL,
     type          VARCHAR(255) NOT NULL,
+    collection_id BIGINT       NOT NULL,
     created_at    datetime     NOT NULL,
     updated_at    datetime     NOT NULL,
     CONSTRAINT pk_bag PRIMARY KEY (id)
@@ -36,6 +37,17 @@ CREATE TABLE cart
     created_at  datetime     NOT NULL,
     updated_at  datetime     NOT NULL,
     CONSTRAINT pk_cart PRIMARY KEY (id)
+);
+
+CREATE TABLE collection
+(
+    id         BIGINT AUTO_INCREMENT NOT NULL,
+    name       VARCHAR(100)          NOT NULL,
+    thumbnail  VARCHAR(255)          NULL,
+    status     VARCHAR(255)          NOT NULL,
+    created_at datetime              NOT NULL,
+    updated_at datetime              NOT NULL,
+    CONSTRAINT pk_collection PRIMARY KEY (id)
 );
 
 CREATE TABLE coupon
@@ -128,6 +140,22 @@ CREATE TABLE payment
     CONSTRAINT pk_payment PRIMARY KEY (id)
 );
 
+CREATE TABLE pre_order
+(
+    id          BIGINT AUTO_INCREMENT NOT NULL,
+    code_report VARCHAR(50)           NOT NULL,
+    CONSTRAINT pk_pre_order PRIMARY KEY (id)
+);
+
+CREATE TABLE pre_order_detail
+(
+    id           BIGINT AUTO_INCREMENT NOT NULL,
+    bag_id       VARCHAR(255)          NULL,
+    quantity     INT                   NOT NULL,
+    pre_order_id BIGINT                NOT NULL,
+    CONSTRAINT pk_pre_order_detail PRIMARY KEY (id)
+);
+
 CREATE TABLE staff
 (
     id             VARCHAR(255) NOT NULL,
@@ -163,6 +191,9 @@ ALTER TABLE orders
 ALTER TABLE payment
     ADD CONSTRAINT uc_payment_order UNIQUE (order_id);
 
+ALTER TABLE pre_order_detail
+    ADD CONSTRAINT uc_pre_order_detail_bag UNIQUE (bag_id);
+
 ALTER TABLE user
     ADD CONSTRAINT uc_user_email UNIQUE (email);
 
@@ -171,6 +202,9 @@ ALTER TABLE user
 
 ALTER TABLE bag_img
     ADD CONSTRAINT FK_BAG_IMG_ON_BAG FOREIGN KEY (bag_id) REFERENCES bag (id);
+
+ALTER TABLE bag
+    ADD CONSTRAINT FK_BAG_ON_COLLECTION FOREIGN KEY (collection_id) REFERENCES collection (id);
 
 ALTER TABLE cart
     ADD CONSTRAINT FK_CART_ON_BAG FOREIGN KEY (bag_id) REFERENCES bag (id);
@@ -207,6 +241,12 @@ ALTER TABLE order_detail
 
 ALTER TABLE payment
     ADD CONSTRAINT FK_PAYMENT_ON_ORDER FOREIGN KEY (order_id) REFERENCES orders (id);
+
+ALTER TABLE pre_order_detail
+    ADD CONSTRAINT FK_PRE_ORDER_DETAIL_ON_BAG FOREIGN KEY (bag_id) REFERENCES bag (id);
+
+ALTER TABLE pre_order_detail
+    ADD CONSTRAINT FK_PRE_ORDER_DETAIL_ON_PRE_ORDER FOREIGN KEY (pre_order_id) REFERENCES pre_order (id);
 
 ALTER TABLE staff
     ADD CONSTRAINT FK_STAFF_ON_ID FOREIGN KEY (id) REFERENCES user (id);

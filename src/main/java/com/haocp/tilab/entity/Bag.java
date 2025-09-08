@@ -63,6 +63,11 @@ public class Bag {
     @ToString.Exclude
     Set<OrderDetail> orderDetails = new HashSet<>();
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "collection_id", nullable = false)
+    @ToString.Exclude
+    Collection collection;
+
     @Column(nullable = false, updatable = false)
     @CreationTimestamp
     Instant createdAt;
