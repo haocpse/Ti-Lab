@@ -71,4 +71,11 @@ public class CustomerController {
                 .build();
     }
 
+    @GetMapping("/me/addresses")
+    public ApiResponse<List<CustomerAddressResponse>> getCustomerAddress() {
+        return ApiResponse.<List<CustomerAddressResponse>>builder()
+                .data(customerService.getAllAddress())
+                .build();
+    }
+
 }

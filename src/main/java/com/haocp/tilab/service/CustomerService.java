@@ -13,4 +13,5 @@ public interface CustomerService {
     List<CustomerResponse> getAllCustomer();
     CustomerResponse getCustomerById(String id);
     CustomerAddressResponse addCustomerAddress(AddCustomerAddressRequest addCustomerAddressRequest);
+    List<CustomerAddressResponse> getAllAddress();
 }

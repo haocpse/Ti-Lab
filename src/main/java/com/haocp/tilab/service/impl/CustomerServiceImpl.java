@@ -52,4 +52,13 @@ public class CustomerServiceImpl implements CustomerService {
         address.setCustomer(customer);
         return customerMapper.customerToCustomerAddressResponse(customerAddressRepository.save(address));
     }
+
+    @Override
+    public List<CustomerAddressResponse> getAllAddress() {
+        Customer customer = IdentifyUser.getCurrentCustomer(customerRepository, userRepository);
+        List<CustomerAddress> addresses = customerAddressRepository.findByCustomer_Id(customer.getId());
+        return addresses.stream()
+                .map(address -> customerMapper.customerToCustomerAddressResponse(address))
+                .toList();
+    }
 }

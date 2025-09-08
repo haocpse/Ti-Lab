@@ -7,6 +7,7 @@ import com.haocp.tilab.enums.UserRole;
 import com.haocp.tilab.repository.StaffRepository;
 import com.haocp.tilab.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,6 +19,10 @@ public class ApplicationConfig {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Value("${app.admin.username}")
+    private String username;
+    @Value("${app.admin.password}")
+    private String password;
 
     @Bean
     ApplicationRunner applicationRunner(StaffRepository staffRepository) {
@@ -26,8 +31,8 @@ public class ApplicationConfig {
                 Staff staff = Staff.builder()
                         .user(User.builder()
                                 .email("admin@gmail.com")
-                                .username("admin")
-                                .password(passwordEncoder.encode("admin"))
+                                .username(username)
+                                .password(passwordEncoder.encode(password))
                                 .role(UserRole.STAFF)
                                 .active(true)
                                 .build())
