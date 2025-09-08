@@ -5,6 +5,8 @@ import com.haocp.tilab.enums.BagType;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.List;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
@@ -20,5 +22,6 @@ public class UpdateBagRequest {
     double length;
     double weight;
     BagType type;
+    List<Long> removeIds;
 
 }

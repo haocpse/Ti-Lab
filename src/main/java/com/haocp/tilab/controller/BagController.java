@@ -85,10 +85,10 @@ public class BagController {
 
     @PutMapping("{id}")
     public ApiResponse<BagResponse> updateBag(@PathVariable String id,
-                                              @RequestBody UpdateBagRequest request,
-                                              @RequestBody(required = false)SaveImageBagRequest imageBagRequest){
+                                              @RequestPart("bags") UpdateBagRequest request,
+                                              @RequestPart(value = "imageBagRequest", required = false)List<MultipartFile> imageBags){
         return ApiResponse.<BagResponse>builder()
-                .data(bagService.updateBag(id, request, imageBagRequest))
+                .data(bagService.updateBag(id, request, imageBags))
                 .build();
     }
 

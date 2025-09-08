@@ -42,15 +42,11 @@ public class BagImgServiceImpl implements BagImgService {
     String imageUrl;
 
     @Override
+    @Transactional
     public void saveImage(Bag bag, List<MultipartFile> imageBags) {
         Set<BagImg> bagImages = new HashSet<>();
         for (MultipartFile image : imageBags) {
-            String imageName = image.getOriginalFilename();
-            if(imageName == null)
-                throw new AppException(ErrorCode.IMG_NOT_HAVE_NAME);
-            boolean main = imageName.contains("_main_");
-            BagImg bagImg = save(image, imageName, main, bag);
-            bagImages.add(bagImg);
+            bagImages.add(saveBagImg(image, bag));
         }
         bag.setImages(bagImages);
         bagRepository.save(bag);
@@ -58,33 +54,27 @@ public class BagImgServiceImpl implements BagImgService {
 
     @Override
     @Transactional
-    public void updateImage(Bag bag, SaveImageBagRequest request) {
-        List<BagImageRequest> images = request.getImages();
+    public void updateImage(Bag bag, List<MultipartFile> imageBags, List<Long> removeIds) {
         Set<BagImg> bagImages = bagImgRepository.findByBag_Id(bag.getId());
-        List<Long> ids = bagImages.stream()
-                .map(BagImg::getId)
-                .toList();
-        for (Long id : ids) {
+        for (Long id : removeIds) {
             BagImg img = getBagImg(id);
             bagImages.remove(img);
             deleteBagImg(img);
         }
-        for (BagImageRequest image : images) {
-            Long id = image.getImgId();
-            MultipartFile file = image.getImage();
-            boolean main = image.isMain();
-            String imageName = file.getOriginalFilename();
-            if (id == null){
-                BagImg bagImg = save(file, imageName, main, bag);
-                bagImages.add(bagImg);
-            } else {
-                BagImg img = bagImgRepository.findById(id)
-                        .orElseThrow(() -> new AppException(ErrorCode.IMG_NOT_FOUND));
-                update(file, imageName, main, bag, img);
-            }
+        for (MultipartFile image : imageBags) {
+            bagImages.add(saveBagImg(image, bag));
         }
         bag.setImages(bagImages);
         bagRepository.save(bag);
+    }
+
+    @Transactional
+    BagImg saveBagImg(MultipartFile image, Bag bag){
+        String imageName = image.getOriginalFilename();
+        if (imageName == null || imageName.trim().isEmpty())
+            throw new AppException(ErrorCode.IMG_NOT_HAVE_NAME);
+        boolean main = imageName.contains("_main_");
+        return save(image, imageName, main, bag);
     }
 
     @Override
