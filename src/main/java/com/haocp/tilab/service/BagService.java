@@ -21,5 +21,5 @@ public interface BagService {
     Page<ArtistBagResponse> getAllArtistBag(int page, int size);
     BagResponse getBag(String id);
     void deleteBag(String id);
-    BagResponse updateBag(String id, UpdateBagRequest updateBagRequest, SaveImageBagRequest imageBagRequest);
+    BagResponse updateBag(String id, UpdateBagRequest updateBagRequest, List<MultipartFile> imageBags);
 }

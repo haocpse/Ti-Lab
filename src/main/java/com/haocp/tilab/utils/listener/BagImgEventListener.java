@@ -25,7 +25,7 @@ public class BagImgEventListener {
 
     @EventListener
     public void handleBagUpdatedEvent(BagUpdatedEvent event) {
-        bagImgService.updateImage(event.getBag(), event.getRequest());
+        bagImgService.updateImage(event.getBag(), event.getImages(), event.getRemoveIds());
     }
 
 }

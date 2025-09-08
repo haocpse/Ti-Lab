@@ -10,7 +10,7 @@ import java.util.List;
 public interface BagImgService {
 
     void saveImage(Bag bag, List<MultipartFile> imageBags);
-    void updateImage(Bag bag, SaveImageBagRequest request);
+    void updateImage(Bag bag, List<MultipartFile> imageBags, List<Long> removeIds);
     List<BagImgResponse> fetchImage(Bag bag);
     BagImgResponse fetchMainImage(Bag bag);
 }

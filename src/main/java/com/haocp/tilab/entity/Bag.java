@@ -64,7 +64,7 @@ public class Bag {
     Set<OrderDetail> orderDetails = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "collection_id", nullable = false)
+    @JoinColumn(name = "collection_id")
     @ToString.Exclude
     Collection collection;
 

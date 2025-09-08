@@ -130,7 +130,7 @@ public class BagServiceImpl implements BagService {
 
     @Override
     @Transactional
-    public BagResponse updateBag(String id, UpdateBagRequest updateBagRequest, SaveImageBagRequest imageBagRequest) {
+    public BagResponse updateBag(String id, UpdateBagRequest updateBagRequest, List<MultipartFile> imageBags) {
         Bag bag = bagRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.BAG_NOT_FOUND));
         bag = bagMapper.updateToBag(updateBagRequest, bag);
@@ -142,8 +142,8 @@ public class BagServiceImpl implements BagService {
             bag.setStatus(BagStatus.IN_STOCK);
         }
         BagResponse response = buildBagResponse(bagRepository.save(bag));
-        if (imageBagRequest != null) {
-            applicationEventPublisher.publishEvent(new BagUpdatedEvent(this, bag, imageBagRequest));
+        if (imageBags != null) {
+            applicationEventPublisher.publishEvent(new BagUpdatedEvent(this, bag, imageBags, updateBagRequest.getRemoveIds()));
         }
         return response ;
     }
