@@ -95,6 +95,7 @@ public class BagServiceImpl implements BagService {
     }
 
     @Override
+    @Transactional
     public Page<ArtistBagResponse> getAllArtistBag(int page, int size) {
         PageRequest pageable = PageRequest.of(page, size);
         Page<Collection> collections = collectionRepository.findAll(pageable);
