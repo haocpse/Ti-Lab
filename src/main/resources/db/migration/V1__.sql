@@ -10,7 +10,7 @@ CREATE TABLE bag
     length        DOUBLE       NOT NULL,
     weight        DOUBLE       NOT NULL,
     type          VARCHAR(255) NOT NULL,
-    collection_id BIGINT       NOT NULL,
+    collection_id BIGINT       NULL,
     created_at    datetime     NOT NULL,
     updated_at    datetime     NOT NULL,
     CONSTRAINT pk_bag PRIMARY KEY (id)
