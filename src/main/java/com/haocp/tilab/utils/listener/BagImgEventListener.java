@@ -20,7 +20,7 @@ public class BagImgEventListener {
 
     @EventListener
     public void handleBagCreatedEvent(BagCreatedEvent event) {
-        bagImgService.saveImage(event.getBag(), event.getRequest());
+        bagImgService.saveImage(event.getBag(), event.getImageBags());
     }
 
     @EventListener

@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -25,9 +26,9 @@ public class BagController {
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<BagResponse> createBag(@RequestPart("bags") CreateBagRequest request,
-                                              @RequestPart(value = "imageBagRequest", required = false)SaveImageBagRequest imageBagRequest){
+                                              @RequestPart(value = "imageBagRequest", required = false)List<MultipartFile> imageBags){
         return ApiResponse.<BagResponse>builder()
-                .data(bagService.createBag(request, imageBagRequest))
+                .data(bagService.createBag(request, imageBags))
                 .build();
     }
 

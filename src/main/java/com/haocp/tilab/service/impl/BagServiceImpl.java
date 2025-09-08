@@ -25,6 +25,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +46,7 @@ public class BagServiceImpl implements BagService {
 
     @Override
     @Transactional
-    public BagResponse createBag(CreateBagRequest createBagRequest, SaveImageBagRequest imageBagRequest) {
+    public BagResponse createBag(CreateBagRequest createBagRequest, List<MultipartFile> imageBags) {
         BagStatus status = BagStatus.IN_STOCK;
         if (createBagRequest.getQuantity() <= 10){
             status = BagStatus.ALMOST_OOS;
@@ -57,8 +58,8 @@ public class BagServiceImpl implements BagService {
         bag.setStatus(status);
         bag = bagRepository.save(bag);
         BagResponse bagResponse = bagMapper.toResponse(bag);
-        if (imageBagRequest != null) {
-            applicationEventPublisher.publishEvent(new BagCreatedEvent(this, bag, imageBagRequest));
+        if (imageBags != null) {
+            applicationEventPublisher.publishEvent(new BagCreatedEvent(this, bag, imageBags));
         }
         bagResponse.setBagImages(bagImgService.fetchImage(bag));
         return bagResponse;

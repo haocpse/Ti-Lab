@@ -42,7 +42,7 @@ public class CouponController {
     }
 
     @PutMapping("{id}")
-    public ApiResponse<CouponResponse> getCoupon(@RequestBody UpdateCouponRequest request, @PathVariable Long id) {
+    public ApiResponse<CouponResponse> updateCoupon(@RequestBody UpdateCouponRequest request, @PathVariable Long id) {
         return ApiResponse.<CouponResponse>builder()
                 .data(couponService.updateCoupon(request, id))
                 .build();

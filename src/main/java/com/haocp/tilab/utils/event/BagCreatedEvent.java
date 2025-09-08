@@ -6,18 +6,21 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.FieldDefaults;
 import org.springframework.context.ApplicationEvent;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Getter
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class BagCreatedEvent extends ApplicationEvent {
 
     Bag bag;
-    SaveImageBagRequest request;
+    List<MultipartFile> imageBags;
 
-    public BagCreatedEvent(Object source, Bag bag, SaveImageBagRequest request) {
+    public BagCreatedEvent(Object source, Bag bag, List<MultipartFile> imageBags) {
         super(source);
         this.bag = bag;
-        this.request = request;
+        this.imageBags = imageBags;
     }
 
 }
