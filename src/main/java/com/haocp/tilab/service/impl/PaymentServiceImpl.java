@@ -35,18 +35,18 @@ public class PaymentServiceImpl implements PaymentService {
         PaymentStatus status = PaymentStatus.UNPAID;
         if (method.equals(PayMethod.CARD)) {
             status = PaymentStatus.PROCESSING;
-            paymentRepository.save(Payment.builder()
-                    .total(order.getTotal())
-                    .order(order)
-                    .method(method)
-                    .status(status)
-                    .build());
         }
+        paymentRepository.save(Payment.builder()
+                .total(order.getTotal())
+                .order(order)
+                .status(status)
+                .method(method)
+                .build());
     }
 
     @Override
     public QRPaymentResponse createQR(double amount, String paymentId) {
-        Payment payment = paymentRepository.findById(paymentId)
+        paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new AppException(ErrorCode.PAYMENT_NOT_FOUND));
         urlQR = urlQR.replace("-amount-", String.format("%.2f", amount));
         urlQR = urlQR.replace("payment-", paymentId);

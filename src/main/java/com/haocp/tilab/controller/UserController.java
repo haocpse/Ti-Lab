@@ -20,31 +20,5 @@ import java.util.List;
 @RequestMapping("/api/users/")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserController {
-
-    @Autowired
-    UserService userService;
-
-    @GetMapping
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public ApiResponse<List<UserResponse>> getAllUser(){
-        return ApiResponse.<List<UserResponse>>builder()
-                .data(userService.getAllUsers())
-                .build();
-    }
-
-    @PostMapping
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public ApiResponse<UserResponse> createUser(@RequestBody CreateUserRequest request){
-        return ApiResponse.<UserResponse>builder()
-                .data(userService.createUser(request))
-                .build();
-    }
-
-    @GetMapping("{id}")
-    public ApiResponse<UserResponse> getUserById(@PathVariable("id") String id){
-        return ApiResponse.<UserResponse>builder()
-                .data(userService.getUserById(id))
-                .build();
-    }
-
+    
 }

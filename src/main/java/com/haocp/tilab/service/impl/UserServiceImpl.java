@@ -41,90 +41,16 @@ public class UserServiceImpl implements UserService {
     @Autowired
     UserRepository userRepository;
     @Autowired
-    CustomerRepository customerRepository;
-    @Autowired
-    StaffRepository staffRepository;
-    @Autowired
     PasswordEncoder passwordEncoder;
-    @Value("${jwt.signerKey}")
-    String SIGNER_KEY;
-    @Autowired
-    MembershipRepository membershipRepository;
     @Autowired
     UserMapper userMapper;
 
     @Override
-    @Transactional
-    public LoginResponse register(RegisterRequest registerRequest) {
-        User user = userMapper.toUser(registerRequest);
-        user.setPassword(passwordEncoder.encode(registerRequest.getRawPassword()));
-        user.setRole(UserRole.CUSTOMER);
+    public User createUser(CreateUserRequest request) {
+        User user = userMapper.toUser(request);
+        user.setPassword(passwordEncoder.encode(request.getRawPassword()));
         user.setActive(true);
-        Customer customer = customerRepository.save(Customer.builder()
-                        .user(user)
-                        .firstName(registerRequest.getFirstName())
-                        .lastName(registerRequest.getLastName())
-                        .membership(membershipRepository.findByMin(0)
-                                .orElseThrow(() -> new AppException(ErrorCode.THERE_NO_MEMBERSHIP)))
-                .build());
-        return LoginResponse.builder()
-                .accessToken(generateToken(customer.getUser()))
-                .build();
+        return userRepository.save(user);
     }
 
-    @Override
-    public LoginResponse login(LoginRequest loginRequest) {
-        User user = userRepository.findByUsername(loginRequest.getUsername())
-                .orElseThrow(() -> new AppException(ErrorCode.USERNAME_INCORRECT));
-        if(!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-            throw new AppException(ErrorCode.PASSWORD_INCORRECT);
-        }
-        if(!user.isActive()){
-            throw new AppException(ErrorCode.ACCOUNT_BANNED);
-        }
-        return LoginResponse.builder()
-                .accessToken(generateToken(user))
-                .build();
-    }
-
-    @Override
-    public UserResponse createUser(CreateUserRequest request) {
-        return null;
-    }
-
-    @Override
-    public List<UserResponse> getAllUsers() {
-        return List.of();
-    }
-
-    @Override
-    public UserResponse getUserById(String id) {
-        return null;
-    }
-
-    String generateToken(User user){
-        String claimJWT = user.getRole().toString();
-        if (claimJWT.matches("STAFF")) {
-            Staff staff = staffRepository.findById(user.getId())
-                    .orElseThrow(() -> new AppException(ErrorCode.STAFF_NOT_FOUND));
-            claimJWT = staff.getRole().toString();
-        }
-        JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
-        JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
-                .subject(user.getUsername())
-                .issuer("haocp")
-                .issueTime(new Date())
-//                .expirationTime(new Date(Instant.now().plus(validDuration, ChronoUnit.SECONDS).toEpochMilli()))
-                .jwtID(UUID.randomUUID().toString())
-                .claim("scope", claimJWT)
-                .build();
-        Payload payload = new Payload(jwtClaimsSet.toJSONObject());
-        JWSObject jwtObject = new JWSObject(header, payload);
-        try {
-            jwtObject.sign(new MACSigner(SIGNER_KEY.getBytes()));
-            return jwtObject.serialize();
-        } catch (JOSEException e) {
-            throw new RuntimeException(e);
-        }
-    }
 }

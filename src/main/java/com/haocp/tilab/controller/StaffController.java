@@ -9,6 +9,7 @@ import com.haocp.tilab.service.StaffService;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,9 +32,10 @@ public class StaffController {
     }
 
     @GetMapping
-    public ApiResponse<List<StaffResponse>> getAllStaff() {
-        return ApiResponse.<List<StaffResponse>>builder()
-                .data(staffService.getAllStaff())
+    public ApiResponse<Page<StaffResponse>> getAllStaff(@RequestParam(defaultValue = "0") int page,
+                                                        @RequestParam(defaultValue = "10") int size) {
+        return ApiResponse.<Page<StaffResponse>>builder()
+                .data(staffService.getAllStaff(page, size))
                 .build();
     }
 

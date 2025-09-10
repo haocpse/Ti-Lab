@@ -14,5 +14,12 @@ public interface CustomerMapper {
     @Mapping(source = "customer.id", target = "customerId")
     CustomerAddressResponse customerToCustomerAddressResponse(CustomerAddress address);
     CustomerAddress toCustomerAddress(AddCustomerAddressRequest request);
+    @Mapping(target = "fullName", expression = "java(combineName(customer))")
+    CustomerResponse customerToCustomerResponse(Customer customer);
+
+    default String combineName(Customer customer) {
+        if (customer == null) return null;
+        return customer.getFirstName() + " " + customer.getLastName();
+    }
 
 }
