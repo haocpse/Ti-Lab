@@ -2,7 +2,6 @@ package com.haocp.tilab.service.impl;
 
 import com.haocp.tilab.dto.request.Bag.ArtistBagResponse;
 import com.haocp.tilab.dto.request.Bag.CreateBagRequest;
-import com.haocp.tilab.dto.request.Bag.SaveImageBagRequest;
 import com.haocp.tilab.dto.request.Bag.UpdateBagRequest;
 import com.haocp.tilab.dto.response.Bag.BagImgResponse;
 import com.haocp.tilab.dto.response.Bag.BagResponse;
@@ -53,16 +52,7 @@ public class BagServiceImpl implements BagService {
     @Override
     @Transactional
     public BagResponse createBag(CreateBagRequest createBagRequest, List<MultipartFile> imageBags) {
-        BagStatus status = BagStatus.IN_STOCK;
-        if (createBagRequest.getQuantity() <= 10){
-            status = BagStatus.ALMOST_OOS;
-            if (createBagRequest.getQuantity() == 0)
-                status = BagStatus.OUT_OF_STOCK;
-        }
-        log.info(createBagRequest.toString());
-        Bag bag = bagMapper.toBag(createBagRequest);
-        bag.setStatus(status);
-        bag = bagRepository.save(bag);
+        Bag bag = bagRepository.save(create(createBagRequest));
         BagResponse bagResponse = bagMapper.toResponse(bag);
         if (imageBags != null) {
             applicationEventPublisher.publishEvent(new BagCreatedEvent(this, bag, imageBags));
@@ -146,6 +136,27 @@ public class BagServiceImpl implements BagService {
             applicationEventPublisher.publishEvent(new BagUpdatedEvent(this, bag, imageBags, updateBagRequest.getRemoveIds()));
         }
         return response ;
+    }
+
+    @Override
+    public void removeBagFromCollection(String id) {
+        Bag bag = bagRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.BAG_NOT_FOUND));
+        bag.setCollection(null);
+        bagRepository.save(bag);
+    }
+
+    Bag create(CreateBagRequest createBagRequest){
+        BagStatus status = BagStatus.IN_STOCK;
+        if (createBagRequest.getQuantity() <= 10){
+            status = BagStatus.ALMOST_OOS;
+            if (createBagRequest.getQuantity() == 0)
+                status = BagStatus.OUT_OF_STOCK;
+        }
+        log.info(createBagRequest.toString());
+        Bag bag = bagMapper.toBag(createBagRequest);
+        bag.setStatus(status);
+        return bag;
     }
 
     BagResponse buildBagResponse(Bag bag){

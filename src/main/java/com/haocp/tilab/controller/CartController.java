@@ -8,6 +8,7 @@ import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,10 +22,18 @@ public class CartController {
     CartService cartService;
 
     @PostMapping
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ApiResponse<CartResponse> addToCart(@RequestBody AddToCartRequest request) {
         return ApiResponse.<CartResponse>builder()
                 .data(cartService.addToCart(request))
                 .build();
+    }
+
+    @DeleteMapping("{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ApiResponse<Void> deleteCart(@PathVariable String id) {
+        cartService.deleteCartById(id);
+        return ApiResponse.<Void>builder().build();
     }
 
     @GetMapping
@@ -35,10 +44,5 @@ public class CartController {
                 .build();
     }
 
-    @DeleteMapping("{id}")
-    public ApiResponse<Void> deleteCart(@PathVariable String id) {
-        cartService.deleteCartById(id);
-        return ApiResponse.<Void>builder().build();
-    }
 
 }

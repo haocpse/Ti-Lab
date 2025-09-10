@@ -10,6 +10,7 @@ import com.haocp.tilab.service.MembershipService;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,9 +24,25 @@ public class MembershipController {
     MembershipService membershipService;
 
     @PostMapping
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ApiResponse<MembershipResponse> createMembership(@RequestBody CreateMembershipRequest request) {
         return ApiResponse.<MembershipResponse>builder()
                 .data(membershipService.createMembership(request))
+                .build();
+    }
+
+    @DeleteMapping("{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ApiResponse<Void> deleteMembership(@PathVariable Long id) {
+        membershipService.deleteMembership(id);
+        return ApiResponse.<Void>builder().build();
+    }
+
+    @PutMapping("{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ApiResponse<MembershipResponse> updateMembership(@RequestBody UpdateMembershipRequest request, @PathVariable Long id) {
+        return ApiResponse.<MembershipResponse>builder()
+                .data(membershipService.updateMembership(request, id))
                 .build();
     }
 
@@ -40,19 +57,6 @@ public class MembershipController {
     public ApiResponse<MembershipResponse> getMembership(@PathVariable Long id) {
         return ApiResponse.<MembershipResponse>builder()
                 .data(membershipService.getMembership(id))
-                .build();
-    }
-
-    @DeleteMapping("{id}")
-    public ApiResponse<Void> deleteMembership(@PathVariable Long id) {
-        membershipService.deleteMembership(id);
-        return ApiResponse.<Void>builder().build();
-    }
-
-    @PutMapping("{id}")
-    public ApiResponse<MembershipResponse> updateMembership(@RequestBody UpdateMembershipRequest request, @PathVariable Long id) {
-        return ApiResponse.<MembershipResponse>builder()
-                .data(membershipService.updateMembership(request, id))
                 .build();
     }
 

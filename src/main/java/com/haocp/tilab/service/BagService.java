@@ -5,6 +5,7 @@ import com.haocp.tilab.dto.request.Bag.CreateBagRequest;
 import com.haocp.tilab.dto.request.Bag.SaveImageBagRequest;
 import com.haocp.tilab.dto.request.Bag.UpdateBagRequest;
 import com.haocp.tilab.dto.response.Bag.BagResponse;
+import com.haocp.tilab.entity.Collection;
 import com.haocp.tilab.enums.BagType;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,4 +23,5 @@ public interface BagService {
     BagResponse getBag(String id);
     void deleteBag(String id);
     BagResponse updateBag(String id, UpdateBagRequest updateBagRequest, List<MultipartFile> imageBags);
+    void removeBagFromCollection(String id);
 }

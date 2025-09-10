@@ -107,7 +107,7 @@ public class UserServiceImpl implements UserService {
         if (claimJWT.matches("STAFF")) {
             Staff staff = staffRepository.findById(user.getId())
                     .orElseThrow(() -> new AppException(ErrorCode.STAFF_NOT_FOUND));
-            claimJWT = claimJWT + "_" + staff.getRole().toString();
+            claimJWT = staff.getRole().toString();
         }
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()

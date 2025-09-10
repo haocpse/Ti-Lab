@@ -22,6 +22,14 @@ public class StaffController {
     @Autowired
     StaffService staffService;
 
+    @PostMapping
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ApiResponse<StaffResponse> createStaff(@RequestBody CreateStaffRequest request) {
+        return ApiResponse.<StaffResponse>builder()
+                .data(staffService.createStaff(request))
+                .build();
+    }
+
     @GetMapping
     public ApiResponse<List<StaffResponse>> getAllStaff() {
         return ApiResponse.<List<StaffResponse>>builder()
@@ -33,13 +41,6 @@ public class StaffController {
     public ApiResponse<StaffResponse> getStaffById(@PathVariable("id") String id) {
         return ApiResponse.<StaffResponse>builder()
                 .data(staffService.getStaffById(id))
-                .build();
-    }
-
-    @PostMapping
-    public ApiResponse<StaffResponse> createStaff(@RequestBody CreateStaffRequest request) {
-        return ApiResponse.<StaffResponse>builder()
-                .data(staffService.createStaff(request))
                 .build();
     }
 }
