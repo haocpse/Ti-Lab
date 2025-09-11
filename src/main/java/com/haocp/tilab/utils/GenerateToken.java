@@ -9,18 +9,19 @@ import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.UUID;
 
-public final class GenerateToken {
+@Component
+public class GenerateToken {
 
     @Value("${jwt.signerKey}")
-    static String SIGNER_KEY;
+    private String SIGNER_KEY;
 
-    public GenerateToken() {}
 
-    public static String generate(String role, String username) {
+    public String generate(String role, String username) {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
                 .subject(username)

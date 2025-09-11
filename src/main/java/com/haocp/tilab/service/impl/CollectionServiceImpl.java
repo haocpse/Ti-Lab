@@ -45,6 +45,8 @@ public class CollectionServiceImpl implements CollectionService {
     BagService bagService;
     @Autowired
     BagRepository bagRepository;
+    @Autowired
+    CombineToUrl combineToUrl;
 
     @Override
     @Transactional
@@ -136,6 +138,6 @@ public class CollectionServiceImpl implements CollectionService {
     }
 
     String buildThumbnailUrl(Collection collection) {
-        return CombineToUrl.collectionThumbnail(collection.getId());
+        return combineToUrl.collectionThumbnail(collection.getId());
     }
 }

@@ -3,19 +3,20 @@ package com.haocp.tilab.utils;
 import com.haocp.tilab.entity.Bag;
 import com.haocp.tilab.entity.Collection;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
-public final class CombineToUrl {
+@Component
+public class CombineToUrl {
 
     @Value("${app.image.url}")
-    static String imageUrl;
+    private String imageUrl;
 
-    private CombineToUrl() {}
 
-    public static String collectionThumbnail(Long collectionId) {
+    public String collectionThumbnail(Long collectionId) {
         return imageUrl + "collection/" + collectionId;
     }
 
-    public static String bagImages(String bagId, boolean main, String baseUrl){
+    public String bagImages(String bagId, boolean main, String baseUrl){
         return main ?
                 imageUrl + bagId + "/main/" + baseUrl
                 : imageUrl + bagId + "/details/" + baseUrl;

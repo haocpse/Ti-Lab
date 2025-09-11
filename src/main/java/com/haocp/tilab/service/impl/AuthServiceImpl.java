@@ -52,6 +52,8 @@ public class AuthServiceImpl implements AuthService {
     UserMapper userMapper;
     @Autowired
     UserService userService;
+    @Autowired
+    GenerateToken generateToken;
 
     @Override
     @Transactional
@@ -94,6 +96,6 @@ public class AuthServiceImpl implements AuthService {
                     .orElseThrow(() -> new AppException(ErrorCode.STAFF_NOT_FOUND));
             claimJWT = staff.getRole().toString();
         }
-        return GenerateToken.generate(claimJWT, user.getUsername());
+        return generateToken.generate(claimJWT, user.getUsername());
     }
 }

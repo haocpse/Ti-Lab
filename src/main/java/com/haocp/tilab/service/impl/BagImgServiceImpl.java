@@ -38,8 +38,8 @@ public class BagImgServiceImpl implements BagImgService {
     BagImgRepository bagImgRepository;
     @Autowired
     BagRepository bagRepository;
-    @Value("${app.image.url}")
-    String imageUrl;
+    @Autowired
+    CombineToUrl combineToUrl;
 
     @Override
     @Transactional
@@ -82,7 +82,7 @@ public class BagImgServiceImpl implements BagImgService {
         return bagImgRepository.findByBag_IdOrderByMainDesc(bag.getId())
                 .stream()
                 .map(img -> {
-                    String url = CombineToUrl.bagImages(bag.getId(), img.isMain(), img.getUrl());
+                    String url = combineToUrl.bagImages(bag.getId(), img.isMain(), img.getUrl());
                     return BagImgResponse.builder()
                             .id(img.getId())
                             .url(url)
@@ -98,7 +98,7 @@ public class BagImgServiceImpl implements BagImgService {
                     .orElseThrow(() -> new AppException(ErrorCode.THERE_NO_MAIN_IMG));
             return BagImgResponse.builder()
                     .id(img.getId())
-                    .url(CombineToUrl.bagImages(bag.getId(), true, img.getUrl()))
+                    .url(combineToUrl.bagImages(bag.getId(), true, img.getUrl()))
                     .build();
         }
         return null;

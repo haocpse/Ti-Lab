@@ -3,13 +3,16 @@ CREATE TABLE bag
     id            VARCHAR(255) NOT NULL,
     name          VARCHAR(200) NOT NULL,
     price         DOUBLE       NOT NULL,
-    `description` VARCHAR(255) NOT NULL,
+    `description` TEXT         NOT NULL,
     author        VARCHAR(30)  NOT NULL,
     quantity      INT          NOT NULL,
     status        VARCHAR(255) NOT NULL,
     length        DOUBLE       NOT NULL,
     weight        DOUBLE       NOT NULL,
     type          VARCHAR(255) NOT NULL,
+    story         TEXT         NULL,
+    material      TEXT         NULL,
+    design        TEXT         NULL,
     collection_id BIGINT       NULL,
     created_at    datetime     NOT NULL,
     updated_at    datetime     NOT NULL,
@@ -76,6 +79,7 @@ CREATE TABLE customer
     first_name    VARCHAR(100) NULL,
     last_name     VARCHAR(100) NULL,
     point         DOUBLE       NULL,
+    dob           datetime     NULL,
     membership_id BIGINT       NOT NULL,
     CONSTRAINT pk_customer PRIMARY KEY (id)
 );
@@ -88,6 +92,32 @@ CREATE TABLE customer_address
     is_default_shipping BIT(1)                NOT NULL,
     customer_id         VARCHAR(255)          NOT NULL,
     CONSTRAINT pk_customer_address PRIMARY KEY (id)
+);
+
+CREATE TABLE email_queue
+(
+    id            BIGINT AUTO_INCREMENT NOT NULL,
+    template_id   BIGINT                NOT NULL,
+    recipient     VARCHAR(255)          NOT NULL,
+    subject       VARCHAR(255)          NOT NULL,
+    body          TEXT                  NOT NULL,
+    status        VARCHAR(20)           NOT NULL,
+    retry_count   INT                   NOT NULL,
+    error_message TEXT                  NULL,
+    sent_at       datetime              NULL,
+    CONSTRAINT pk_email_queue PRIMARY KEY (id)
+);
+
+CREATE TABLE email_template
+(
+    id         BIGINT AUTO_INCREMENT NOT NULL,
+    code       VARCHAR(50)           NOT NULL,
+    subject    VARCHAR(255)          NOT NULL,
+    body       TEXT                  NOT NULL,
+    variables  JSON                  NULL,
+    created_at datetime              NOT NULL,
+    updated_at datetime              NOT NULL,
+    CONSTRAINT pk_email_template PRIMARY KEY (id)
 );
 
 CREATE TABLE membership
@@ -185,6 +215,9 @@ CREATE TABLE user
 ALTER TABLE cart
     ADD CONSTRAINT uc_cart_bag UNIQUE (bag_id);
 
+ALTER TABLE email_template
+    ADD CONSTRAINT uc_email_template_code UNIQUE (code);
+
 ALTER TABLE orders
     ADD CONSTRAINT uc_orders_coupon UNIQUE (coupon_id);
 
@@ -226,6 +259,9 @@ ALTER TABLE customer
 
 ALTER TABLE customer
     ADD CONSTRAINT FK_CUSTOMER_ON_MEMBERSHIP FOREIGN KEY (membership_id) REFERENCES membership (id);
+
+ALTER TABLE email_queue
+    ADD CONSTRAINT FK_EMAIL_QUEUE_ON_TEMPLATE FOREIGN KEY (template_id) REFERENCES email_template (id);
 
 ALTER TABLE orders
     ADD CONSTRAINT FK_ORDERS_ON_COUPON FOREIGN KEY (coupon_id) REFERENCES coupon (id);
