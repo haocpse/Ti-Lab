@@ -24,7 +24,7 @@ public class Cart {
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "bag_id")
     @ToString.Exclude
     Bag bag;
