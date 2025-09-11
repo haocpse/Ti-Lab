@@ -17,6 +17,7 @@ import com.haocp.tilab.repository.StaffRepository;
 import com.haocp.tilab.repository.UserRepository;
 import com.haocp.tilab.service.AuthService;
 import com.haocp.tilab.service.UserService;
+import com.haocp.tilab.utils.GenerateToken;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -45,8 +46,6 @@ public class AuthServiceImpl implements AuthService {
     StaffRepository staffRepository;
     @Autowired
     PasswordEncoder passwordEncoder;
-    @Value("${jwt.signerKey}")
-    String SIGNER_KEY;
     @Autowired
     MembershipRepository membershipRepository;
     @Autowired
@@ -95,22 +94,6 @@ public class AuthServiceImpl implements AuthService {
                     .orElseThrow(() -> new AppException(ErrorCode.STAFF_NOT_FOUND));
             claimJWT = staff.getRole().toString();
         }
-        JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
-        JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
-                .subject(user.getUsername())
-                .issuer("haocp")
-                .issueTime(new Date())
-//                .expirationTime(new Date(Instant.now().plus(validDuration, ChronoUnit.SECONDS).toEpochMilli()))
-                .jwtID(UUID.randomUUID().toString())
-                .claim("scope", claimJWT)
-                .build();
-        Payload payload = new Payload(jwtClaimsSet.toJSONObject());
-        JWSObject jwtObject = new JWSObject(header, payload);
-        try {
-            jwtObject.sign(new MACSigner(SIGNER_KEY.getBytes()));
-            return jwtObject.serialize();
-        } catch (JOSEException e) {
-            throw new RuntimeException(e);
-        }
+        return GenerateToken.generate(claimJWT, user.getUsername());
     }
 }

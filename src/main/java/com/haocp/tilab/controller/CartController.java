@@ -22,7 +22,6 @@ public class CartController {
     CartService cartService;
 
     @PostMapping
-    @PreAuthorize("hasAuthority('ADMIN')")
     public ApiResponse<CartResponse> addToCart(@RequestBody AddToCartRequest request) {
         return ApiResponse.<CartResponse>builder()
                 .data(cartService.addToCart(request))
@@ -30,7 +29,6 @@ public class CartController {
     }
 
     @DeleteMapping("{id}")
-    @PreAuthorize("hasAuthority('ADMIN')")
     public ApiResponse<Void> deleteCart(@PathVariable String id) {
         cartService.deleteCartById(id);
         return ApiResponse.<Void>builder().build();
