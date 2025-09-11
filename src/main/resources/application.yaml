@@ -47,6 +47,7 @@ jwt:
   signerKey: ${SIGNER_KEY}
 
 app:
+  url: ${URL_SERVER}
   image:
     url: ${IMG_URL}
   admin:

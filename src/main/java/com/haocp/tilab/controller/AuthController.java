@@ -3,6 +3,7 @@ package com.haocp.tilab.controller;
 import com.haocp.tilab.dto.ApiResponse;
 import com.haocp.tilab.dto.request.Customer.LoginRequest;
 import com.haocp.tilab.dto.request.Customer.RegisterRequest;
+import com.haocp.tilab.dto.request.User.ResetPasswordRequest;
 import com.haocp.tilab.dto.response.Token.LoginResponse;
 import com.haocp.tilab.service.AuthService;
 import com.haocp.tilab.service.UserService;
@@ -34,6 +35,12 @@ public class AuthController {
         return ApiResponse.<LoginResponse>builder()
                 .data(authService.login(loginRequest))
                 .build();
+    }
+
+    @PostMapping("/reset-password")
+    public ApiResponse<Void> resetPassword(@RequestBody ResetPasswordRequest request) {
+        authService.resetPassword(request);
+        return ApiResponse.<Void>builder().build();
     }
 
 }

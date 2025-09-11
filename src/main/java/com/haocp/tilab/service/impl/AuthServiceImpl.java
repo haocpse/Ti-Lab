@@ -3,6 +3,7 @@ package com.haocp.tilab.service.impl;
 import com.haocp.tilab.dto.request.Customer.LoginRequest;
 import com.haocp.tilab.dto.request.Customer.RegisterRequest;
 import com.haocp.tilab.dto.request.User.CreateUserRequest;
+import com.haocp.tilab.dto.request.User.ResetPasswordRequest;
 import com.haocp.tilab.dto.response.Token.LoginResponse;
 import com.haocp.tilab.entity.Customer;
 import com.haocp.tilab.entity.Staff;
@@ -18,6 +19,7 @@ import com.haocp.tilab.repository.UserRepository;
 import com.haocp.tilab.service.AuthService;
 import com.haocp.tilab.service.UserService;
 import com.haocp.tilab.utils.GenerateToken;
+import com.haocp.tilab.utils.event.PasswordResetEvent;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -26,6 +28,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,6 +57,8 @@ public class AuthServiceImpl implements AuthService {
     UserService userService;
     @Autowired
     GenerateToken generateToken;
+    @Autowired
+    ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     @Transactional
@@ -76,7 +81,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public LoginResponse login(LoginRequest loginRequest) {
-        User user = userRepository.findByUsername(loginRequest.getUsername())
+        User user = userRepository.findByUsernameAndActiveIsTrue(loginRequest.getUsername())
                 .orElseThrow(() -> new AppException(ErrorCode.USERNAME_INCORRECT));
         if(!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
             throw new AppException(ErrorCode.PASSWORD_INCORRECT);
@@ -87,6 +92,14 @@ public class AuthServiceImpl implements AuthService {
         return LoginResponse.builder()
                 .accessToken(generateToken(user))
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public void resetPassword(ResetPasswordRequest request) {
+        User user = userRepository.findByEmailAndActiveIsTrue(request.getEmail())
+                .orElseThrow(() -> new AppException(ErrorCode.USERNAME_INCORRECT));
+        applicationEventPublisher.publishEvent(new PasswordResetEvent(this, user));
     }
 
     String generateToken(User user){

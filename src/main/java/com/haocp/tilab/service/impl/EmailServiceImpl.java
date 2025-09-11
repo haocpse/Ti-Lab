@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -28,12 +29,20 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public void sendSimpleMail(String to, String subject, String body)  {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(GMAIL);
-        message.setTo(to);
-        message.setSubject(subject);
-        message.setText(body);
-        mailSender.send(message);
+    @Async
+    public void sendMail(String to, String subject, String body)  {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setFrom(GMAIL);
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(body, true);
+
+            mailSender.send(message);
+        } catch (MessagingException e) {
+            throw new RuntimeException("Failed to send email", e);
+        }
     }
 }
