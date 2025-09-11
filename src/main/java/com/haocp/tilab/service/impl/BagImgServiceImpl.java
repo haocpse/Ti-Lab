@@ -10,6 +10,7 @@ import com.haocp.tilab.exception.ErrorCode;
 import com.haocp.tilab.repository.BagImgRepository;
 import com.haocp.tilab.repository.BagRepository;
 import com.haocp.tilab.service.BagImgService;
+import com.haocp.tilab.utils.CombineToUrl;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +38,6 @@ public class BagImgServiceImpl implements BagImgService {
     BagImgRepository bagImgRepository;
     @Autowired
     BagRepository bagRepository;
-
     @Value("${app.image.url}")
     String imageUrl;
 
@@ -82,12 +82,7 @@ public class BagImgServiceImpl implements BagImgService {
         return bagImgRepository.findByBag_IdOrderByMainDesc(bag.getId())
                 .stream()
                 .map(img -> {
-                    String baseUrl = img.getUrl();
-                    String url;
-                    if (img.isMain())
-                        url = imageUrl + bag.getId() + "/main/" + baseUrl;
-                    else
-                        url = imageUrl + bag.getId() + "/details/" + baseUrl;
+                    String url = CombineToUrl.bagImages(bag.getId(), img.isMain(), img.getUrl());
                     return BagImgResponse.builder()
                             .id(img.getId())
                             .url(url)
@@ -103,7 +98,7 @@ public class BagImgServiceImpl implements BagImgService {
                     .orElseThrow(() -> new AppException(ErrorCode.THERE_NO_MAIN_IMG));
             return BagImgResponse.builder()
                     .id(img.getId())
-                    .url(imageUrl + bag.getId() + "/main/" + img.getUrl())
+                    .url(CombineToUrl.bagImages(bag.getId(), true, img.getUrl()))
                     .build();
         }
         return null;

@@ -6,6 +6,7 @@ import com.haocp.tilab.dto.response.Customer.CustomerResponse;
 import com.haocp.tilab.dto.response.User.UserResponse;
 import com.haocp.tilab.entity.Customer;
 import com.haocp.tilab.entity.CustomerAddress;
+import com.haocp.tilab.entity.Membership;
 import com.haocp.tilab.exception.AppException;
 import com.haocp.tilab.exception.ErrorCode;
 import com.haocp.tilab.mapper.CustomerMapper;
@@ -24,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,17 +50,20 @@ public class CustomerServiceImpl implements CustomerService {
 
 
     @Override
+    @Transactional
     public Page<CustomerResponse> getAllCustomer(int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size);
         Page<Customer> customers = customerRepository.findAll(pageRequest);
-        return customers.map(this::buildCustomerResponse);
+        return customers.map(this::buildCustomerResponseOverview);
     }
 
     @Override
+    @Transactional
     public CustomerResponse getCustomerById(String id) {
         Customer customer = customerRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.CUSTOMER_NOT_FOUND));
-        return buildCustomerResponse(customer);
+        CustomerResponse response = buildCustomerResponseOverview(customer);
+        return buildCustomerResponseDetail(response, customer.getId(), customer.getMembership());
     }
 
     @Override
@@ -75,12 +80,25 @@ public class CustomerServiceImpl implements CustomerService {
         return buildCustomerAddressResponse(customer.getId());
     }
 
-    CustomerResponse buildCustomerResponse(Customer customer) {
+    @Override
+    @Transactional
+    public CustomerResponse getMyProfile() {
+        Customer customer = IdentifyUser.getCurrentCustomer(customerRepository, userRepository);
+        CustomerResponse response = buildCustomerResponseOverview(customer);
+        return buildCustomerResponseDetail(response, customer.getId(), customer.getMembership());
+    }
+
+    @Transactional
+    CustomerResponse buildCustomerResponseOverview(Customer customer) {
         CustomerResponse customerResponse = customerMapper.customerToCustomerResponse(customer);
         customerResponse.setUserResponse(userMapper.toUserResponse(customer.getUser()));
-        customerResponse.setMembershipResponse(membershipMapper.toResponse(customer.getMembership()));
-        customerResponse.setAddresses(buildCustomerAddressResponse(customer.getId()));
         return customerResponse;
+    }
+
+    CustomerResponse buildCustomerResponseDetail(CustomerResponse response, String id, Membership membership) {
+        response.setAddresses(buildCustomerAddressResponse(id));
+        response.setMembershipResponse(membershipMapper.toResponse(membership));
+        return response;
     }
 
     List<CustomerAddressResponse> buildCustomerAddressResponse(String customerId) {

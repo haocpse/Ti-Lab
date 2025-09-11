@@ -48,6 +48,13 @@ public class CustomerController {
                 .build();
     }
 
+    @GetMapping("/me")
+    public ApiResponse<CustomerResponse> getMyProfile() {
+        return ApiResponse.<CustomerResponse>builder()
+                .data(customerService.getMyProfile())
+                .build();
+    }
+
     @GetMapping("/me/orders")
     public ApiResponse<Page<OrderResponse>> getAllMyOrder(@RequestParam(required = false)OrderStatus status,
                                                           @RequestParam(defaultValue = "0") int page,

@@ -32,7 +32,7 @@ public class Bag {
     @Column(nullable = false)
     double price;
 
-    @Column(nullable = false)
+    @Column(columnDefinition = "TEXT", nullable = false)
     String description;
 
     @Column(nullable = false, length = 30)
@@ -54,6 +54,15 @@ public class Bag {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     BagType type;
+
+    @Column(columnDefinition = "TEXT")
+    String story;
+
+    @Column(columnDefinition = "TEXT")
+    String material;
+
+    @Column(columnDefinition = "TEXT")
+    String design;
 
     @OneToMany(mappedBy = "bag", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude

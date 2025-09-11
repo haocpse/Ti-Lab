@@ -12,6 +12,7 @@ import com.haocp.tilab.repository.BagRepository;
 import com.haocp.tilab.repository.CollectionRepository;
 import com.haocp.tilab.service.BagService;
 import com.haocp.tilab.service.CollectionService;
+import com.haocp.tilab.utils.CombineToUrl;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
@@ -44,9 +45,6 @@ public class CollectionServiceImpl implements CollectionService {
     BagService bagService;
     @Autowired
     BagRepository bagRepository;
-
-    @Value("${app.image.url}")
-    String imageUrl;
 
     @Override
     @Transactional
@@ -138,6 +136,6 @@ public class CollectionServiceImpl implements CollectionService {
     }
 
     String buildThumbnailUrl(Collection collection) {
-        return imageUrl + "collection/" + collection.getId();
+        return CombineToUrl.collectionThumbnail(collection.getId());
     }
 }
