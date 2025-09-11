@@ -64,6 +64,7 @@ public class AuthServiceImpl implements AuthService {
                 .user(user)
                 .firstName(registerRequest.getFirstName())
                 .lastName(registerRequest.getLastName())
+                .dob(registerRequest.getDob())
                 .membership(membershipRepository.findByMin(0)
                         .orElseThrow(() -> new AppException(ErrorCode.THERE_NO_MEMBERSHIP)))
                 .build());

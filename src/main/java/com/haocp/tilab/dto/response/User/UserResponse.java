@@ -15,6 +15,7 @@ public class UserResponse {
     String id;
     String username;
     String email;
+    String phone;
     String password;
     UserRole role;
     String reasonBan;
