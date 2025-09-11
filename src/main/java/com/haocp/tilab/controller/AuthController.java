@@ -4,6 +4,7 @@ import com.haocp.tilab.dto.ApiResponse;
 import com.haocp.tilab.dto.request.Customer.LoginRequest;
 import com.haocp.tilab.dto.request.Customer.RegisterRequest;
 import com.haocp.tilab.dto.response.Token.LoginResponse;
+import com.haocp.tilab.service.AuthService;
 import com.haocp.tilab.service.UserService;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
@@ -19,19 +20,19 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     @Autowired
-    UserService userService;
+    AuthService authService;
 
     @PostMapping("/register")
     public ApiResponse<LoginResponse> register(@RequestBody RegisterRequest registerRequest) {
         return ApiResponse.<LoginResponse>builder()
-                .data(userService.register(registerRequest))
+                .data(authService.register(registerRequest))
                 .build();
     }
 
     @PostMapping("/login")
     public ApiResponse<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
         return ApiResponse.<LoginResponse>builder()
-                .data(userService.login(loginRequest))
+                .data(authService.login(loginRequest))
                 .build();
     }
 

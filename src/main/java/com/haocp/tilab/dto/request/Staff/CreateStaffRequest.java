@@ -17,6 +17,7 @@ public class CreateStaffRequest {
     String username;
     String email;
     String phone;
-    StaffRole role;
+    String rawPassword;
+    StaffRole staffRole;
 
 }

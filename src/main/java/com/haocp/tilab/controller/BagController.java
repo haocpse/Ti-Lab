@@ -3,7 +3,6 @@ package com.haocp.tilab.controller;
 import com.haocp.tilab.dto.ApiResponse;
 import com.haocp.tilab.dto.request.Bag.ArtistBagResponse;
 import com.haocp.tilab.dto.request.Bag.CreateBagRequest;
-import com.haocp.tilab.dto.request.Bag.SaveImageBagRequest;
 import com.haocp.tilab.dto.request.Bag.UpdateBagRequest;
 import com.haocp.tilab.dto.response.Bag.BagResponse;
 import com.haocp.tilab.enums.BagType;
@@ -13,6 +12,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,11 +27,29 @@ public class BagController {
     BagService bagService;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ApiResponse<BagResponse> createBag(@RequestPart("bags") CreateBagRequest request,
                                               @RequestPart(value = "imageBagRequest", required = false)List<MultipartFile> imageBags){
         return ApiResponse.<BagResponse>builder()
                 .data(bagService.createBag(request, imageBags))
                 .build();
+    }
+
+    @PutMapping("{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ApiResponse<BagResponse> updateBag(@PathVariable String id,
+                                              @RequestPart("bags") UpdateBagRequest request,
+                                              @RequestPart(value = "imageBagRequest", required = false)List<MultipartFile> imageBags){
+        return ApiResponse.<BagResponse>builder()
+                .data(bagService.updateBag(id, request, imageBags))
+                .build();
+    }
+
+    @DeleteMapping("{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ApiResponse<Void> deleteBag(@PathVariable String id){
+        bagService.deleteBag(id);
+        return ApiResponse.<Void>builder().build();
     }
 
     @GetMapping
@@ -70,12 +88,6 @@ public class BagController {
                 .build();
     }
 
-    @DeleteMapping("{id}")
-    public ApiResponse<Void> deleteBag(@PathVariable String id){
-        bagService.deleteBag(id);
-        return ApiResponse.<Void>builder().build();
-    }
-
     @GetMapping("{id}")
     public ApiResponse<BagResponse> getBag(@PathVariable String id){
         return ApiResponse.<BagResponse>builder()
@@ -83,13 +95,5 @@ public class BagController {
                 .build();
     }
 
-    @PutMapping("{id}")
-    public ApiResponse<BagResponse> updateBag(@PathVariable String id,
-                                              @RequestPart("bags") UpdateBagRequest request,
-                                              @RequestPart(value = "imageBagRequest", required = false)List<MultipartFile> imageBags){
-        return ApiResponse.<BagResponse>builder()
-                .data(bagService.updateBag(id, request, imageBags))
-                .build();
-    }
 
 }

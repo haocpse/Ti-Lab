@@ -1,6 +1,7 @@
 package com.haocp.tilab.dto.response.User;
 
 import com.haocp.tilab.enums.UserRole;
+import jakarta.persistence.Column;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -16,5 +17,7 @@ public class UserResponse {
     String email;
     String password;
     UserRole role;
+    String reasonBan;
+    boolean active;
 
 }

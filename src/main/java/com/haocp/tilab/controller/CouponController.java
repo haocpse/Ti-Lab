@@ -10,6 +10,7 @@ import com.haocp.tilab.service.CouponService;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,9 +24,25 @@ public class CouponController {
     CouponService couponService;
 
     @PostMapping
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ApiResponse<CouponResponse> createCoupon(@RequestBody CreateCouponRequest request) {
         return ApiResponse.<CouponResponse>builder()
                 .data(couponService.createCoupon(request))
+                .build();
+    }
+
+    @DeleteMapping("{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ApiResponse<Void> deleteCoupon(@PathVariable Long id) {
+        couponService.deleteCoupon(id);
+        return ApiResponse.<Void>builder().build();
+    }
+
+    @PutMapping("{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ApiResponse<CouponResponse> updateCoupon(@RequestBody UpdateCouponRequest request, @PathVariable Long id) {
+        return ApiResponse.<CouponResponse>builder()
+                .data(couponService.updateCoupon(request, id))
                 .build();
     }
 
@@ -41,13 +58,6 @@ public class CouponController {
                 .build();
     }
 
-    @PutMapping("{id}")
-    public ApiResponse<CouponResponse> updateCoupon(@RequestBody UpdateCouponRequest request, @PathVariable Long id) {
-        return ApiResponse.<CouponResponse>builder()
-                .data(couponService.updateCoupon(request, id))
-                .build();
-    }
-
     @GetMapping("{id}")
     public ApiResponse<CouponResponse> getCoupon(@PathVariable Long id) {
         return ApiResponse.<CouponResponse>builder()
@@ -55,10 +65,6 @@ public class CouponController {
                 .build();
     }
 
-    @DeleteMapping("{id}")
-    public ApiResponse<Void> deleteCoupon(@PathVariable Long id) {
-        couponService.deleteCoupon(id);
-        return ApiResponse.<Void>builder().build();
-    }
+
 
 }

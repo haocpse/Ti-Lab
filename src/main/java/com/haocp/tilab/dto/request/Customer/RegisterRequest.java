@@ -1,5 +1,6 @@
 package com.haocp.tilab.dto.request.Customer;
 
+import com.haocp.tilab.enums.UserRole;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -16,5 +17,4 @@ public class RegisterRequest {
     String firstName;
     String lastName;
     String rawPassword;
-
 }

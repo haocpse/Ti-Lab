@@ -34,9 +34,10 @@ public class CustomerController {
     CartService cartService;
 
     @GetMapping
-    public ApiResponse<List<CustomerResponse>> getAllCustomer() {
-        return ApiResponse.<List<CustomerResponse>>builder()
-                .data(customerService.getAllCustomer())
+    public ApiResponse<Page<CustomerResponse>> getAllCustomer(@RequestParam(defaultValue = "0") int page,
+                                                              @RequestParam(defaultValue = "10") int size) {
+        return ApiResponse.<Page<CustomerResponse>>builder()
+                .data(customerService.getAllCustomer(page, size))
                 .build();
     }
 
@@ -44,6 +45,13 @@ public class CustomerController {
     public ApiResponse<CustomerResponse> getCustomerById(@PathVariable String id) {
         return ApiResponse.<CustomerResponse>builder()
                 .data(customerService.getCustomerById(id))
+                .build();
+    }
+
+    @GetMapping("/me")
+    public ApiResponse<CustomerResponse> getMyProfile() {
+        return ApiResponse.<CustomerResponse>builder()
+                .data(customerService.getMyProfile())
                 .build();
     }
 
@@ -72,9 +80,9 @@ public class CustomerController {
     }
 
     @GetMapping("/me/addresses")
-    public ApiResponse<List<CustomerAddressResponse>> getCustomerAddress() {
+    public ApiResponse<List<CustomerAddressResponse>> getAllMyAddress() {
         return ApiResponse.<List<CustomerAddressResponse>>builder()
-                .data(customerService.getAllAddress())
+                .data(customerService.getAllMyAddress())
                 .build();
     }
 

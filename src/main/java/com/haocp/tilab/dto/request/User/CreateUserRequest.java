@@ -13,7 +13,7 @@ public class CreateUserRequest {
 
     String username;
     String email;
-    String password;
+    String rawPassword;
     UserRole role;
 
 }

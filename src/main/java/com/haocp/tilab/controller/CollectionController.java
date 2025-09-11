@@ -3,12 +3,15 @@ package com.haocp.tilab.controller;
 import com.haocp.tilab.dto.ApiResponse;
 import com.haocp.tilab.dto.request.Bag.CreateBagRequest;
 import com.haocp.tilab.dto.request.Collection.CreateCollectionRequest;
+import com.haocp.tilab.dto.request.Collection.UpdateCollectionRequest;
 import com.haocp.tilab.dto.response.Collection.CollectionResponse;
 import com.haocp.tilab.service.CollectionService;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,19 +25,37 @@ public class CollectionController {
     @Autowired
     CollectionService collectionService;
 
-    @GetMapping
-    public ApiResponse<List<CollectionResponse>> getAllCollection(@RequestParam(defaultValue = "0") int page,
-                                                            @RequestParam(defaultValue = "3") int size){
-        return ApiResponse.<List<CollectionResponse>>builder()
-                .data(collectionService.getAllCollection(page, size))
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ApiResponse<CollectionResponse> createCollection(@RequestPart("collection") CreateCollectionRequest request,
+                                                            @RequestPart(value = "thumbnail", required = false) MultipartFile thumbnail){
+        return ApiResponse.<CollectionResponse>builder()
+                .data(collectionService.createCollection(request, thumbnail))
                 .build();
     }
 
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponse<CollectionResponse> createCollection(@RequestPart("collection") CreateCollectionRequest request,
-                                          @RequestPart(value = "thumbnail", required = false) MultipartFile thumbnail){
+    @DeleteMapping("{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ApiResponse<Void> deleteCollection(@PathVariable Long id){
+        collectionService.deleteCollection(id);
+        return ApiResponse.<Void>builder().build();
+    }
+
+    @PutMapping(value = "{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ApiResponse<CollectionResponse> updateCollection(@PathVariable Long id,
+                                                            @RequestPart("collection") UpdateCollectionRequest request,
+                                                            @RequestPart(value = "thumbnail", required = false) MultipartFile thumbnail){
         return ApiResponse.<CollectionResponse>builder()
-                .data(collectionService.createCollection(request, thumbnail))
+                .data(collectionService.updateCollection(request, id, thumbnail))
+                .build();
+    }
+
+    @GetMapping
+    public ApiResponse<Page<CollectionResponse>> getAllCollection(@RequestParam(defaultValue = "0") int page,
+                                                                  @RequestParam(defaultValue = "3") int size){
+        return ApiResponse.<Page<CollectionResponse>>builder()
+                .data(collectionService.getAllCollection(page, size))
                 .build();
     }
 
@@ -44,5 +65,7 @@ public class CollectionController {
                 .data(collectionService.getCollection(id))
                 .build();
     }
+
+
 
 }
