@@ -55,28 +55,18 @@ public class BagController {
     @GetMapping
     public ApiResponse<Page<BagResponse>> getAllBag(@RequestParam(required = false) Boolean available,
                                                     @RequestParam(defaultValue = "0") int page,
-                                                    @RequestParam(defaultValue = "10") int size){
-        Page<BagResponse> responses;
-        if (available != null && available)
-            responses = bagService.getAllAvailableBag(page, size);
-        else
-            responses = bagService.getAllBag(page, size);
+                                                    @RequestParam(defaultValue = "10") int size,
+                                                    @RequestParam(defaultValue = "") String name){
         return ApiResponse.<Page<BagResponse>>builder()
-                .data(responses)
+                .data(bagService.getAllBag(page, size, name, available))
                 .build();
     }
 
     @GetMapping("/core")
-    public ApiResponse<Page<BagResponse>> getAllCoreBag(@RequestParam(required = false) Boolean available,
-                                                    @RequestParam(defaultValue = "0") int page,
-                                                    @RequestParam(defaultValue = "12") int size){
-        Page<BagResponse> responses;
-        if (available != null && available)
-            responses = bagService.getAllAvailableBagByType(BagType.CORE_COLLECTION, page, size);
-        else
-            responses = bagService.getAllBag(page, size);
+    public ApiResponse<Page<BagResponse>> getAllCoreBag(@RequestParam(defaultValue = "0") int page,
+                                                        @RequestParam(defaultValue = "12") int size){
         return ApiResponse.<Page<BagResponse>>builder()
-                .data(responses)
+                .data(bagService.getAllAvailableBagByType(BagType.CORE_COLLECTION, page, size))
                 .build();
     }
 

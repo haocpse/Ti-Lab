@@ -63,9 +63,21 @@ public class BagServiceImpl implements BagService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<BagResponse> getAllBag(int page, int size) {
+    public Page<BagResponse> getAllBag(int page, int size, String name, boolean available) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Bag> bags = bagRepository.findAll(pageable);
+        Page<Bag> bags;
+        if (!name.isEmpty() || !name.isBlank()){
+            if (available)
+                bags = bagRepository.findAllByNameContainsIgnoreCaseAndStatusNot(name, BagStatus.DELETED, pageable);
+            else
+                bags = bagRepository.findAllByNameContainsIgnoreCase(name, pageable);
+        }
+        else {
+            if (available)
+                bags = bagRepository.findAllByStatusNot(BagStatus.DELETED, pageable);
+            else
+                bags = bagRepository.findAll(pageable);
+        }
         return bags.map(this::buildBagResponse);
     }
 

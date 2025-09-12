@@ -16,7 +16,7 @@ import java.util.List;
 public interface BagService {
 
     BagResponse createBag(CreateBagRequest createBagRequest, List<MultipartFile> imageBags);
-    Page<BagResponse> getAllBag(int page, int size);
+    Page<BagResponse> getAllBag(int page, int size, String name, boolean available);
     Page<BagResponse> getAllAvailableBag(int page, int size);
     Page<BagResponse> getAllAvailableBagByType(BagType type, int page, int size);
     Page<ArtistBagResponse> getAllArtistBag(int page, int size);
