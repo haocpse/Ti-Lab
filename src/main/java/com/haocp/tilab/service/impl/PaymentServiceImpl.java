@@ -77,5 +77,6 @@ public class PaymentServiceImpl implements PaymentService {
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new AppException(ErrorCode.PAYMENT_NOT_FOUND));
         payment.setStatus(PaymentStatus.PAID);
+        paymentRepository.save(payment);
     }
 }
