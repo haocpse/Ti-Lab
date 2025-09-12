@@ -19,7 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/bags/")
+@RequestMapping("/api/bags")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BagController {
 
@@ -35,7 +35,7 @@ public class BagController {
                 .build();
     }
 
-    @PutMapping("{id}")
+    @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ApiResponse<BagResponse> updateBag(@PathVariable String id,
                                               @RequestPart("bags") UpdateBagRequest request,
@@ -45,7 +45,7 @@ public class BagController {
                 .build();
     }
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ApiResponse<Void> deleteBag(@PathVariable String id){
         bagService.deleteBag(id);
@@ -66,7 +66,7 @@ public class BagController {
                 .build();
     }
 
-    @GetMapping("core")
+    @GetMapping("/core")
     public ApiResponse<Page<BagResponse>> getAllCoreBag(@RequestParam(required = false) Boolean available,
                                                     @RequestParam(defaultValue = "0") int page,
                                                     @RequestParam(defaultValue = "12") int size){
@@ -80,7 +80,7 @@ public class BagController {
                 .build();
     }
 
-    @GetMapping("artist")
+    @GetMapping("/artist")
     public ApiResponse<Page<ArtistBagResponse>> getAllArtistBag(@RequestParam(defaultValue = "0") int page,
                                                                 @RequestParam(defaultValue = "3") int size){
         return ApiResponse.<Page<ArtistBagResponse>>builder()
@@ -88,7 +88,7 @@ public class BagController {
                 .build();
     }
 
-    @GetMapping("{id}")
+    @GetMapping("/{id}")
     public ApiResponse<BagResponse> getBag(@PathVariable String id){
         return ApiResponse.<BagResponse>builder()
                 .data(bagService.getBag(id))

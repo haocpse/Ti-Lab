@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping("/api/emails/")
+@RequestMapping("/api/emails")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class EmailController {
 
@@ -34,7 +34,7 @@ public class EmailController {
         return ApiResponse.<Void>builder().build();
     }
 
-    @PostMapping("send")
+    @PostMapping("/send")
     public ApiResponse<Void> sendMailTest(@RequestPart(value = "to") String to,
                                           @RequestPart(value = "subject") String subject,
                                           @RequestPart(value = "body") String body) throws MessagingException {

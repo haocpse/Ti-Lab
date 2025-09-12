@@ -31,14 +31,14 @@ public class CouponController {
                 .build();
     }
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ApiResponse<Void> deleteCoupon(@PathVariable Long id) {
         couponService.deleteCoupon(id);
         return ApiResponse.<Void>builder().build();
     }
 
-    @PutMapping("{id}")
+    @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ApiResponse<CouponResponse> updateCoupon(@RequestBody UpdateCouponRequest request, @PathVariable Long id) {
         return ApiResponse.<CouponResponse>builder()
@@ -58,7 +58,7 @@ public class CouponController {
                 .build();
     }
 
-    @GetMapping("{id}")
+    @GetMapping("/{id}")
     public ApiResponse<CouponResponse> getCoupon(@PathVariable Long id) {
         return ApiResponse.<CouponResponse>builder()
                 .data(couponService.getCoupon(id))

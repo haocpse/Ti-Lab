@@ -18,7 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/collections/")
+@RequestMapping("/api/collections")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CollectionController {
 
@@ -34,14 +34,14 @@ public class CollectionController {
                 .build();
     }
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ApiResponse<Void> deleteCollection(@PathVariable Long id){
         collectionService.deleteCollection(id);
         return ApiResponse.<Void>builder().build();
     }
 
-    @PutMapping(value = "{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     public ApiResponse<CollectionResponse> updateCollection(@PathVariable Long id,
                                                             @RequestPart("collection") UpdateCollectionRequest request,
@@ -59,7 +59,7 @@ public class CollectionController {
                 .build();
     }
 
-    @GetMapping("{id}")
+    @GetMapping("/{id}")
     public ApiResponse<CollectionResponse> getCollection(@PathVariable Long id){
         return ApiResponse.<CollectionResponse>builder()
                 .data(collectionService.getCollection(id))

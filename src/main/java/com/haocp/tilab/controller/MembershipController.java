@@ -31,14 +31,14 @@ public class MembershipController {
                 .build();
     }
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ApiResponse<Void> deleteMembership(@PathVariable Long id) {
         membershipService.deleteMembership(id);
         return ApiResponse.<Void>builder().build();
     }
 
-    @PutMapping("{id}")
+    @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ApiResponse<MembershipResponse> updateMembership(@RequestBody UpdateMembershipRequest request, @PathVariable Long id) {
         return ApiResponse.<MembershipResponse>builder()
@@ -53,7 +53,7 @@ public class MembershipController {
                 .build();
     }
 
-    @GetMapping("{id}")
+    @GetMapping("/{id}")
     public ApiResponse<MembershipResponse> getMembership(@PathVariable Long id) {
         return ApiResponse.<MembershipResponse>builder()
                 .data(membershipService.getMembership(id))

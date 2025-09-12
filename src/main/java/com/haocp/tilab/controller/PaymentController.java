@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/payments/")
+@RequestMapping("/api/payments")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PaymentController {
 
@@ -26,7 +26,7 @@ public class PaymentController {
                 .build();
     }
 
-    @PostMapping("confirm")
+    @PostMapping("/confirm")
     public ApiResponse<QRPaymentResponse> confirm() {
         return ApiResponse.<QRPaymentResponse>builder()
                 .build();
