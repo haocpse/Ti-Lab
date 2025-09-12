@@ -35,10 +35,13 @@ public class SecurityConfig {
             "/",
             "/api/login",
             "/api/register",
+            "/api/reset-password",
             "/swagger-ui/**",
             "/v3/api-docs/**",
             "/api/enums/**",
-            "/api/payments/confirm"
+            "/api/payments/confirm",
+            "/api/emails/send",
+            "uploads/**"
     };
 
     @Bean

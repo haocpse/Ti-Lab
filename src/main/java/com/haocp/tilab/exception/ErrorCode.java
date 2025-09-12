@@ -28,7 +28,9 @@ public enum ErrorCode {
     IMG_NOT_FOUND(404, "Image not found", HttpStatus.NOT_FOUND),
     IMG_NOT_HAVE_NAME(400, "Image doesn't have name", HttpStatus.BAD_REQUEST),
     PAYMENT_NOT_FOUND(404, "Payment not found", HttpStatus.NOT_FOUND),
-    COLLECTION_NOT_FOUND(404, "Collection not found", HttpStatus.NOT_FOUND),;
+    COLLECTION_NOT_FOUND(404, "Collection not found", HttpStatus.NOT_FOUND),
+    TEMPLATE_NOT_EXIST(404, "Template not exist", HttpStatus.NOT_FOUND),
+    EMAIL_IS_WRONG(400, "Email is wrong", HttpStatus.BAD_REQUEST),;
 
     int code;
     String message;

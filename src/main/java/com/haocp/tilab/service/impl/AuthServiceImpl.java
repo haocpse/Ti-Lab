@@ -2,7 +2,9 @@ package com.haocp.tilab.service.impl;
 
 import com.haocp.tilab.dto.request.Customer.LoginRequest;
 import com.haocp.tilab.dto.request.Customer.RegisterRequest;
+import com.haocp.tilab.dto.request.User.ChangePasswordRequest;
 import com.haocp.tilab.dto.request.User.CreateUserRequest;
+import com.haocp.tilab.dto.request.User.ConfirmResetRequest;
 import com.haocp.tilab.dto.response.Token.LoginResponse;
 import com.haocp.tilab.entity.Customer;
 import com.haocp.tilab.entity.Staff;
@@ -18,20 +20,15 @@ import com.haocp.tilab.repository.UserRepository;
 import com.haocp.tilab.service.AuthService;
 import com.haocp.tilab.service.UserService;
 import com.haocp.tilab.utils.GenerateToken;
-import com.nimbusds.jose.*;
-import com.nimbusds.jose.crypto.MACSigner;
-import com.nimbusds.jwt.JWTClaimsSet;
+import com.haocp.tilab.utils.event.PasswordResetEvent;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Date;
-import java.util.UUID;
 
 @Service
 @Slf4j
@@ -54,6 +51,8 @@ public class AuthServiceImpl implements AuthService {
     UserService userService;
     @Autowired
     GenerateToken generateToken;
+    @Autowired
+    ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     @Transactional
@@ -76,7 +75,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public LoginResponse login(LoginRequest loginRequest) {
-        User user = userRepository.findByUsername(loginRequest.getUsername())
+        User user = userRepository.findByUsernameAndActiveIsTrue(loginRequest.getUsername())
                 .orElseThrow(() -> new AppException(ErrorCode.USERNAME_INCORRECT));
         if(!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
             throw new AppException(ErrorCode.PASSWORD_INCORRECT);
@@ -87,6 +86,27 @@ public class AuthServiceImpl implements AuthService {
         return LoginResponse.builder()
                 .accessToken(generateToken(user))
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public void resetPassword(ConfirmResetRequest request) {
+        User user = userRepository.findByEmailAndActiveIsTrue(request.getEmail())
+                .orElseThrow(() -> new AppException(ErrorCode.EMAIL_IS_WRONG));
+        applicationEventPublisher.publishEvent(new PasswordResetEvent(this, user));
+    }
+
+    @Override
+    public void changePassword(String id, ChangePasswordRequest request) {
+        String lastPassword = request.getLastPassword();
+        String newPassword = request.getNewPassword();
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXIST));
+        if(!passwordEncoder.matches(lastPassword, user.getPassword())){
+            throw new AppException(ErrorCode.PASSWORD_INCORRECT);
+        }
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
     }
 
     String generateToken(User user){

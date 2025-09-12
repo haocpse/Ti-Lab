@@ -20,7 +20,6 @@ public class GenerateToken {
     @Value("${jwt.signerKey}")
     private String SIGNER_KEY;
 
-
     public String generate(String role, String username) {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()

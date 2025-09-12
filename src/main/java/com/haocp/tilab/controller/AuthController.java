@@ -3,16 +3,14 @@ package com.haocp.tilab.controller;
 import com.haocp.tilab.dto.ApiResponse;
 import com.haocp.tilab.dto.request.Customer.LoginRequest;
 import com.haocp.tilab.dto.request.Customer.RegisterRequest;
+import com.haocp.tilab.dto.request.User.ChangePasswordRequest;
+import com.haocp.tilab.dto.request.User.ConfirmResetRequest;
 import com.haocp.tilab.dto.response.Token.LoginResponse;
 import com.haocp.tilab.service.AuthService;
-import com.haocp.tilab.service.UserService;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api")
@@ -34,6 +32,18 @@ public class AuthController {
         return ApiResponse.<LoginResponse>builder()
                 .data(authService.login(loginRequest))
                 .build();
+    }
+
+    @PostMapping("/confirm-reset")
+    public ApiResponse<Void> confirmReset(@RequestBody ConfirmResetRequest request) {
+        authService.resetPassword(request);
+        return ApiResponse.<Void>builder().build();
+    }
+
+    @PutMapping("/change-password/{id}")
+    public ApiResponse<Void> changePassword(@PathVariable String id, @RequestBody ChangePasswordRequest request) {
+        authService.changePassword(id, request);
+        return ApiResponse.<Void>builder().build();
     }
 
 }

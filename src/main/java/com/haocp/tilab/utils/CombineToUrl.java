@@ -11,7 +11,6 @@ public class CombineToUrl {
     @Value("${app.image.url}")
     private String imageUrl;
 
-
     public String collectionThumbnail(Long collectionId) {
         return imageUrl + "collection/" + collectionId;
     }
