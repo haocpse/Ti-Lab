@@ -172,9 +172,10 @@ public class BagServiceImpl implements BagService {
         return bag;
     }
 
+    @Transactional
     BagResponse buildBagResponse(Bag bag){
         BagResponse bagResponse = bagMapper.toResponse(bag);
-        BagImgResponse response = bagImgService.fetchMainImage(bag);
+        BagImgResponse response = bagImgService.fetchMainImage(bag.getId(), bag.getImages());
         if (response != null)
             bagResponse.setBagImages(List.of(response));
         return bagResponse;
