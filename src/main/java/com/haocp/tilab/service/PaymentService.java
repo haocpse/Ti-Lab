@@ -13,5 +13,5 @@ public interface PaymentService {
     void createPayment(Order order, PayMethod method);
     QRPaymentResponse createQR(double amount, String paymentId);
     PaymentResponse getPaymentByOrderId(String orderId);
-    void sePayConfirm(String apiKey, SePayWebhookRequest request);
+    void sePayConfirm(String authorization, SePayWebhookRequest request);
 }

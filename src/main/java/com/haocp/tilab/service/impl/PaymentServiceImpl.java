@@ -68,8 +68,12 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public void sePayConfirm(String apiKey, SePayWebhookRequest request) {
-        if (!exceptedKey.equals(apiKey)) {
+    public void sePayConfirm(String authorization, SePayWebhookRequest request) {
+        if (authorization == null || !authorization.startsWith("Apikey ")) {
+            throw new AppException(ErrorCode.API_WEBHOOK_MISSING);
+        }
+        String apiKey = authorization.substring("Apikey ".length());
+        if (!exceptedKey.equals(apiKey)){
             throw new AppException(ErrorCode.INVALID_API_WEBHOOK);
         }
         String description = request.getDescription();

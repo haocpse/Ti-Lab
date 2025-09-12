@@ -25,9 +25,9 @@ public class PaymentController {
     }
 
     @PostMapping("/confirm")
-    public ApiResponse<Void> confirm(@RequestHeader("x-api-key") String apiKey,
+    public ApiResponse<Void> confirm(@RequestHeader("Authorization") String authorization,
                                      @RequestBody SePayWebhookRequest request) {
-        paymentService.sePayConfirm(apiKey, request);
+        paymentService.sePayConfirm(authorization, request);
         return ApiResponse.<Void>builder().build();
     }
 }
