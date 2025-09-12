@@ -90,6 +90,7 @@ public class BagServiceImpl implements BagService {
     }
 
     @Override
+    @Transactional
     public Page<BagResponse> getAllAvailableBagByType(BagType type, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Bag> bags = bagRepository.findAllByStatusNotAndType(BagStatus.DELETED, type, pageable);
