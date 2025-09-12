@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -87,8 +88,13 @@ public class PaymentServiceImpl implements PaymentService {
             throw new AppException(ErrorCode.INVALID_API_WEBHOOK);
         }
         String code = request.getCode();
-        String paymentId = code.replace("TKPEXE", "");
-        Payment payment = paymentRepository.findById(paymentId)
+        String raw = code.replace("TKPEXE", "");
+        String formatted = raw.replaceFirst(
+                "(\\p{XDigit}{8})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}{12})",
+                "$1-$2-$3-$4-$5"
+        );
+        UUID paymentId = UUID.fromString(formatted);
+        Payment payment = paymentRepository.findById(String.valueOf(paymentId))
                 .orElseThrow(() -> new AppException(ErrorCode.PAYMENT_NOT_FOUND));
         payment.setStatus(PaymentStatus.PAID);
         paymentRepository.save(payment);
