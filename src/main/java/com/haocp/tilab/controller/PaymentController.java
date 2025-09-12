@@ -3,10 +3,13 @@ package com.haocp.tilab.controller;
 import com.haocp.tilab.dto.ApiResponse;
 import com.haocp.tilab.dto.request.SePay.SePayWebhookRequest;
 import com.haocp.tilab.dto.response.Payment.QRPaymentResponse;
+import com.haocp.tilab.dto.response.SePay.SePayResponse;
 import com.haocp.tilab.service.PaymentService;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -25,9 +28,10 @@ public class PaymentController {
     }
 
     @PostMapping("/confirm")
-    public ApiResponse<Void> confirm(@RequestHeader("Authorization") String authorization,
-                                     @RequestBody SePayWebhookRequest request) {
+    public ResponseEntity<SePayResponse> confirm(@RequestHeader("Authorization") String authorization,
+                                                 @RequestBody SePayWebhookRequest request) {
         paymentService.sePayConfirm(authorization, request);
-        return ApiResponse.<Void>builder().build();
+        return  ResponseEntity.status(HttpStatus.CREATED)
+                .body(new SePayResponse(true));
     }
 }
