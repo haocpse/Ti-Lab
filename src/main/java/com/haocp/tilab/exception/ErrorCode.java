@@ -30,7 +30,8 @@ public enum ErrorCode {
     PAYMENT_NOT_FOUND(404, "Payment not found", HttpStatus.NOT_FOUND),
     COLLECTION_NOT_FOUND(404, "Collection not found", HttpStatus.NOT_FOUND),
     TEMPLATE_NOT_EXIST(404, "Template not exist", HttpStatus.NOT_FOUND),
-    EMAIL_IS_WRONG(400, "Email is wrong", HttpStatus.BAD_REQUEST),;
+    EMAIL_IS_WRONG(400, "Email is wrong", HttpStatus.BAD_REQUEST),
+    INVALID_API_WEBHOOK(401, "Invalid API key", HttpStatus.UNAUTHORIZED),;
 
     int code;
     String message;

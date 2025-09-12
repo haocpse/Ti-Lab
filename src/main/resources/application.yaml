@@ -54,3 +54,5 @@ app:
     username: ${USERNAME_ADMIN}
     password: ${PASSWORD_ADMIN}
   qr: ${QR_PAYMENT}
+  api:
+    webhook: ${SEPAY_WEBHOOK_API}

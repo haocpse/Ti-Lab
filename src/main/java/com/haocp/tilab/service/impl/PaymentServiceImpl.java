@@ -1,5 +1,6 @@
 package com.haocp.tilab.service.impl;
 
+import com.haocp.tilab.dto.request.SePay.SePayWebhookRequest;
 import com.haocp.tilab.dto.response.Payment.PaymentResponse;
 import com.haocp.tilab.dto.response.Payment.QRPaymentResponse;
 import com.haocp.tilab.entity.Order;
@@ -18,6 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+
 @Service
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -29,6 +32,8 @@ public class PaymentServiceImpl implements PaymentService {
     PaymentMapper paymentMapper;
     @Value("${app.qr}")
     String urlQR;
+    @Value("${app.api.webhook}")
+    String exceptedKey;
 
     @Override
     public void createPayment(Order order, PayMethod method) {
@@ -49,7 +54,7 @@ public class PaymentServiceImpl implements PaymentService {
         paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new AppException(ErrorCode.PAYMENT_NOT_FOUND));
         urlQR = urlQR.replace("-amount-", String.format("%.2f", amount));
-        urlQR = urlQR.replace("payment-", paymentId);
+        urlQR = urlQR.replace("-payment-", paymentId);
         return QRPaymentResponse.builder()
                 .urlQR(urlQR)
                 .build();
@@ -60,5 +65,17 @@ public class PaymentServiceImpl implements PaymentService {
         Payment payment = paymentRepository.findPaymentByOrder_Id(orderId)
                 .orElseThrow(() -> new AppException(ErrorCode.NO_PAYMENT_SUITABLE));
         return paymentMapper.toResponse(payment);
+    }
+
+    @Override
+    public void sePayConfirm(String apiKey, SePayWebhookRequest request) {
+        if (!exceptedKey.equals(apiKey)) {
+            throw new AppException(ErrorCode.INVALID_API_WEBHOOK);
+        }
+        String description = request.getDescription();
+        String paymentId = description.replace("TKPEXE", "");
+        Payment payment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new AppException(ErrorCode.PAYMENT_NOT_FOUND));
+        payment.setStatus(PaymentStatus.PAID);
     }
 }
