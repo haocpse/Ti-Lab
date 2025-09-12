@@ -87,8 +87,8 @@ public class PaymentServiceImpl implements PaymentService {
         if (!exceptedKey.equals(apiKey)){
             throw new AppException(ErrorCode.INVALID_API_WEBHOOK);
         }
-        String code = request.getCode();
-        String raw = code.replace("TKPEXE", "");
+        String content = request.getContent();
+        String raw = content.replace("TKPEXE", "");
         String formatted = raw.replaceFirst(
                 "(\\p{XDigit}{8})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}{12})",
                 "$1-$2-$3-$4-$5"
