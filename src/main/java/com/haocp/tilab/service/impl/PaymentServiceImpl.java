@@ -3,21 +3,28 @@ package com.haocp.tilab.service.impl;
 import com.haocp.tilab.dto.request.SePay.SePayWebhookRequest;
 import com.haocp.tilab.dto.response.Payment.PaymentResponse;
 import com.haocp.tilab.dto.response.Payment.QRPaymentResponse;
+import com.haocp.tilab.entity.Customer;
 import com.haocp.tilab.entity.Order;
 import com.haocp.tilab.entity.Payment;
+import com.haocp.tilab.entity.User;
 import com.haocp.tilab.enums.PayMethod;
 import com.haocp.tilab.enums.PaymentStatus;
 import com.haocp.tilab.exception.AppException;
 import com.haocp.tilab.exception.ErrorCode;
 import com.haocp.tilab.mapper.PaymentMapper;
+import com.haocp.tilab.repository.OrderRepository;
 import com.haocp.tilab.repository.PaymentRepository;
 import com.haocp.tilab.service.PaymentService;
+import com.haocp.tilab.utils.event.ConfirmPaidEventListener;
+import com.haocp.tilab.utils.event.PasswordResetEvent;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 
@@ -34,6 +41,8 @@ public class PaymentServiceImpl implements PaymentService {
     String urlQR;
     @Value("${app.api.webhook}")
     String exceptedKey;
+    @Autowired
+    ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     public void createPayment(Order order, PayMethod method) {
@@ -68,6 +77,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
+    @Transactional
     public void sePayConfirm(String authorization, SePayWebhookRequest request) {
         if (authorization == null || !authorization.startsWith("Apikey ")) {
             throw new AppException(ErrorCode.API_WEBHOOK_MISSING);
@@ -76,11 +86,17 @@ public class PaymentServiceImpl implements PaymentService {
         if (!exceptedKey.equals(apiKey)){
             throw new AppException(ErrorCode.INVALID_API_WEBHOOK);
         }
-        String description = request.getDescription();
-        String paymentId = description.replace("TKPEXE", "");
+        String code = request.getCode();
+        String paymentId = code.replace("TKPEXE", "");
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new AppException(ErrorCode.PAYMENT_NOT_FOUND));
         payment.setStatus(PaymentStatus.PAID);
         paymentRepository.save(payment);
+        if (payment.getStatus().equals(PaymentStatus.PAID)) {
+            Order order = payment.getOrder();
+            Customer customer = order.getCustomer();
+            User user = customer.getUser();
+            applicationEventPublisher.publishEvent(new ConfirmPaidEventListener(this, customer, order, payment, user.getEmail()));
+        }
     }
 }
