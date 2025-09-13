@@ -3,6 +3,10 @@ package com.haocp.tilab.service.impl;
 import com.haocp.tilab.dto.request.SePay.SePayWebhookRequest;
 import com.haocp.tilab.dto.response.Payment.PaymentResponse;
 import com.haocp.tilab.dto.response.Payment.QRPaymentResponse;
+import com.haocp.tilab.entity.Customer;
+import com.haocp.tilab.entity.Order;
+import com.haocp.tilab.entity.Payment;
+import com.haocp.tilab.entity.User;
 import com.haocp.tilab.dto.response.Token.VerificationTokenResponse;
 import com.haocp.tilab.entity.*;
 import com.haocp.tilab.enums.PayMethod;
@@ -11,19 +15,25 @@ import com.haocp.tilab.enums.TokenType;
 import com.haocp.tilab.exception.AppException;
 import com.haocp.tilab.exception.ErrorCode;
 import com.haocp.tilab.mapper.PaymentMapper;
+import com.haocp.tilab.repository.OrderRepository;
 import com.haocp.tilab.repository.PaymentRepository;
 import com.haocp.tilab.repository.UserRepository;
 import com.haocp.tilab.service.PaymentService;
 import com.haocp.tilab.service.VerificationTokenService;
 import com.haocp.tilab.utils.IdentifyUser;
+import com.haocp.tilab.utils.event.ConfirmPaidEventListener;
+import com.haocp.tilab.utils.event.PasswordResetEvent;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -42,6 +52,8 @@ public class PaymentServiceImpl implements PaymentService {
     VerificationTokenService verificationTokenService;
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     public void createPayment(Order order, PayMethod method) {
@@ -80,6 +92,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
+    @Transactional
     public void sePayConfirm(String authorization, SePayWebhookRequest request) {
         if (authorization == null || !authorization.startsWith("Apikey ")) {
             throw new AppException(ErrorCode.API_WEBHOOK_MISSING);
@@ -88,9 +101,14 @@ public class PaymentServiceImpl implements PaymentService {
         if (!exceptedKey.equals(apiKey)){
             throw new AppException(ErrorCode.INVALID_API_WEBHOOK);
         }
-        String description = request.getDescription();
-        String token = description.replace("TKPEXE", "");
-        VerificationTokenResponse verificationTokenResponse = verificationTokenService.validateToken(token);
+        String content = request.getContent();
+        String rawToken = content.replace("TKPEXE", "");
+        String formatted = rawToken.replaceFirst(
+                "(\\p{XDigit}{8})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}{12})",
+                "$1-$2-$3-$4-$5"
+        );
+        UUID token = UUID.fromString(formatted);
+        VerificationTokenResponse verificationTokenResponse = verificationTokenService.validateToken(String.valueOf(token));
         if(verificationTokenResponse.isValid()) {
             String paymentId = verificationTokenResponse.getReferenceId().replace("paymentId=", "");
             Payment payment = paymentRepository.findById(paymentId)
@@ -98,6 +116,13 @@ public class PaymentServiceImpl implements PaymentService {
             payment.setStatus(PaymentStatus.PAID);
             payment.setPayAt(verificationTokenResponse.getUsedAt());
             paymentRepository.save(payment);
+            if (payment.getStatus().equals(PaymentStatus.PAID)) {
+                Order order = payment.getOrder();
+                Customer customer = order.getCustomer();
+                User user = customer.getUser();
+                applicationEventPublisher.publishEvent(new ConfirmPaidEventListener(this, customer, order, payment, user.getEmail()));
+            }
         }
+        
     }
 }

@@ -9,6 +9,7 @@ import jakarta.mail.MessagingException;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,10 +27,10 @@ public class EmailController {
     @Autowired
     EmailService emailService;
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     public ApiResponse<Void> createTemplate(@RequestPart(value = "template")CreateTemplateRequest request,
-                                                     @RequestPart MultipartFile body) {
+                                            @RequestPart MultipartFile body) {
         emailTemplateService.createMailTemplate(request, body);
         return ApiResponse.<Void>builder().build();
     }

@@ -5,6 +5,7 @@ import com.haocp.tilab.dto.request.Collection.UpdateCollectionRequest;
 import com.haocp.tilab.dto.response.Collection.CollectionResponse;
 import com.haocp.tilab.entity.Bag;
 import com.haocp.tilab.entity.Collection;
+import com.haocp.tilab.enums.CollectionStatus;
 import com.haocp.tilab.exception.AppException;
 import com.haocp.tilab.exception.ErrorCode;
 import com.haocp.tilab.mapper.CollectionMapper;
@@ -52,6 +53,7 @@ public class CollectionServiceImpl implements CollectionService {
     @Transactional
     public CollectionResponse createCollection(CreateCollectionRequest request, MultipartFile thumbnail) {
         Collection collection = collectionMapper.toCollection(request);
+        collection.setStatus(CollectionStatus.COMING_SOON);
         collectionRepository.save(collection);
         saveThumbnailAndAddBagIntoCollection(thumbnail, collection, request.getAddBagIds());
         return buildCollectionResponse(collection);
