@@ -35,7 +35,9 @@ public enum ErrorCode {
     API_WEBHOOK_MISSING(401, "API key missing", HttpStatus.UNAUTHORIZED),
     TOKEN_NOT_EXIST(404, "Token not exist", HttpStatus.NOT_FOUND),
     TOKEN_EXPIRED(401, "Token is expired", HttpStatus.UNAUTHORIZED),
-    AMOUNT_NOT_MATCH_TOTAL(400, "Amount not match total", HttpStatus.BAD_REQUEST),;
+    AMOUNT_NOT_MATCH_TOTAL(400, "Amount not match total", HttpStatus.BAD_REQUEST),
+    ACCESS_TOKEN_EXPIRED(419, "Access token is expired", HttpStatus.UNAUTHORIZED),
+    INVALID_TOKEN(401, "Invalid token", HttpStatus.UNAUTHORIZED),;
 
     int code;
     String message;

@@ -19,16 +19,22 @@ import com.haocp.tilab.repository.StaffRepository;
 import com.haocp.tilab.repository.UserRepository;
 import com.haocp.tilab.service.AuthService;
 import com.haocp.tilab.service.UserService;
+import com.haocp.tilab.service.VerificationTokenService;
 import com.haocp.tilab.utils.GenerateToken;
 import com.haocp.tilab.utils.event.PasswordResetEvent;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -53,6 +59,11 @@ public class AuthServiceImpl implements AuthService {
     GenerateToken generateToken;
     @Autowired
     ApplicationEventPublisher applicationEventPublisher;
+    @Autowired
+    @Qualifier("jwtDecoderWithoutExpiration")
+    JwtDecoder jwtDecoderWithoutExpiration;
+    @Autowired
+    VerificationTokenService verificationTokenService;
 
     @Override
     @Transactional
@@ -69,7 +80,7 @@ public class AuthServiceImpl implements AuthService {
                         .orElseThrow(() -> new AppException(ErrorCode.THERE_NO_MEMBERSHIP)))
                 .build());
         return LoginResponse.builder()
-                .accessToken(generateToken(customer.getUser()))
+                .accessToken(generateToken(customer.getUser(), false, ""))
                 .build();
     }
 
@@ -84,7 +95,7 @@ public class AuthServiceImpl implements AuthService {
             throw new AppException(ErrorCode.ACCOUNT_BANNED);
         }
         return LoginResponse.builder()
-                .accessToken(generateToken(user))
+                .accessToken(generateToken(user, false, ""))
                 .build();
     }
 
@@ -109,13 +120,31 @@ public class AuthServiceImpl implements AuthService {
         userRepository.save(user);
     }
 
-    String generateToken(User user){
+    @Override
+    public LoginResponse refreshToken(String expiredToken) {
+        Jwt jwt = jwtDecoderWithoutExpiration.decode(expiredToken);
+        String jwtId = jwt.getId();
+        String username = jwt.getClaims().get("sub").toString();
+        User user = userRepository.findByUsernameAndActiveIsTrue(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXIST));
+        if (!verificationTokenService.isValid(jwtId, user))
+            throw new AppException(ErrorCode.HAVE_NOT_LOGIN);
+        return LoginResponse.builder()
+                .accessToken(generateToken(user, true, jwtId))
+                .build();
+    }
+
+    String generateToken(User user, boolean refresh, String jwtId){
         String claimJWT = user.getRole().toString();
         if (claimJWT.matches("STAFF")) {
             Staff staff = staffRepository.findById(user.getId())
                     .orElseThrow(() -> new AppException(ErrorCode.STAFF_NOT_FOUND));
             claimJWT = staff.getRole().toString();
         }
-        return generateToken.generateLoginToken(claimJWT, user.getUsername());
+        String id = jwtId;
+        if (id.isEmpty() || id.isBlank()){
+             id = UUID.randomUUID().toString();
+        }
+        return generateToken.generateLoginToken(claimJWT, user, refresh, id);
     }
 }

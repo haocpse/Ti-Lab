@@ -12,4 +12,5 @@ public interface AuthService {
     LoginResponse login(LoginRequest loginRequest);
     void resetPassword(ConfirmResetRequest request);
     void changePassword(String id, ChangePasswordRequest request);
+    LoginResponse refreshToken(String expiredToken);
 }

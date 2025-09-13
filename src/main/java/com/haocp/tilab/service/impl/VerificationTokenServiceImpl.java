@@ -6,12 +6,15 @@ import com.haocp.tilab.entity.VerificationToken;
 import com.haocp.tilab.enums.TokenType;
 import com.haocp.tilab.exception.AppException;
 import com.haocp.tilab.exception.ErrorCode;
+import com.haocp.tilab.repository.UserRepository;
 import com.haocp.tilab.repository.VerificationTokenRepository;
 import com.haocp.tilab.service.VerificationTokenService;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -24,19 +27,32 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
 
     @Autowired
     VerificationTokenRepository verificationTokenRepository;
+    @Autowired
+    UserRepository userRepository;
 
     @Override
     public String createToken(TokenType type, User user, String referenceId) {
         String token = UUID.randomUUID().toString();
         verificationTokenRepository.save(VerificationToken.builder()
-                .token(token)
-                .user(user)
-                .type(type)
-                .referenceId(referenceId)
-                .expiredAt(Instant.now().plusSeconds(900))
-                .used(false)
-                .build());
+                    .token(token)
+                    .user(user)
+                    .type(type)
+                    .referenceId(referenceId)
+                    .expiredAt(Instant.now().plusSeconds(900))
+                    .used(false)
+                    .build());
         return token;
+    }
+
+    @Override
+    public void createRefreshToken(String jwtId, User user, int refreshToken) {
+        verificationTokenRepository.save(VerificationToken.builder()
+                        .token(jwtId)
+                        .user(user)
+                        .type(TokenType.REFRESH_TOKEN)
+                        .expiredAt(Instant.now().plusSeconds(refreshToken))
+                        .used(false)
+                .build());
     }
 
     @Override
@@ -55,6 +71,13 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
                 .referenceId(verificationToken.getReferenceId())
                 .usedAt(verificationToken.getUsedAt())
                 .build();
+    }
+
+    @Override
+    public boolean isValid(String jwtId, User user) {
+        VerificationToken token = verificationTokenRepository.findByTokenAndUser_IdAndUsed(jwtId, user.getId(), false)
+                .orElseThrow(() -> new AppException(ErrorCode.TOKEN_NOT_EXIST));
+        return token.getExpiredAt().isAfter(Instant.now());
     }
 
     @Override

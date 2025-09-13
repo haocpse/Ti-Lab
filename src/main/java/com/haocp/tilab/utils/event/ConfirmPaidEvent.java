@@ -3,7 +3,6 @@ package com.haocp.tilab.utils.event;
 import com.haocp.tilab.entity.Customer;
 import com.haocp.tilab.entity.Order;
 import com.haocp.tilab.entity.Payment;
-import com.haocp.tilab.enums.PayMethod;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.FieldDefaults;
@@ -11,14 +10,14 @@ import org.springframework.context.ApplicationEvent;
 
 @Getter
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class ConfirmPaidEventListener extends ApplicationEvent {
+public class ConfirmPaidEvent extends ApplicationEvent {
 
     Customer customer;
     Order order;
     Payment payment;
     String email;
 
-    public ConfirmPaidEventListener(Object source,Customer customer, Order order, Payment payment, String email) {
+    public ConfirmPaidEvent(Object source, Customer customer, Order order, Payment payment, String email) {
         super(source);
         this.order = order;
         this.customer = customer;

@@ -10,8 +10,11 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
@@ -36,6 +39,7 @@ public class SecurityConfig {
             "/api/login",
             "/api/register",
             "/api/reset-password",
+            "/api/refresh-token",
             "/swagger-ui/**",
             "/v3/api-docs/**",
             "/api/enums/**",
@@ -84,13 +88,27 @@ public class SecurityConfig {
         return authenticationConverter;
     }
 
-    @Bean
+    @Bean("jwtDecoderDefault")
     JwtDecoder jwtDecoder(){
         SecretKey secretKey = new SecretKeySpec(SIGNER_KEY.getBytes(), "HS512");
         return NimbusJwtDecoder
                 .withSecretKey(secretKey)
                 .macAlgorithm(MacAlgorithm.HS512)
                 .build();
+    }
+
+    @Bean("jwtDecoderWithoutExpiration")
+    JwtDecoder jwtDecoderWithoutExpiration(){
+        SecretKey secretKey = new SecretKeySpec(SIGNER_KEY.getBytes(), "HS512");
+        NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder
+                .withSecretKey(secretKey)
+                .macAlgorithm(MacAlgorithm.HS512)
+                .build();
+
+        jwtDecoder.setJwtValidator(JwtValidators.createDefaultWithIssuer("haocp"));
+        jwtDecoder.setJwtValidator(Jwt -> OAuth2TokenValidatorResult.success());
+
+        return jwtDecoder;
     }
 
     @Bean

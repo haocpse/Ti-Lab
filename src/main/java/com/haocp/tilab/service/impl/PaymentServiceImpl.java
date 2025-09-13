@@ -8,21 +8,18 @@ import com.haocp.tilab.entity.Order;
 import com.haocp.tilab.entity.Payment;
 import com.haocp.tilab.entity.User;
 import com.haocp.tilab.dto.response.Token.VerificationTokenResponse;
-import com.haocp.tilab.entity.*;
 import com.haocp.tilab.enums.PayMethod;
 import com.haocp.tilab.enums.PaymentStatus;
 import com.haocp.tilab.enums.TokenType;
 import com.haocp.tilab.exception.AppException;
 import com.haocp.tilab.exception.ErrorCode;
 import com.haocp.tilab.mapper.PaymentMapper;
-import com.haocp.tilab.repository.OrderRepository;
 import com.haocp.tilab.repository.PaymentRepository;
 import com.haocp.tilab.repository.UserRepository;
 import com.haocp.tilab.service.PaymentService;
 import com.haocp.tilab.service.VerificationTokenService;
 import com.haocp.tilab.utils.IdentifyUser;
-import com.haocp.tilab.utils.event.ConfirmPaidEventListener;
-import com.haocp.tilab.utils.event.PasswordResetEvent;
+import com.haocp.tilab.utils.event.ConfirmPaidEvent;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +29,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -113,7 +109,7 @@ public class PaymentServiceImpl implements PaymentService {
                 Order order = payment.getOrder();
                 Customer customer = order.getCustomer();
                 User user = customer.getUser();
-                applicationEventPublisher.publishEvent(new ConfirmPaidEventListener(this, customer, order, payment, user.getEmail()));
+                applicationEventPublisher.publishEvent(new ConfirmPaidEvent(this, customer, order, payment, user.getEmail()));
             }
         }
     }

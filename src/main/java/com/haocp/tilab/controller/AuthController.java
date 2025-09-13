@@ -3,6 +3,7 @@ package com.haocp.tilab.controller;
 import com.haocp.tilab.dto.ApiResponse;
 import com.haocp.tilab.dto.request.Customer.LoginRequest;
 import com.haocp.tilab.dto.request.Customer.RegisterRequest;
+import com.haocp.tilab.dto.request.Token.RefreshTokenRequest;
 import com.haocp.tilab.dto.request.User.ChangePasswordRequest;
 import com.haocp.tilab.dto.request.User.ConfirmResetRequest;
 import com.haocp.tilab.dto.response.Token.LoginResponse;
@@ -38,6 +39,13 @@ public class AuthController {
     public ApiResponse<Void> confirmReset(@RequestBody ConfirmResetRequest request) {
         authService.resetPassword(request);
         return ApiResponse.<Void>builder().build();
+    }
+
+    @PostMapping("/refresh-token")
+    public ApiResponse<LoginResponse> refreshToken(@RequestBody RefreshTokenRequest request) {
+        return ApiResponse.<LoginResponse>builder()
+                .data(authService.refreshToken(request.getToken()))
+                .build();
     }
 
     @PutMapping("/change-password/{id}")

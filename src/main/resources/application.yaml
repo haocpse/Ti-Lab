@@ -56,5 +56,6 @@ app:
   qr: ${QR_PAYMENT}
   api:
     webhook: ${SEPAY_WEBHOOK_API}
-  refresh-duration: ${REFRESH_DURATION}
-  access_duration: ${ACCESS_DURATION}
+  staff-refresh-duration: ${STAFF_REFRESH_DURATION}
+  customer-refresh-duration: ${CUSTOMER_REFRESH_DURATION}
+  access-duration: ${ACCESS_DURATION}

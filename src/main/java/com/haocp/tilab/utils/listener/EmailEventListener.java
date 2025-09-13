@@ -10,7 +10,7 @@ import com.haocp.tilab.exception.ErrorCode;
 import com.haocp.tilab.repository.CustomerRepository;
 import com.haocp.tilab.service.EmailService;
 import com.haocp.tilab.service.EmailTemplateService;
-import com.haocp.tilab.utils.event.ConfirmPaidEventListener;
+import com.haocp.tilab.utils.event.ConfirmPaidEvent;
 import com.haocp.tilab.utils.event.PasswordResetEvent;
 import jakarta.mail.MessagingException;
 import lombok.AccessLevel;
@@ -51,7 +51,7 @@ public class EmailEventListener {
     }
 
     @EventListener
-    public void handleConfirmPaidEvent(ConfirmPaidEventListener event) throws MessagingException {
+    public void handleConfirmPaidEvent(ConfirmPaidEvent event) throws MessagingException {
         String email = event.getEmail();
         Order order = event.getOrder();
         Payment payment = event.getPayment();
