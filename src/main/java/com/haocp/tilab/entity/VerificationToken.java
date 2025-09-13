@@ -23,7 +23,7 @@ public class VerificationToken {
     Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id")
     User user;
 
     @Column(nullable = false, unique = true)
@@ -33,6 +33,9 @@ public class VerificationToken {
     @Enumerated(EnumType.STRING)
     TokenType type;
 
+    @Column(length = 100)
+    String referenceId;
+
     @Column(nullable = false)
     Instant expiredAt;
 
@@ -41,5 +44,8 @@ public class VerificationToken {
 
     @Column(nullable = false, updatable = false)
     Instant createdAt = Instant.now();
+
+    @Column
+    Instant usedAt;
 
 }

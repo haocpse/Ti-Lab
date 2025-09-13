@@ -32,7 +32,9 @@ public enum ErrorCode {
     TEMPLATE_NOT_EXIST(404, "Template not exist", HttpStatus.NOT_FOUND),
     EMAIL_IS_WRONG(400, "Email is wrong", HttpStatus.BAD_REQUEST),
     INVALID_API_WEBHOOK(401, "Invalid API key", HttpStatus.UNAUTHORIZED),
-    API_WEBHOOK_MISSING(401, "API key missing", HttpStatus.UNAUTHORIZED),;
+    API_WEBHOOK_MISSING(401, "API key missing", HttpStatus.UNAUTHORIZED),
+    TOKEN_NOT_EXIST(404, "Token not exist", HttpStatus.NOT_FOUND),
+    TOKEN_EXPIRED(401, "Token is expired", HttpStatus.UNAUTHORIZED),;
 
     int code;
     String message;

@@ -39,6 +39,9 @@ public class Payment {
     @Enumerated(EnumType.STRING)
     PaymentStatus status;
 
+    @Column
+    Instant payAt;
+
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     PayMethod method;

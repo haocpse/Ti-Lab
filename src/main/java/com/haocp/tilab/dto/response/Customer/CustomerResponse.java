@@ -5,6 +5,7 @@ import com.haocp.tilab.dto.response.User.UserResponse;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @NoArgsConstructor
@@ -17,6 +18,7 @@ public class CustomerResponse {
     UserResponse userResponse;
     String fullName;
     double point;
+    LocalDateTime dob;
     MembershipResponse membershipResponse;
     List<CustomerAddressResponse> addresses;
 

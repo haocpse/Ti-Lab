@@ -116,6 +116,6 @@ public class AuthServiceImpl implements AuthService {
                     .orElseThrow(() -> new AppException(ErrorCode.STAFF_NOT_FOUND));
             claimJWT = staff.getRole().toString();
         }
-        return generateToken.generate(claimJWT, user.getUsername());
+        return generateToken.generateLoginToken(claimJWT, user.getUsername());
     }
 }
