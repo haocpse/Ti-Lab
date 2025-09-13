@@ -77,10 +77,11 @@ public class PaymentServiceImpl implements PaymentService {
                 .orElseThrow(() -> new AppException(ErrorCode.PAYMENT_NOT_FOUND));
         String referenceId = "paymentId=" + paymentId;
         String token = verificationTokenService.createToken(TokenType.PAYMENT_PROCESSING, user, referenceId);
-        urlQR = urlQR.replace("-amount-", String.format("%.2f", amount));
-        urlQR = urlQR.replace("-payment-", token);
+        String url = urlQR
+                .replace("-amount-", String.format("%.2f", amount))
+                .replace("-payment-", token);
         return QRPaymentResponse.builder()
-                .urlQR(urlQR)
+                .urlQR(url)
                 .build();
     }
 
