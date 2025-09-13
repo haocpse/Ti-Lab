@@ -11,6 +11,8 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.UUID;
 
@@ -19,6 +21,10 @@ public class GenerateToken {
 
     @Value("${jwt.signerKey}")
     private String SIGNER_KEY;
+    @Value("${app.access_duration}")
+    private int ACCESS_DURATION;
+    @Value("${app.refresh-duration}")
+    private int REFRESH_DURATION;
 
     public String generateLoginToken(String role, String username) {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
@@ -26,7 +32,7 @@ public class GenerateToken {
                 .subject(username)
                 .issuer("haocp")
                 .issueTime(new Date())
-//                .expirationTime(new Date(Instant.now().plus(validDuration, ChronoUnit.SECONDS).toEpochMilli()))
+                .expirationTime(new Date(Instant.now().plus(ACCESS_DURATION, ChronoUnit.SECONDS).toEpochMilli()))
                 .jwtID(UUID.randomUUID().toString())
                 .claim("scope", role)
                 .build();

@@ -34,6 +34,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @Slf4j
@@ -124,7 +126,12 @@ public class PaymentServiceImpl implements PaymentService {
         if (!exceptedKey.equals(apiKey)){
             throw new AppException(ErrorCode.INVALID_API_WEBHOOK);
         }
-        String rawToken = content.replace("TKPEXE", "");
+        Pattern TOKEN_PATTERN = Pattern.compile("TKPEXE([0-9a-fA-F]{32})");
+        Matcher matcher = TOKEN_PATTERN.matcher(content);
+        if (!matcher.find()) {
+            throw new AppException(ErrorCode.INVALID_API_WEBHOOK);
+        }
+        String rawToken = matcher.group(1);
         String formatted = rawToken.replaceFirst(
                 "(\\p{XDigit}{8})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}{12})",
                 "$1-$2-$3-$4-$5"
