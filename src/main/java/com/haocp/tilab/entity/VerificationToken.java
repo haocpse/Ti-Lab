@@ -5,6 +5,7 @@ import com.haocp.tilab.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
 
@@ -43,7 +44,8 @@ public class VerificationToken {
     boolean used = false;
 
     @Column(nullable = false, updatable = false)
-    Instant createdAt = Instant.now();
+    @CreationTimestamp
+    Instant createdAt;
 
     @Column
     Instant usedAt;
