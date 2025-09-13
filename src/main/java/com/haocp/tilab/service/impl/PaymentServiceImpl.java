@@ -94,20 +94,7 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     @Transactional
     public void sePayConfirm(String authorization, SePayWebhookRequest request) {
-        if (authorization == null || !authorization.startsWith("Apikey ")) {
-            throw new AppException(ErrorCode.API_WEBHOOK_MISSING);
-        }
-        String apiKey = authorization.substring("Apikey ".length());
-        if (!exceptedKey.equals(apiKey)){
-            throw new AppException(ErrorCode.INVALID_API_WEBHOOK);
-        }
-        String content = request.getContent();
-        String rawToken = content.replace("TKPEXE", "");
-        String formatted = rawToken.replaceFirst(
-                "(\\p{XDigit}{8})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}{12})",
-                "$1-$2-$3-$4-$5"
-        );
-        UUID token = UUID.fromString(formatted);
+        UUID token = validAuthorization(authorization, request.getContent());
         VerificationTokenResponse verificationTokenResponse = verificationTokenService.validateToken(String.valueOf(token));
         if(verificationTokenResponse.isValid()) {
             String paymentId = verificationTokenResponse.getReferenceId().replace("paymentId=", "");
@@ -123,6 +110,21 @@ public class PaymentServiceImpl implements PaymentService {
                 applicationEventPublisher.publishEvent(new ConfirmPaidEventListener(this, customer, order, payment, user.getEmail()));
             }
         }
-        
+    }
+
+    UUID validAuthorization(String authorization, String content) {
+        if (authorization == null || !authorization.startsWith("Apikey ")) {
+            throw new AppException(ErrorCode.API_WEBHOOK_MISSING);
+        }
+        String apiKey = authorization.substring("Apikey ".length());
+        if (!exceptedKey.equals(apiKey)){
+            throw new AppException(ErrorCode.INVALID_API_WEBHOOK);
+        }
+        String rawToken = content.replace("TKPEXE", "");
+        String formatted = rawToken.replaceFirst(
+                "(\\p{XDigit}{8})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}{12})",
+                "$1-$2-$3-$4-$5"
+        );
+        return UUID.fromString(formatted);
     }
 }
