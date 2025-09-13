@@ -140,6 +140,6 @@ public class CollectionServiceImpl implements CollectionService {
     }
 
     String buildThumbnailUrl(Collection collection) {
-        return combineToUrl.collectionThumbnail(collection.getId());
+        return combineToUrl.collectionThumbnail(collection.getId(), collection.getThumbnail());
     }
 }

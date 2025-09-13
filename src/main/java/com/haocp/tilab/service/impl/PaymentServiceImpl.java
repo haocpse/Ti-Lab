@@ -73,8 +73,11 @@ public class PaymentServiceImpl implements PaymentService {
     public QRPaymentResponse createQR(double amount, String paymentId) {
         User user = userRepository.findByUsernameAndActiveIsTrue(IdentifyUser.getCurrentUsername())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXIST));
-        paymentRepository.findById(paymentId)
+        Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new AppException(ErrorCode.PAYMENT_NOT_FOUND));
+        if (Double.compare(payment.getTotal(), amount) != 0) {
+            throw new AppException(ErrorCode.AMOUNT_NOT_MATCH_TOTAL);
+        }
         String referenceId = "paymentId=" + paymentId;
         String token = verificationTokenService.createToken(TokenType.PAYMENT_PROCESSING, user, referenceId);
         String url = urlQR

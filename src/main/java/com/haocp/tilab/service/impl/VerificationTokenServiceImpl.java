@@ -56,4 +56,16 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
                 .usedAt(verificationToken.getUsedAt())
                 .build();
     }
+
+    @Override
+    public String refreshToken(String token) {
+        VerificationToken verificationToken = verificationTokenRepository.findByToken(token)
+                .orElseThrow(() -> new AppException(ErrorCode.TOKEN_NOT_EXIST));
+        String newToken = UUID.randomUUID().toString();
+        verificationToken.setToken(newToken);
+        verificationToken.setExpiredAt(Instant.now().plusSeconds(900));
+        verificationToken.setUsed(false);
+        verificationTokenRepository.save(verificationToken);
+        return newToken;
+    }
 }

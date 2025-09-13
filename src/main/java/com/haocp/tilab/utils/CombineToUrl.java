@@ -11,8 +11,8 @@ public class CombineToUrl {
     @Value("${app.image.url}")
     private String imageUrl;
 
-    public String collectionThumbnail(Long collectionId) {
-        return imageUrl + "collection/" + collectionId;
+    public String collectionThumbnail(Long collectionId, String thumbnailUrl) {
+        return imageUrl + "collection/" + collectionId + "/" + thumbnailUrl;
     }
 
     public String bagImages(String bagId, boolean main, String baseUrl){

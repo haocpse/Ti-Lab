@@ -9,4 +9,5 @@ public interface VerificationTokenService {
 
     String createToken(TokenType type, User user, String referenceId);
     VerificationTokenResponse validateToken(String token);
+    String refreshToken(String token);
 }
