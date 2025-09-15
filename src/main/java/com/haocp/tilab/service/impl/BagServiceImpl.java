@@ -146,11 +146,11 @@ public class BagServiceImpl implements BagService {
         } else {
             bag.setStatus(BagStatus.IN_STOCK);
         }
-        BagResponse response = buildBagResponse(bagRepository.save(bag));
+        bagRepository.save(bag);
         if (imageBags != null || !updateBagRequest.getRemoveIds().isEmpty()) {
             applicationEventPublisher.publishEvent(new BagUpdatedEvent(this, bag, imageBags, updateBagRequest.getRemoveIds()));
         }
-        return response ;
+        return buildBagResponse(bag);
     }
 
     @Override
