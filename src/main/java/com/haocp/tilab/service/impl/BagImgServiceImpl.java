@@ -46,7 +46,7 @@ public class BagImgServiceImpl implements BagImgService {
     public void saveImage(Bag bag, List<MultipartFile> imageBags) {
         Set<BagImg> bagImages = new HashSet<>();
         for (MultipartFile image : imageBags) {
-            bagImages.add(saveBagImg(image, bag));
+            bagImages.add(saveBagImg(image, bag, bagImages));
         }
         bag.setImages(bagImages);
         bagRepository.save(bag);
@@ -59,18 +59,28 @@ public class BagImgServiceImpl implements BagImgService {
         bagImages.removeIf(img -> removeIds.contains(img.getId()));
         if (imageBags != null) {
             for (MultipartFile image : imageBags) {
-                bagImages.add(saveBagImg(image, bag));
+                bagImages.add(saveBagImg(image, bag, bagImages));
             }
         }
         bagRepository.save(bag);
     }
 
     @Transactional
-    BagImg saveBagImg(MultipartFile image, Bag bag){
+    BagImg saveBagImg(MultipartFile image, Bag bag, Set<BagImg> bagImages) {
         String imageName = image.getOriginalFilename();
         if (imageName == null || imageName.trim().isEmpty())
             throw new AppException(ErrorCode.IMG_NOT_HAVE_NAME);
         boolean main = imageName.contains("_main_");
+        if(main){
+            bagImages.forEach(img -> {
+                String url = img.getUrl();
+                if (url.contains("_main_")){
+                    url = url.replace("_main_", "");
+                    img.setUrl(url);
+                    img.setMain(false);
+                }
+            });
+        }
         return save(image, imageName, main, bag);
     }
 
