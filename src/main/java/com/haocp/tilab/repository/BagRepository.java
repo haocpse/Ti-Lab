@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 public interface BagRepository extends JpaRepository<Bag, String> {
@@ -21,4 +22,5 @@ public interface BagRepository extends JpaRepository<Bag, String> {
     Page<Bag> findByCollection_Id(long id, Pageable pageable);
     Page<Bag> findAllByNameContainsIgnoreCaseAndStatusNot(String name, BagStatus status, Pageable pageable);
     Page<Bag> findAllByNameContainsIgnoreCase(String name, Pageable pageable);
+    Set<Bag> findByCollection_Id(Long id);
 }

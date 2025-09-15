@@ -72,6 +72,7 @@ public class CollectionServiceImpl implements CollectionService {
                 .orElseThrow(() -> new AppException(ErrorCode.COLLECTION_NOT_FOUND));
         CollectionResponse response = buildCollectionResponse(collection);
         response.setUrlThumbnail(buildThumbnailUrl(collection));
+        response.setBags(bagService.getBagFromCollection(id));
         return response;
     }
 

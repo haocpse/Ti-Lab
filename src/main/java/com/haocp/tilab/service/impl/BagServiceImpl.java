@@ -32,6 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @Slf4j
@@ -158,6 +159,14 @@ public class BagServiceImpl implements BagService {
                 .orElseThrow(() -> new AppException(ErrorCode.BAG_NOT_FOUND));
         bag.setCollection(null);
         bagRepository.save(bag);
+    }
+
+    @Override
+    public List<BagResponse> getBagFromCollection(Long id) {
+        Set<Bag> bags = bagRepository.findByCollection_Id(id);
+        return bags.stream()
+                .map(this::buildBagResponse)
+                .toList();
     }
 
     Bag create(CreateBagRequest createBagRequest){

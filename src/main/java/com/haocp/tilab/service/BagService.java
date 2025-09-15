@@ -24,4 +24,5 @@ public interface BagService {
     void deleteBag(String id);
     BagResponse updateBag(String id, UpdateBagRequest updateBagRequest, List<MultipartFile> imageBags);
     void removeBagFromCollection(String id);
+    List<BagResponse> getBagFromCollection(Long id);
 }
