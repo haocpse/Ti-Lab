@@ -55,16 +55,13 @@ public class BagImgServiceImpl implements BagImgService {
     @Override
     @Transactional
     public void updateImage(Bag bag, List<MultipartFile> imageBags, List<Long> removeIds) {
-        Set<BagImg> bagImages = bagImgRepository.findByBag_Id(bag.getId());
-        for (Long id : removeIds) {
-            BagImg img = getBagImg(id);
-            bagImages.remove(img);
-            deleteBagImg(img);
+        Set<BagImg> bagImages = bag.getImages();
+        bagImages.removeIf(img -> removeIds.contains(img.getId()));
+        if (imageBags != null) {
+            for (MultipartFile image : imageBags) {
+                bagImages.add(saveBagImg(image, bag));
+            }
         }
-        for (MultipartFile image : imageBags) {
-            bagImages.add(saveBagImg(image, bag));
-        }
-        bag.setImages(bagImages);
         bagRepository.save(bag);
     }
 
@@ -113,11 +110,11 @@ public class BagImgServiceImpl implements BagImgService {
             }
             Path filePath = uploadPath.resolve(imageName);
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-            return bagImgRepository.save(BagImg.builder()
+            return BagImg.builder()
                     .bag(bag)
                     .url(imageName)
                     .main(main)
-                    .build());
+                    .build();
         } catch (IOException e) {
             throw new RuntimeException("Failed to store file " + file.getOriginalFilename(), e);
         }
@@ -131,12 +128,4 @@ public class BagImgServiceImpl implements BagImgService {
         return Paths.get("uploads", bag.getId(), "main");
     }
 
-    BagImg getBagImg(Long id){
-        return bagImgRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.IMG_NOT_FOUND));
-    }
-
-    void deleteBagImg(BagImg img){
-        bagImgRepository.delete(img);
-    }
 }

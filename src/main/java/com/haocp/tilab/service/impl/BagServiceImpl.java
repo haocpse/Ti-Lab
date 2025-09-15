@@ -147,7 +147,7 @@ public class BagServiceImpl implements BagService {
             bag.setStatus(BagStatus.IN_STOCK);
         }
         BagResponse response = buildBagResponse(bagRepository.save(bag));
-        if (imageBags != null) {
+        if (imageBags != null || !updateBagRequest.getRemoveIds().isEmpty()) {
             applicationEventPublisher.publishEvent(new BagUpdatedEvent(this, bag, imageBags, updateBagRequest.getRemoveIds()));
         }
         return response ;
