@@ -60,10 +60,11 @@ public class CollectionServiceImpl implements CollectionService {
     }
 
     @Override
+    @Transactional
     public Page<CollectionResponse> getAllCollection(int page, int size) {
         PageRequest pageable = PageRequest.of(page, size);
         Page<Collection> collections = collectionRepository.findAll(pageable);
-        return collections.map(this::buildCollectionResponse);
+        return collections.map(collection -> getCollection(collection.getId()));
     }
 
     @Override
