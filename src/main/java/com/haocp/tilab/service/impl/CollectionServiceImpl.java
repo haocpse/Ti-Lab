@@ -63,19 +63,23 @@ public class CollectionServiceImpl implements CollectionService {
     }
 
     @Override
+    @Transactional
     public Page<CollectionResponse> getAllCollection(int page, int size) {
         PageRequest pageable = PageRequest.of(page, size);
         Page<Collection> collections = collectionRepository.findAll(pageable);
-        return collections.map(this::buildCollectionResponse);
+        return collections.map(collection -> getCollection(collection.getId()));
     }
 
     @Override
+    @Transactional
     public CollectionResponse getCollection(long id) {
         Collection collection = collectionRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.COLLECTION_NOT_FOUND));
         CollectionResponse response = buildCollectionResponse(collection);
         response.setUrlThumbnail(buildThumbnailUrl(collection));
-        response.setBags(bagService.getBagFromCollection(id));
+        response.setBags(collection.getBags().stream()
+                .map(bag -> bagService.getBag(bag.getId()))
+                .toList());
         return response;
     }
 
