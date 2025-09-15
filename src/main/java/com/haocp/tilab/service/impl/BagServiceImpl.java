@@ -162,6 +162,7 @@ public class BagServiceImpl implements BagService {
     }
 
     @Override
+    @Transactional
     public List<BagResponse> getBagFromCollection(Long id) {
         Set<Bag> bags = bagRepository.findByCollection_Id(id);
         return bags.stream()
