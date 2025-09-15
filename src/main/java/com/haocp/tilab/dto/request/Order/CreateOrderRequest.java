@@ -15,10 +15,10 @@ import java.util.List;
 public class CreateOrderRequest {
 
     String address;
-    Long couponId;
     double subTotal;
     int feeOfDelivery;
     double total;
+    String phone;
     PayMethod method;
     List<CreateOrderDetailRequest> createDetailRequests;
 

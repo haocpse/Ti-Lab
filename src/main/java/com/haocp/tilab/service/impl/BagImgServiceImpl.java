@@ -11,6 +11,7 @@ import com.haocp.tilab.repository.BagImgRepository;
 import com.haocp.tilab.repository.BagRepository;
 import com.haocp.tilab.service.BagImgService;
 import com.haocp.tilab.utils.CombineToUrl;
+import com.haocp.tilab.utils.SaveImage;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +41,8 @@ public class BagImgServiceImpl implements BagImgService {
     BagRepository bagRepository;
     @Autowired
     CombineToUrl combineToUrl;
+    @Autowired
+    SaveImage saveImage;
 
     @Override
     @Transactional
@@ -81,7 +84,7 @@ public class BagImgServiceImpl implements BagImgService {
                 }
             });
         }
-        return save(image, imageName, main, bag);
+        return save(image, main, bag);
     }
 
     @Override
@@ -111,31 +114,15 @@ public class BagImgServiceImpl implements BagImgService {
         return null;
     }
 
-    BagImg save(MultipartFile file, String imageName, boolean main, Bag bag) {
-        imageName = imageName.replace(" ", "-");
-        Path uploadPath = builduploadPath(bag, imageName, main);
-        try {
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
-            }
-            Path filePath = uploadPath.resolve(imageName);
-            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-            return BagImg.builder()
-                    .bag(bag)
-                    .url(imageName)
-                    .main(main)
-                    .build();
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to store file " + file.getOriginalFilename(), e);
-        }
+    BagImg save(MultipartFile file, boolean main, Bag bag) {
+        String imageName = saveImage.saveBagImg(file, main, bag);
+        return BagImg.builder()
+                .bag(bag)
+                .url(imageName)
+                .main(main)
+                .build();
+
     }
 
-    Path builduploadPath(Bag bag, String imageName, boolean main) {
-        if (imageName == null)
-            throw new AppException(ErrorCode.FILE_IMAGE_NULL);
-        if (!main)
-            return Paths.get("uploads", bag.getId(), "details");
-        return Paths.get("uploads", bag.getId(), "main");
-    }
 
 }

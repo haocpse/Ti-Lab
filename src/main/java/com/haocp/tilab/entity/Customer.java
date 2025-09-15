@@ -52,6 +52,10 @@ public class Customer {
     @ToString.Exclude
     Set<Cart> carts = new HashSet<>();
 
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    Set<Review> reviews = new HashSet<>();
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "membership_id", nullable = false)
     @ToString.Exclude

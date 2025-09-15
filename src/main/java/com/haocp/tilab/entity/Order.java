@@ -42,6 +42,9 @@ public class Order {
     @Column(nullable = false, length = 100)
     String addressToDelivery;
 
+    @Column(nullable = false, length = 15)
+    String phone;
+
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     OrderStatus status;

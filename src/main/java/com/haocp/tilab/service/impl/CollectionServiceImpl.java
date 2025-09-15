@@ -14,6 +14,7 @@ import com.haocp.tilab.repository.CollectionRepository;
 import com.haocp.tilab.service.BagService;
 import com.haocp.tilab.service.CollectionService;
 import com.haocp.tilab.utils.CombineToUrl;
+import com.haocp.tilab.utils.SaveImage;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
@@ -48,6 +49,8 @@ public class CollectionServiceImpl implements CollectionService {
     BagRepository bagRepository;
     @Autowired
     CombineToUrl combineToUrl;
+    @Autowired
+    SaveImage saveImage;
 
     @Override
     @Transactional
@@ -100,26 +103,16 @@ public class CollectionServiceImpl implements CollectionService {
     }
 
     @Transactional
-    void saveThumbnail(MultipartFile file, String imageName, Collection collection){
-        Path uploadPath = Paths.get("uploads", "collection", Long.toString(collection.getId()));
-        try {
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
-            }
-            Path filePath = uploadPath.resolve(imageName);
-            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-            collection.setThumbnail(imageName);
-            collectionRepository.save(collection);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to store file " + file.getOriginalFilename(), e);
-        }
+    void saveThumbnail(MultipartFile file, Collection collection){
+        String imageName = saveImage.saveCollectionImg(file, collection);
+        collection.setThumbnail(imageName);
+        collectionRepository.save(collection);
     }
 
     @Transactional
     void saveThumbnailAndAddBagIntoCollection(MultipartFile thumbnail, Collection collection, List<String> addBagIds) {
         if (thumbnail != null && !thumbnail.isEmpty()) {
-            String imageName = Objects.requireNonNull(thumbnail.getOriginalFilename()).replace(" ", "-");
-            saveThumbnail(thumbnail, imageName, collection);
+            saveThumbnail(thumbnail, collection);
         }
         if (addBagIds != null && !addBagIds.isEmpty()) {
             for (String addBagId : addBagIds) {

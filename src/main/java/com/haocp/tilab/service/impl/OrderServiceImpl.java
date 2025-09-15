@@ -71,20 +71,13 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public OrderResponse createOrder(CreateOrderRequest request) {
         Customer customer = IdentifyUser.getCurrentCustomer(customerRepository, userRepository);
-        Long couponId = request.getCouponId();
         List<CreateOrderDetailRequest> orderDetailRequests = request.getCreateDetailRequests();
-        Coupon coupon = null;
-        if (couponId != null) {
-        coupon = couponRepository.findById(couponId)
-                .orElseThrow(() -> new AppException(ErrorCode.COUPON_NOT_EXIST));
-        }
         Order order = orderRepository.save(Order.builder()
                         .numberOfBag(orderDetailRequests.size())
                         .addressToDelivery(request.getAddress())
                         .subTotal(request.getSubTotal())
                         .total(request.getTotal())
                         .feeOfDelivery(request.getFeeOfDelivery())
-                        .coupon(coupon)
                         .customer(customer)
                         .status(OrderStatus.PREPARING)
                 .build());

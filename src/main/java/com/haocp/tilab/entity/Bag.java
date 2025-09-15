@@ -68,6 +68,10 @@ public class Bag {
     @ToString.Exclude
     Set<BagImg> images = new HashSet<>();
 
+    @OneToMany(mappedBy = "bag", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    Set<Review> reviews = new HashSet<>();
+
     @OneToMany(mappedBy = "bag")
     @ToString.Exclude
     Set<OrderDetail> orderDetails = new HashSet<>();

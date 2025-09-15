@@ -4,11 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 @NoArgsConstructor
@@ -17,43 +14,27 @@ import java.util.Set;
 @Setter
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Table(name = "review")
-public class Review {
+@Table(name = "review_reply")
+public class ReviewReply {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "bag_id", nullable = false)
-    @ToString.Exclude
-    Bag bag;
-
     @Column(nullable = false, length = 200)
     String content;
-
-    @Column(nullable = false)
-    double score;
-
-    @OneToMany(mappedBy = "review")
-    @ToString.Exclude
-    Set<ReviewImg> reviewImages = new HashSet<>();
-
-    @OneToMany(mappedBy = "review")
-    @ToString.Exclude
-    Set<ReviewReply> replies = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "customer_id", nullable = false)
     @ToString.Exclude
     Customer customer;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "review_id", nullable = false)
+    @ToString.Exclude
+    Review review;
+
     @Column(nullable = false, updatable = false)
     @CreationTimestamp
     Instant createdAt;
-
-    @Column(nullable = false)
-    @UpdateTimestamp
-    Instant updatedAt;
-
 }

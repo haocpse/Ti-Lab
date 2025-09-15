@@ -21,6 +21,10 @@ public class CombineToUrl {
                 : imageUrl + bagId + "/details/" + baseUrl;
     }
 
+    public String reviewImages(Long reviewId, String bagId, String baseUrl){
+        return imageUrl + "/review/" + bagId + "/" + reviewId + "/" + baseUrl;
+    }
+
 }
 
 
