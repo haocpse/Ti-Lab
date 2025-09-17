@@ -17,6 +17,7 @@ import com.haocp.tilab.mapper.CouponMapper;
 import com.haocp.tilab.mapper.OrderDetailMapper;
 import com.haocp.tilab.mapper.OrderMapper;
 import com.haocp.tilab.repository.*;
+import com.haocp.tilab.repository.Projection.OrderSummary;
 import com.haocp.tilab.service.CartService;
 import com.haocp.tilab.service.OrderService;
 import com.haocp.tilab.service.PaymentService;
@@ -33,6 +34,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -126,6 +128,20 @@ public class OrderServiceImpl implements OrderService {
         else
             orders = orderRepository.findAllByCustomer_IdWithDetails(customer.getId(), pageable);
         return buildOrderResponses(orders);
+    }
+
+    @Override
+    public int totalOrderByStatus(List<OrderStatus> statuses) {
+        if (statuses != null)
+            return orderRepository.countOrderByStatusIn(statuses);
+        else
+            return (int) orderRepository.count();
+
+    }
+
+    @Override
+    public List<OrderSummary> getOrderSummary(LocalDate from, LocalDate to) {
+        return orderRepository.getOrderSummary(from, to);
     }
 
     Page<OrderResponse> buildOrderResponses(Page<Order> orders) {

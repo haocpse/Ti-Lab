@@ -15,6 +15,7 @@ import com.haocp.tilab.exception.AppException;
 import com.haocp.tilab.exception.ErrorCode;
 import com.haocp.tilab.mapper.PaymentMapper;
 import com.haocp.tilab.repository.PaymentRepository;
+import com.haocp.tilab.repository.Projection.PaymentSummary;
 import com.haocp.tilab.repository.UserRepository;
 import com.haocp.tilab.service.PaymentService;
 import com.haocp.tilab.service.VerificationTokenService;
@@ -29,6 +30,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -112,6 +115,11 @@ public class PaymentServiceImpl implements PaymentService {
                 applicationEventPublisher.publishEvent(new ConfirmPaidEvent(this, customer, order, payment, user.getEmail()));
             }
         }
+    }
+
+    @Override
+    public List<PaymentSummary> totalPriceByMonthAndYear(LocalDate from, LocalDate to) {
+        return paymentRepository.getPaymentSummary(from, to);
     }
 
     UUID validAuthorization(String authorization, String content) {

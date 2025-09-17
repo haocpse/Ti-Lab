@@ -23,4 +23,8 @@ public interface BagRepository extends JpaRepository<Bag, String> {
     Page<Bag> findAllByNameContainsIgnoreCaseAndStatusNot(String name, BagStatus status, Pageable pageable);
     Page<Bag> findAllByNameContainsIgnoreCase(String name, Pageable pageable);
     Set<Bag> findByCollection_Id(Long id);
+
+    int countByStatus(BagStatus status);
+    int countByTypeAndStatusNot(BagType type, BagStatus status);
+    int countByType(BagType type);
 }

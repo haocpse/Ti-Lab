@@ -170,6 +170,19 @@ public class BagServiceImpl implements BagService {
                 .toList();
     }
 
+    @Override
+    public int totalBagByTypeAndStatus(BagType type, BagStatus status) {
+        if (type == null && status != null) {
+            return bagRepository.countByStatus(status);
+        } else if (type != null && status != null) {
+            return bagRepository.countByTypeAndStatusNot(type, status);
+        } else if (type != null) {
+            return bagRepository.countByType(type);
+        } else {
+            return (int) bagRepository.count();
+        }
+    }
+
     Bag create(CreateBagRequest createBagRequest){
         BagStatus status = BagStatus.IN_STOCK;
         if (createBagRequest.getQuantity() <= 10){
