@@ -118,7 +118,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public List<PaymentSummary> totalPriceByMonthAndYear(LocalDate from, LocalDate to) {
+    public List<PaymentSummary> getPaymentSummary(LocalDate from, LocalDate to) {
         return paymentRepository.getPaymentSummary(from, to);
     }
 
