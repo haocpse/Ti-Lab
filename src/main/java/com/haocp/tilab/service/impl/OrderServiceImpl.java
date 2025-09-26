@@ -127,7 +127,7 @@ public class OrderServiceImpl implements OrderService {
             orders = orderRepository.findAllByCustomer_IdAndStatusWithDetails(customer.getId(), status, pageable);
         else
             orders = orderRepository.findAllByCustomer_IdWithDetails(customer.getId(), pageable);
-        return buildOrderResponses(orders);
+        return buildMyOrderResponses(orders);
     }
 
     @Override
@@ -149,6 +149,14 @@ public class OrderServiceImpl implements OrderService {
             OrderResponse response = orderMapper.toResponseWithoutCoupon(order);
             response.setOrderId(order.getId());
             response.setOrderDetailResponseList(buildOrderDetailResponses(order.getDetails()));
+            return response;
+        });
+    }
+
+    Page<OrderResponse> buildMyOrderResponses(Page<Order> orders) {
+        return orders.map(order -> {
+            OrderResponse response = orderMapper.toResponseWithoutCoupon(order);
+            response.setOrderId(order.getId());
             return response;
         });
     }
