@@ -11,6 +11,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.Instant;
 import java.util.List;
 
 @NoArgsConstructor
@@ -27,6 +28,7 @@ public class OrderResponse {
     int feeOfDelivery;
     double total;
     OrderStatus status;
+    Instant createdAt;
     List<OrderDetailResponse> orderDetailResponseList;
     CouponResponse couponResponse;
     PaymentResponse paymentResponse;
