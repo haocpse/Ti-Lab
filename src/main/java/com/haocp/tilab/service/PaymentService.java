@@ -1,6 +1,7 @@
 package com.haocp.tilab.service;
 
 import com.haocp.tilab.dto.request.SePay.SePayWebhookRequest;
+import com.haocp.tilab.dto.response.Payment.CheckPaymentStatusResponse;
 import com.haocp.tilab.dto.response.Payment.PaymentResponse;
 import com.haocp.tilab.dto.response.Payment.QRPaymentResponse;
 import com.haocp.tilab.entity.Order;
@@ -17,6 +18,7 @@ public interface PaymentService {
     QRPaymentResponse createQR(double amount, String paymentId);
     PaymentResponse getPaymentByOrderId(String orderId);
     void sePayConfirm(String authorization, SePayWebhookRequest request);
+    CheckPaymentStatusResponse checkPaymentStatus(String paymentId);
 
     List<PaymentSummary> getPaymentSummary(LocalDate from, LocalDate to);
 

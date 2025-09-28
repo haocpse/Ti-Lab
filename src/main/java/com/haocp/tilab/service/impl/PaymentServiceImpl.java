@@ -1,6 +1,7 @@
 package com.haocp.tilab.service.impl;
 
 import com.haocp.tilab.dto.request.SePay.SePayWebhookRequest;
+import com.haocp.tilab.dto.response.Payment.CheckPaymentStatusResponse;
 import com.haocp.tilab.dto.response.Payment.PaymentResponse;
 import com.haocp.tilab.dto.response.Payment.QRPaymentResponse;
 import com.haocp.tilab.entity.Customer;
@@ -115,6 +116,13 @@ public class PaymentServiceImpl implements PaymentService {
                 applicationEventPublisher.publishEvent(new ConfirmPaidEvent(this, customer, order, payment, user.getEmail()));
             }
         }
+    }
+
+    @Override
+    public CheckPaymentStatusResponse checkPaymentStatus(String paymentId) {
+        Payment payment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new AppException(ErrorCode.PAYMENT_NOT_FOUND));
+        return paymentMapper.toCheckResponse(payment);
     }
 
     @Override

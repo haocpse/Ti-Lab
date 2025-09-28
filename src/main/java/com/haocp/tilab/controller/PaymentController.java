@@ -2,8 +2,10 @@ package com.haocp.tilab.controller;
 
 import com.haocp.tilab.dto.ApiResponse;
 import com.haocp.tilab.dto.request.SePay.SePayWebhookRequest;
+import com.haocp.tilab.dto.response.Payment.CheckPaymentStatusResponse;
 import com.haocp.tilab.dto.response.Payment.QRPaymentResponse;
 import com.haocp.tilab.dto.response.SePay.SePayResponse;
+import com.haocp.tilab.entity.Payment;
 import com.haocp.tilab.service.PaymentService;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
@@ -33,5 +35,12 @@ public class PaymentController {
         paymentService.sePayConfirm(authorization, request);
         return  ResponseEntity.status(HttpStatus.CREATED)
                 .body(new SePayResponse(true));
+    }
+
+    @GetMapping("/{id}/check-status")
+    public ApiResponse<CheckPaymentStatusResponse> getPayment(@PathVariable String id) {
+        return ApiResponse.<CheckPaymentStatusResponse>builder()
+                .data(paymentService.checkPaymentStatus(id))
+                .build();
     }
 }
