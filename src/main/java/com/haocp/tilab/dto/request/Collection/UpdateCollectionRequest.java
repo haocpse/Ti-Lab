@@ -1,5 +1,6 @@
 package com.haocp.tilab.dto.request.Collection;
 
+import com.haocp.tilab.enums.CollectionStatus;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -12,6 +13,7 @@ import java.util.List;
 public class UpdateCollectionRequest {
 
     String name;
+    CollectionStatus status;
     List<String> addBagIds;
     List<String> deleteBagIds;
 
