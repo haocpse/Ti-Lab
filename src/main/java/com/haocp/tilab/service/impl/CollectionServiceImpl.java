@@ -88,7 +88,7 @@ public class CollectionServiceImpl implements CollectionService {
     public CollectionResponse updateCollection(UpdateCollectionRequest request, Long id, MultipartFile thumbnail) {
         Collection collection = collectionRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.COLLECTION_NOT_FOUND));
-        collectionRepository.save(collectionMapper.updateToCollection(request));
+        collectionRepository.save(collectionMapper.updateToCollection(request, collection));
         List<String> deleteBagIds = request.getDeleteBagIds();
         if(deleteBagIds != null && !deleteBagIds.isEmpty()) {
             for (String deleteBagId : deleteBagIds) {
