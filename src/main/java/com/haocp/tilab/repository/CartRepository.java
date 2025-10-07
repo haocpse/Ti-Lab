@@ -20,7 +20,7 @@ public interface CartRepository extends JpaRepository<Cart, String> {
     @Query("SELECT o FROM Cart o")
     Page<Cart> findAllWithDetails(Pageable pageable);
 
-    @EntityGraph(attributePaths = {"customer.user", "bag"})
+    @EntityGraph(attributePaths = {"customer.user", "bag", "bag.images"})
     @Query("SELECT o FROM Cart o")
     Page<Cart> findAllByCustomer_IdWithDetails(String customerId, Pageable pageable);
 

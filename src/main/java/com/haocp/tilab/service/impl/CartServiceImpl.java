@@ -1,6 +1,8 @@
 package com.haocp.tilab.service.impl;
 
 import com.haocp.tilab.dto.request.Cart.AddToCartRequest;
+import com.haocp.tilab.dto.response.Bag.BagImgResponse;
+import com.haocp.tilab.dto.response.Bag.BagResponse;
 import com.haocp.tilab.dto.response.Cart.CartResponse;
 import com.haocp.tilab.dto.response.Order.OrderResponse;
 import com.haocp.tilab.entity.*;
@@ -12,6 +14,7 @@ import com.haocp.tilab.repository.BagRepository;
 import com.haocp.tilab.repository.CartRepository;
 import com.haocp.tilab.repository.CustomerRepository;
 import com.haocp.tilab.repository.UserRepository;
+import com.haocp.tilab.service.BagImgService;
 import com.haocp.tilab.service.CartService;
 import com.haocp.tilab.utils.IdentifyUser;
 import lombok.AccessLevel;
@@ -43,6 +46,8 @@ public class CartServiceImpl implements CartService {
     CartMapper cartMapper;
     @Autowired
     BagMapper bagMapper;
+    @Autowired
+    BagImgService bagImgService;
 
     @Override
     @Transactional
@@ -90,7 +95,12 @@ public class CartServiceImpl implements CartService {
     Page<CartResponse> buildCartResponses(Page<Cart> carts) {
         return carts.map(cart -> {
             CartResponse response = cartMapper.toResponse(cart);
-            response.setBagResponse(bagMapper.toResponse(cart.getBag()));
+            Bag bag = cart.getBag();
+            response.setBagResponse(bagMapper.toResponse(bag));
+            BagResponse bagResponse = response.getBagResponse();
+            BagImgResponse imgResponse = bagImgService.fetchMainImage(bag.getId(), bag.getImages());
+            if (imgResponse != null)
+                bagResponse.setBagImages(List.of(imgResponse));
             response.setUsername(cart.getCustomer().getUser().getUsername());
             return response;
         });
