@@ -17,7 +17,7 @@ import java.util.List;
 public class SwaggerConfig {
 
     @Bean
-    public OpenAPI customOpenAPI(@Value("${app.server-url}") String serverUrl) {
+    public OpenAPI customOpenAPI(@Value("${app.url}") String serverUrl) {
         final String securitySchemeName = "bearerAuth";
 
         serverUrl = serverUrl.replaceAll("/$", "");
