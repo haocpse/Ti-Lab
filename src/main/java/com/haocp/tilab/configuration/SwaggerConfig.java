@@ -23,9 +23,9 @@ public class SwaggerConfig {
                 .info(new Info()
                         .title("Ti-Lab API")
                         .version("1.0"))
-//                .servers(List.of(
-//                        new Server().url("https://tilab.com.vn").description("Production server")
-//                ))
+                .servers(List.of(
+                        new Server().url("https://tilab.com.vn").description("Production server")
+                ))
                 .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
                 .components(
                         new Components().addSecuritySchemes(securitySchemeName,
