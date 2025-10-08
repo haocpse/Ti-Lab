@@ -49,7 +49,7 @@ public class UserServiceImpl implements UserService {
     public User createUser(CreateUserRequest request) {
         User user = userMapper.toUser(request);
         user.setPassword(passwordEncoder.encode(request.getRawPassword()));
-        user.setActive(true);
+        user.setActive(false);
         return userRepository.save(user);
     }
 

@@ -1,22 +1,16 @@
-package com.haocp.tilab.utils;
+package com.haocp.tilab.utils.Task;
 
-import com.haocp.tilab.entity.EmailQueue;
-import com.haocp.tilab.enums.EmailStatus;
 import com.haocp.tilab.repository.EmailQueueRepository;
 import com.haocp.tilab.service.EmailService;
-import jakarta.mail.MessagingException;
 import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.time.Instant;
-
 @Component
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class EmailScheduler {
+public class EmailReSendTask {
 
     @Autowired
     EmailQueueRepository emailQueueRepository;

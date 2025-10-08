@@ -19,6 +19,7 @@ public interface PaymentService {
     PaymentResponse getPaymentByOrderId(String orderId);
     void sePayConfirm(String authorization, SePayWebhookRequest request);
     CheckPaymentStatusResponse checkPaymentStatus(String paymentId);
+    QRPaymentResponse reCreateQR(String paymentId);
 
     List<PaymentSummary> getPaymentSummary(LocalDate from, LocalDate to);
 

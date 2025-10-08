@@ -43,4 +43,11 @@ public class PaymentController {
                 .data(paymentService.checkPaymentStatus(id))
                 .build();
     }
+
+    @PutMapping("/{id}/re-create")
+    public ApiResponse<QRPaymentResponse> reCreatePayment(@PathVariable String id) {
+        return ApiResponse.<QRPaymentResponse>builder()
+                .data(paymentService.reCreateQR(id))
+                .build();
+    }
 }

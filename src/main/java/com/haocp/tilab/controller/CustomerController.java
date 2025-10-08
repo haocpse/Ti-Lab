@@ -4,6 +4,7 @@ import com.haocp.tilab.dto.ApiResponse;
 import com.haocp.tilab.dto.request.Customer.AddCustomerAddressRequest;
 import com.haocp.tilab.dto.request.Customer.LoginRequest;
 import com.haocp.tilab.dto.request.Customer.RegisterRequest;
+import com.haocp.tilab.dto.response.Cart.CartNumberResponse;
 import com.haocp.tilab.dto.response.Cart.CartResponse;
 import com.haocp.tilab.dto.response.Customer.CustomerAddressResponse;
 import com.haocp.tilab.dto.response.Customer.CustomerResponse;
@@ -69,6 +70,13 @@ public class CustomerController {
                                                         @RequestParam(defaultValue = "10") int size) {
         return ApiResponse.<Page<CartResponse>>builder()
                 .data(cartService.getAllMyCart(page, size))
+                .build();
+    }
+
+    @GetMapping("/me/cart-number")
+    public ApiResponse<CartNumberResponse> getMyCartNumber(){
+        return ApiResponse.<CartNumberResponse>builder()
+                .data(cartService.getCartNumber())
                 .build();
     }
 

@@ -11,6 +11,9 @@ import com.haocp.tilab.service.AuthService;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -22,9 +25,9 @@ public class AuthController {
     AuthService authService;
 
     @PostMapping("/register")
-    public ApiResponse<LoginResponse> register(@RequestBody RegisterRequest registerRequest) {
-        return ApiResponse.<LoginResponse>builder()
-                .data(authService.register(registerRequest))
+    public ApiResponse<Void> register(@RequestBody RegisterRequest registerRequest) {
+        authService.register(registerRequest);
+        return ApiResponse.<Void>builder()
                 .build();
     }
 
@@ -52,6 +55,13 @@ public class AuthController {
     public ApiResponse<Void> changePassword(@PathVariable String id, @RequestBody ChangePasswordRequest request) {
         authService.changePassword(id, request);
         return ApiResponse.<Void>builder().build();
+    }
+
+    @GetMapping("/verify")
+    public ResponseEntity<Void> verifyRegister(@RequestParam String token, @RequestParam String userId) {
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .header(HttpHeaders.LOCATION, authService.verifyRegister(token, userId))
+                .build();
     }
 
 }

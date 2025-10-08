@@ -3,6 +3,7 @@ package com.haocp.tilab.service.impl;
 import com.haocp.tilab.dto.request.Cart.AddToCartRequest;
 import com.haocp.tilab.dto.response.Bag.BagImgResponse;
 import com.haocp.tilab.dto.response.Bag.BagResponse;
+import com.haocp.tilab.dto.response.Cart.CartNumberResponse;
 import com.haocp.tilab.dto.response.Cart.CartResponse;
 import com.haocp.tilab.dto.response.Order.OrderResponse;
 import com.haocp.tilab.entity.*;
@@ -111,6 +112,15 @@ public class CartServiceImpl implements CartService {
     public void deleteCartById(String cartId) {
         if (!cartId.isEmpty() && !cartId.isBlank())
             cartRepository.deleteById(cartId);
+    }
+
+    @Override
+    public CartNumberResponse getCartNumber() {
+        Customer customer = IdentifyUser.getCurrentCustomer(customerRepository, userRepository);
+        int number = cartRepository.countByCustomer_Id(customer.getId());
+        return CartNumberResponse.builder()
+                .number(number)
+                .build();
     }
 
 }

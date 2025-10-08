@@ -24,4 +24,6 @@ public interface CartRepository extends JpaRepository<Cart, String> {
     @Query("SELECT o FROM Cart o")
     Page<Cart> findAllByCustomer_IdWithDetails(String customerId, Pageable pageable);
 
+    int countByCustomer_Id(String customerId);
+
 }

@@ -126,6 +126,23 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
+    public QRPaymentResponse reCreateQR(String paymentId) {
+        User user = userRepository.findByUsernameAndActiveIsTrue(IdentifyUser.getCurrentUsername())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXIST));
+        Payment payment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new AppException(ErrorCode.PAYMENT_NOT_FOUND));
+        payment.setStatus(PaymentStatus.PROCESSING);
+        String referenceId = "paymentId=" + paymentId;
+        String token = verificationTokenService.createToken(TokenType.PAYMENT_PROCESSING, user, referenceId);
+        String url = urlQR
+                .replace("-amount-", String.format("%.2f", payment.getTotal()))
+                .replace("-payment-", token);
+        return QRPaymentResponse.builder()
+                .urlQR(url)
+                .build();
+    }
+
+    @Override
     public List<PaymentSummary> getPaymentSummary(LocalDate from, LocalDate to) {
         return paymentRepository.getPaymentSummary(from, to);
     }

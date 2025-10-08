@@ -18,6 +18,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
 @Service
@@ -33,12 +34,19 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
     @Override
     public String createToken(TokenType type, User user, String referenceId) {
         String token = UUID.randomUUID().toString();
+        Instant expiresAt = Instant.now();
+        switch (type){
+            case TokenType.REFRESH_TOKEN, TokenType.PAYMENT_PROCESSING
+                    -> expiresAt = expiresAt.plus(15, ChronoUnit.MINUTES);
+            case TokenType.EMAIL_VERIFY
+                    -> expiresAt = expiresAt.plus(1, ChronoUnit.DAYS);
+        }
         verificationTokenRepository.save(VerificationToken.builder()
                     .token(token)
                     .user(user)
                     .type(type)
                     .referenceId(referenceId)
-                    .expiredAt(Instant.now().plusSeconds(900))
+                    .expiredAt(expiresAt)
                     .used(false)
                     .build());
         return token;

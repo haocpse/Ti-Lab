@@ -45,7 +45,8 @@ public class SecurityConfig {
             "/api/enums/**",
             "/api/payments/confirm",
             "/api/emails/send",
-            "uploads/**"
+            "uploads/**",
+            "/api/verify/**"
     };
 
     @Bean

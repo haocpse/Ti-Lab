@@ -6,9 +6,12 @@ import com.haocp.tilab.dto.request.User.ChangePasswordRequest;
 import com.haocp.tilab.dto.request.User.CreateUserRequest;
 import com.haocp.tilab.dto.request.User.ConfirmResetRequest;
 import com.haocp.tilab.dto.response.Token.LoginResponse;
+import com.haocp.tilab.dto.response.Token.VerificationTokenResponse;
 import com.haocp.tilab.entity.Customer;
 import com.haocp.tilab.entity.Staff;
 import com.haocp.tilab.entity.User;
+import com.haocp.tilab.entity.VerificationToken;
+import com.haocp.tilab.enums.TokenType;
 import com.haocp.tilab.enums.UserRole;
 import com.haocp.tilab.exception.AppException;
 import com.haocp.tilab.exception.ErrorCode;
@@ -21,12 +24,14 @@ import com.haocp.tilab.service.AuthService;
 import com.haocp.tilab.service.UserService;
 import com.haocp.tilab.service.VerificationTokenService;
 import com.haocp.tilab.utils.GenerateToken;
+import com.haocp.tilab.utils.event.ConfirmRegisterEvent;
 import com.haocp.tilab.utils.event.PasswordResetEvent;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -64,10 +69,12 @@ public class AuthServiceImpl implements AuthService {
     JwtDecoder jwtDecoderWithoutExpiration;
     @Autowired
     VerificationTokenService verificationTokenService;
+    @Value("${app.url}")
+    String appUrl;
 
     @Override
     @Transactional
-    public LoginResponse register(RegisterRequest registerRequest) {
+    public void register(RegisterRequest registerRequest) {
         CreateUserRequest request = userMapper.toCreateUserRequest(registerRequest);
         request.setRole(UserRole.CUSTOMER);
         User user = userService.createUser(request);
@@ -79,9 +86,8 @@ public class AuthServiceImpl implements AuthService {
                 .membership(membershipRepository.findByMin(0)
                         .orElseThrow(() -> new AppException(ErrorCode.THERE_NO_MEMBERSHIP)))
                 .build());
-        return LoginResponse.builder()
-                .accessToken(generateToken(customer.getUser(), false, ""))
-                .build();
+        String token = verificationTokenService.createToken(TokenType.EMAIL_VERIFY, user, user.getId());
+        applicationEventPublisher.publishEvent(new ConfirmRegisterEvent(this, token, customer));
     }
 
     @Override
@@ -132,6 +138,19 @@ public class AuthServiceImpl implements AuthService {
         return LoginResponse.builder()
                 .accessToken(generateToken(user, true, jwtId))
                 .build();
+    }
+
+    @Override
+    public String verifyRegister(String token, String userId) {
+        VerificationTokenResponse verifiedToken = verificationTokenService.validateToken(token);
+        boolean valid = (verifiedToken.isValid() && userId.equals(verifiedToken.getReferenceId()));
+        if(valid) {
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXIST));
+            user.setActive(true);
+            userRepository.save(user);
+        }
+        return appUrl + "verified" + "?status=" + valid;
     }
 
     String generateToken(User user, boolean refresh, String jwtId){

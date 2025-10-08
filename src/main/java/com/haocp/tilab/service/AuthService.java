@@ -8,9 +8,10 @@ import com.haocp.tilab.dto.response.Token.LoginResponse;
 
 public interface AuthService {
 
-    LoginResponse register(RegisterRequest registerRequest);
+    void register(RegisterRequest registerRequest);
     LoginResponse login(LoginRequest loginRequest);
     void resetPassword(ConfirmResetRequest request);
     void changePassword(String id, ChangePasswordRequest request);
     LoginResponse refreshToken(String expiredToken);
+    String verifyRegister(String token, String userId);
 }
