@@ -16,13 +16,15 @@ public class ConfirmPaidEvent extends ApplicationEvent {
     Order order;
     Payment payment;
     String email;
+    String membershipTier;
 
-    public ConfirmPaidEvent(Object source, Customer customer, Order order, Payment payment, String email) {
+    public ConfirmPaidEvent(Object source, Customer customer, Order order, Payment payment, String email, String membershipTier) {
         super(source);
         this.order = order;
         this.customer = customer;
         this.payment = payment;
         this.email = email;
+        this.membershipTier = membershipTier;
     }
 
 }

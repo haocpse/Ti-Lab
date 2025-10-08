@@ -3,6 +3,8 @@ package com.haocp.tilab.service.impl;
 import com.haocp.tilab.dto.request.Order.CreateOrderDetailRequest;
 import com.haocp.tilab.dto.request.Order.CreateOrderRequest;
 import com.haocp.tilab.dto.request.Payment.CreatePaymentRequest;
+import com.haocp.tilab.dto.response.Bag.BagImgResponse;
+import com.haocp.tilab.dto.response.Bag.BagResponse;
 import com.haocp.tilab.dto.response.Customer.CustomerInOrderResponse;
 import com.haocp.tilab.dto.response.Order.OrderDetailResponse;
 import com.haocp.tilab.dto.response.Order.OrderResponse;
@@ -18,6 +20,7 @@ import com.haocp.tilab.mapper.OrderDetailMapper;
 import com.haocp.tilab.mapper.OrderMapper;
 import com.haocp.tilab.repository.*;
 import com.haocp.tilab.repository.Projection.OrderSummary;
+import com.haocp.tilab.service.BagImgService;
 import com.haocp.tilab.service.CartService;
 import com.haocp.tilab.service.OrderService;
 import com.haocp.tilab.service.PaymentService;
@@ -36,6 +39,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -68,6 +72,8 @@ public class OrderServiceImpl implements OrderService {
     ApplicationEventPublisher applicationEventPublisher;
     @Autowired
     PaymentService paymentService;
+    @Autowired
+    BagImgService bagImgService;
 
     @Override
     @Transactional
@@ -78,14 +84,20 @@ public class OrderServiceImpl implements OrderService {
                         .numberOfBag(orderDetailRequests.size())
                         .addressToDelivery(request.getAddress())
                         .subTotal(request.getSubTotal())
+                        .phone(request.getPhone())
                         .total(request.getTotal())
                         .feeOfDelivery(request.getFeeOfDelivery())
                         .customer(customer)
                         .status(OrderStatus.PREPARING)
                 .build());
-        applicationEventPublisher.publishEvent(new OrderCreatedEvent(this, order, request.getMethod()));
-
-        List<OrderDetailResponse> orderDetailResponses = createOrderDetail(orderDetailRequests, order);
+        Set<OrderDetailResponse> orderDetailResponses = createOrderDetail(orderDetailRequests, order);
+        applicationEventPublisher.publishEvent(new OrderCreatedEvent(this,
+                customer,
+                order,
+                request.getMethod(),
+                customer.getUser().getEmail(),
+                customer.getMembership().getName(),
+                orderDetailResponses));
         OrderResponse orderResponse = orderMapper.toResponse(order);
         orderResponse.setOrderId(order.getId());
         orderResponse.setPaymentResponse(paymentService.getPaymentByOrderId(order.getId()));
@@ -93,8 +105,9 @@ public class OrderServiceImpl implements OrderService {
         return orderResponse;
     }
 
-    List<OrderDetailResponse> createOrderDetail(List<CreateOrderDetailRequest> requests, Order order){
-        List<OrderDetailResponse> responses = new ArrayList<>();
+    @Transactional
+    Set<OrderDetailResponse> createOrderDetail(List<CreateOrderDetailRequest> requests, Order order){
+        Set<OrderDetailResponse> responses = new HashSet<>();
         for(CreateOrderDetailRequest request : requests){
             Bag bag = bagRepository.findById(request.getBagId())
                     .orElseThrow(() -> new AppException(ErrorCode.BAG_NOT_FOUND));
@@ -105,7 +118,10 @@ public class OrderServiceImpl implements OrderService {
             if(!request.getCartId().isEmpty())
                 cartService.deleteCartById(request.getCartId());
             OrderDetailResponse response = orderDetailMapper.toResponse(orderDetail);
-            response.setBagResponse(bagMapper.toResponse(bag));
+            BagResponse bagResponse = bagMapper.toResponse(bag);
+            BagImgResponse bagImgResponse = bagImgService.fetchMainImage(bag.getId(), bag.getImages());
+            bagResponse.setBagImages(bagImgResponse != null ? List.of(bagImgResponse) : List.of());
+            response.setBagResponse(bagResponse);
             responses.add(response);
         }
         return responses;
@@ -161,8 +177,8 @@ public class OrderServiceImpl implements OrderService {
         });
     }
 
-    List<OrderDetailResponse> buildOrderDetailResponses(Set<OrderDetail> orderDetails) {
-        List<OrderDetailResponse> responses = new ArrayList<>();
+    Set<OrderDetailResponse> buildOrderDetailResponses(Set<OrderDetail> orderDetails) {
+        Set<OrderDetailResponse> responses = new HashSet<>();
         for (OrderDetail orderDetail : orderDetails) {
             Bag bag = orderDetail.getBag();
             OrderDetailResponse response = orderDetailMapper.toResponse(orderDetail);

@@ -46,7 +46,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
     }
 
     @Override
-    public TemplateResponse getTemplate(String code, Map<String, String> values) {
+    public TemplateResponse getTemplate(String code, Map<String, Object> values) {
         EmailTemplate template = emailTemplateRepository.findByCode(code)
                 .orElseThrow(() -> new AppException(ErrorCode.TEMPLATE_NOT_EXIST));
         String body = replaceVariables.replace(template.getBody(), values);

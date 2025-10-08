@@ -10,6 +10,6 @@ import java.util.Map;
 public interface EmailTemplateService {
 
     void createMailTemplate(CreateTemplateRequest request, MultipartFile body);
-    TemplateResponse getTemplate(String code, Map<String, String> values);
+    TemplateResponse getTemplate(String code, Map<String, Object> values);
 
 }

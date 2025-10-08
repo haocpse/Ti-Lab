@@ -13,6 +13,7 @@ import lombok.experimental.FieldDefaults;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -29,7 +30,7 @@ public class OrderResponse {
     double total;
     OrderStatus status;
     Instant createdAt;
-    List<OrderDetailResponse> orderDetailResponseList;
+    Set<OrderDetailResponse> orderDetailResponseList;
     CouponResponse couponResponse;
     PaymentResponse paymentResponse;
 

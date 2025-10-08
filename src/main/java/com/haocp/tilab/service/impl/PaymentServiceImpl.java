@@ -113,7 +113,7 @@ public class PaymentServiceImpl implements PaymentService {
                 Order order = payment.getOrder();
                 Customer customer = order.getCustomer();
                 User user = customer.getUser();
-                applicationEventPublisher.publishEvent(new ConfirmPaidEvent(this, customer, order, payment, user.getEmail()));
+                applicationEventPublisher.publishEvent(new ConfirmPaidEvent(this, customer, order, payment, user.getEmail(), customer.getMembership().getName()));
             }
         }
     }
