@@ -53,14 +53,14 @@ public class BagImgServiceImpl implements BagImgService {
             boolean main = i == imagePosition;
             bagImages.add(saveBagImg(imageBags.get(i), bag, main));
         }
-        bag.setImages((Set<BagImg>) bagImages);
+        bag.setImages(bagImages);
         bagRepository.save(bag);
     }
 
     @Override
     @Transactional
     public void updateImage(Bag bag, List<MultipartFile> imageBags, List<Long> removeIds) {
-        Set<BagImg> bagImages = bag.getImages();
+        List<BagImg> bagImages = bag.getImages();
         bagImages.removeIf(img -> removeIds.contains(img.getId()));
         if (imageBags != null) {
             for (MultipartFile image : imageBags) {
@@ -93,7 +93,7 @@ public class BagImgServiceImpl implements BagImgService {
     }
 
     @Override
-    public BagImgResponse fetchMainImage(String bagId, Set<BagImg> bagImages) {
+    public BagImgResponse fetchMainImage(String bagId, List<BagImg> bagImages) {
         if (bagImages != null && !bagImages.isEmpty()){
             BagImg img = bagImgRepository.findByBag_IdAndMainIsTrue(bagId)
                     .orElseThrow(() -> new AppException(ErrorCode.THERE_NO_MAIN_IMG));

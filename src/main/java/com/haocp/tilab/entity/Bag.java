@@ -9,7 +9,9 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -66,7 +68,7 @@ public class Bag {
 
     @OneToMany(mappedBy = "bag", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
-    Set<BagImg> images = new HashSet<>();
+    List<BagImg> images = new ArrayList<>();
 
     @OneToMany(mappedBy = "bag", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
