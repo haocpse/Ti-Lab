@@ -70,9 +70,9 @@ public class Bag {
     @ToString.Exclude
     List<BagImg> images = new ArrayList<>();
 
-    @OneToMany(mappedBy = "bag", cascade = CascadeType.ALL, orphanRemoval = true)
-    @ToString.Exclude
-    Set<Review> reviews = new HashSet<>();
+//    @OneToMany(mappedBy = "bag", cascade = CascadeType.ALL, orphanRemoval = true)
+//    @ToString.Exclude
+//    Set<Review> reviews = new HashSet<>();
 
     @OneToMany(mappedBy = "bag")
     @ToString.Exclude
