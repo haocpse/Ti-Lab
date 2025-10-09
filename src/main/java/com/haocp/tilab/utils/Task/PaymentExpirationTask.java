@@ -18,19 +18,19 @@ public class PaymentExpirationTask {
 
     private final PaymentRepository paymentRepository;
 
-    @Scheduled(fixedRate = 60_000)
-    public void checkAndExpirePayments() {
-        Instant now = Instant.now();
-
-        List<Payment> payments = paymentRepository
-                .findPaymentByStatus(PaymentStatus.PROCESSING);
-
-        for (Payment payment : payments) {
-            if (payment.getUpdatedAt().plus(15, ChronoUnit.MINUTES).isBefore(now)){
-                payment.setStatus(PaymentStatus.FAILED);
-            }
-        }
-        paymentRepository.saveAll(payments);
-    }
+//    @Scheduled(fixedRate = 60000)
+//    public void checkAndExpirePayments() {
+//        Instant now = Instant.now();
+//
+//        List<Payment> payments = paymentRepository
+//                .findPaymentByStatus(PaymentStatus.PROCESSING);
+//
+//        for (Payment payment : payments) {
+//            if (payment.getUpdatedAt().plus(15, ChronoUnit.MINUTES).isBefore(now)){
+//                payment.setStatus(PaymentStatus.FAILED);
+//            }
+//        }
+//        paymentRepository.saveAll(payments);
+//    }
 
 }
