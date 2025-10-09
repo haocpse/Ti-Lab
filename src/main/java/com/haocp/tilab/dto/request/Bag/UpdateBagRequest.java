@@ -23,5 +23,6 @@ public class UpdateBagRequest {
     double weight;
     BagType type;
     List<Long> removeIds;
+    Integer mainPosition;
 
 }

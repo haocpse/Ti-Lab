@@ -11,7 +11,7 @@ import java.util.Set;
 
 public interface BagImgService {
 
-    void saveImage(Bag bag, List<MultipartFile> imageBags);
+    void saveImage(Bag bag, List<MultipartFile> imageBags, Integer imagePosition);
     void updateImage(Bag bag, List<MultipartFile> imageBags, List<Long> removeIds);
     List<BagImgResponse> fetchImage(Bag bag);
     BagImgResponse fetchMainImage(String bagId, Set<BagImg> bagImages);

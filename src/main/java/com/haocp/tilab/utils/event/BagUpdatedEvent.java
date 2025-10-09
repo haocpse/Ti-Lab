@@ -17,12 +17,14 @@ public class BagUpdatedEvent extends ApplicationEvent {
     Bag bag;
     List<MultipartFile> images;
     List<Long> removeIds;
+    Integer newMainPosition;
 
-    public BagUpdatedEvent(Object source, Bag bag, List<MultipartFile> images, List<Long> removeIds) {
+    public BagUpdatedEvent(Object source, Bag bag, List<MultipartFile> images, List<Long> removeIds, Integer newMainPosition) {
         super(source);
         this.bag = bag;
         this.images = images;
         this.removeIds = removeIds;
+        this.newMainPosition = newMainPosition;
     }
 
 }

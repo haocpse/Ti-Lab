@@ -56,7 +56,11 @@ public class BagServiceImpl implements BagService {
         Bag bag = bagRepository.save(create(createBagRequest));
         BagResponse bagResponse = bagMapper.toResponse(bag);
         if (imageBags != null) {
-            applicationEventPublisher.publishEvent(new BagCreatedEvent(this, bag, imageBags));
+            Integer index = createBagRequest.getMainPosition();
+            if (index == null) {
+                index = 0;
+            }
+            applicationEventPublisher.publishEvent(new BagCreatedEvent(this, bag, imageBags, index));
         }
         bagResponse.setBagImages(bagImgService.fetchImage(bag));
         return bagResponse;
@@ -148,7 +152,7 @@ public class BagServiceImpl implements BagService {
         }
         bagRepository.save(bag);
         if (imageBags != null || !updateBagRequest.getRemoveIds().isEmpty()) {
-            applicationEventPublisher.publishEvent(new BagUpdatedEvent(this, bag, imageBags, updateBagRequest.getRemoveIds()));
+            applicationEventPublisher.publishEvent(new BagUpdatedEvent(this, bag, imageBags, updateBagRequest.getRemoveIds(), 0));
         }
         return buildBagResponse(bag);
     }

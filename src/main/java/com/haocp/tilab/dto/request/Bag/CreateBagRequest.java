@@ -35,4 +35,5 @@ public class CreateBagRequest {
     @NotNull
     BagType type;
 
+    Integer mainPosition;
 }

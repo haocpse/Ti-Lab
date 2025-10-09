@@ -26,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -46,12 +47,13 @@ public class BagImgServiceImpl implements BagImgService {
 
     @Override
     @Transactional
-    public void saveImage(Bag bag, List<MultipartFile> imageBags) {
-        Set<BagImg> bagImages = new HashSet<>();
-        for (MultipartFile image : imageBags) {
-            bagImages.add(saveBagImg(image, bag, bagImages));
+    public void saveImage(Bag bag, List<MultipartFile> imageBags, Integer imagePosition) {
+        List<BagImg> bagImages = new ArrayList<>();
+        for (int i = 0; i < imageBags.size(); i++) {
+            boolean main = i == imagePosition;
+            bagImages.add(saveBagImg(imageBags.get(i), bag, main));
         }
-        bag.setImages(bagImages);
+        bag.setImages((Set<BagImg>) bagImages);
         bagRepository.save(bag);
     }
 
@@ -62,28 +64,17 @@ public class BagImgServiceImpl implements BagImgService {
         bagImages.removeIf(img -> removeIds.contains(img.getId()));
         if (imageBags != null) {
             for (MultipartFile image : imageBags) {
-                bagImages.add(saveBagImg(image, bag, bagImages));
+                bagImages.add(saveBagImg(image, bag, false));
             }
         }
         bagRepository.save(bag);
     }
 
     @Transactional
-    BagImg saveBagImg(MultipartFile image, Bag bag, Set<BagImg> bagImages) {
+    BagImg saveBagImg(MultipartFile image, Bag bag, boolean main) {
         String imageName = image.getOriginalFilename();
         if (imageName == null || imageName.trim().isEmpty())
             throw new AppException(ErrorCode.IMG_NOT_HAVE_NAME);
-        boolean main = imageName.contains("_main_");
-        if(main){
-            bagImages.forEach(img -> {
-                String url = img.getUrl();
-                if (url.contains("_main_")){
-                    url = url.replace("_main_", "");
-                    img.setUrl(url);
-                    img.setMain(false);
-                }
-            });
-        }
         return save(image, main, bag);
     }
 

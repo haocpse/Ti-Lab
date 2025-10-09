@@ -16,11 +16,13 @@ public class BagCreatedEvent extends ApplicationEvent {
 
     Bag bag;
     List<MultipartFile> imageBags;
+    Integer mainPosition;
 
-    public BagCreatedEvent(Object source, Bag bag, List<MultipartFile> imageBags) {
+    public BagCreatedEvent(Object source, Bag bag, List<MultipartFile> imageBags, Integer mainPosition) {
         super(source);
         this.bag = bag;
         this.imageBags = imageBags;
+        this.mainPosition = mainPosition;
     }
 
 }
