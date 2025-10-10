@@ -23,7 +23,7 @@ public class TokenExpirationTask {
     public void checkAndDeleteExpiredTokens() {
         Instant now = Instant.now();
         List<VerificationToken> tokens = verificationTokenRepository
-                .findByExpiredAtBeforeAndUsed(now, true);
+                .findByExpiredAtBeforeOrUsed(now, true);
         verificationTokenRepository.deleteAll(tokens);
     }
 
