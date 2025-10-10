@@ -19,12 +19,12 @@ public class TokenExpirationTask {
 
     private final VerificationTokenRepository verificationTokenRepository;
 
-//    @Scheduled(fixedRate = 60000)
-//    public void checkAndDeleteExpiredTokens() {
-//        Instant now = Instant.now();
-//        List<VerificationToken> tokens = verificationTokenRepository
-//                .findByExpiredAtBefore(now);
-//        verificationTokenRepository.deleteAll(tokens);
-//    }
+    @Scheduled(fixedRate = 60000)
+    public void checkAndDeleteExpiredTokens() {
+        Instant now = Instant.now();
+        List<VerificationToken> tokens = verificationTokenRepository
+                .findByExpiredAtBeforeAndUsed(now, true);
+        verificationTokenRepository.deleteAll(tokens);
+    }
 
 }
