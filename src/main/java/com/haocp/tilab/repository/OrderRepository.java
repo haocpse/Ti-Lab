@@ -23,8 +23,8 @@ public interface OrderRepository extends JpaRepository<Order, String> {
     Page<Order> findAllWithDetails(Pageable pageable);
 
     @EntityGraph(attributePaths = {"customer.user", "details.bag"})
-    @Query("SELECT o FROM Order o")
-    Page<Order> findAllByCustomer_IdWithDetails(String customerId, Pageable pageable);
+    @Query("SELECT o FROM Order o WHERE o.customer.id = :customerId")
+    Page<Order> findAllByCustomer_IdWithDetails(@Param("customerId") String customerId, Pageable pageable);
 
     @EntityGraph(attributePaths = {"customer.user", "details.bag"})
     @Query("SELECT o FROM Order o")
