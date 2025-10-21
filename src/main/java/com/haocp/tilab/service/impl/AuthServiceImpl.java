@@ -2,6 +2,7 @@ package com.haocp.tilab.service.impl;
 
 import com.haocp.tilab.dto.request.Customer.LoginRequest;
 import com.haocp.tilab.dto.request.Customer.RegisterRequest;
+import com.haocp.tilab.dto.request.Customer.TokenLoginGmail;
 import com.haocp.tilab.dto.request.User.ChangePasswordRequest;
 import com.haocp.tilab.dto.request.User.CreateUserRequest;
 import com.haocp.tilab.dto.request.User.ConfirmResetRequest;
@@ -71,6 +72,13 @@ public class AuthServiceImpl implements AuthService {
     VerificationTokenService verificationTokenService;
     @Value("${app.url}")
     String appUrl;
+    @Autowired
+    @Qualifier("googleJWTDecoder")
+    JwtDecoder googleJWTDecoder;
+    @Value("${app.google.issuer}")
+    String googleIssuer;
+    @Value("${app.raw-pass}")
+    String defaultPassword;
 
     @Override
     @Transactional
@@ -151,6 +159,45 @@ public class AuthServiceImpl implements AuthService {
             userRepository.save(user);
         }
         return appUrl + "verified" + "?status=" + valid;
+    }
+
+    @Override
+    public LoginResponse loginEmail(TokenLoginGmail emailToken) {
+        String token = emailToken.getToken();
+        Jwt jwt = googleJWTDecoder.decode(token);
+        boolean verifiedEmail = jwt.getClaim("email_verified");
+        String issuer = jwt.getClaim("iss");
+        if (!verifiedEmail || !issuer.equals(googleIssuer)) {
+            throw new AppException(ErrorCode.INVALID_EMAIL);
+        }
+        String email = jwt.getClaim("email").toString();
+        String lastName = jwt.getClaim("family_name").toString();
+        String firstName = jwt.getClaim("given_name").toString();
+        User user = userRepository.findByEmail(email)
+                .orElse((createUserForFirstTime(email, firstName, lastName)));
+        if (!user.isActive())
+            throw new AppException(ErrorCode.ACCOUNT_BANNED);
+        return LoginResponse.builder()
+                .accessToken(generateToken(user, false, ""))
+                .build();
+    }
+
+    User createUserForFirstTime(String email, String lastName, String firstName) {
+        CreateUserRequest request = CreateUserRequest.builder()
+                .username(email)
+                .role(UserRole.CUSTOMER)
+                .email(email)
+                .rawPassword(defaultPassword)
+                .build();
+        User user = userService.createUserForLoginByEmail(request);
+        customerRepository.save(Customer.builder()
+                .user(user)
+                .firstName(firstName)
+                .lastName(lastName)
+                .membership(membershipRepository.findByMin(0)
+                        .orElseThrow(() -> new AppException(ErrorCode.THERE_NO_MEMBERSHIP)))
+                .build());
+        return user;
     }
 
     String generateToken(User user, boolean refresh, String jwtId){

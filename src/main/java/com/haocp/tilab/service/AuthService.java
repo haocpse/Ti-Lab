@@ -2,6 +2,7 @@ package com.haocp.tilab.service;
 
 import com.haocp.tilab.dto.request.Customer.LoginRequest;
 import com.haocp.tilab.dto.request.Customer.RegisterRequest;
+import com.haocp.tilab.dto.request.Customer.TokenLoginGmail;
 import com.haocp.tilab.dto.request.User.ChangePasswordRequest;
 import com.haocp.tilab.dto.request.User.ConfirmResetRequest;
 import com.haocp.tilab.dto.response.Token.LoginResponse;
@@ -14,4 +15,5 @@ public interface AuthService {
     void changePassword(String id, ChangePasswordRequest request);
     LoginResponse refreshToken(String expiredToken);
     String verifyRegister(String token, String userId);
+    LoginResponse loginEmail(TokenLoginGmail token);
 }

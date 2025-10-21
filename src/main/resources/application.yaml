@@ -59,3 +59,7 @@ app:
   staff-refresh-duration: ${STAFF_REFRESH_DURATION}
   customer-refresh-duration: ${CUSTOMER_REFRESH_DURATION}
   access-duration: ${ACCESS_DURATION}
+  google:
+    jwt-uri: ${GOOGLE_JWT_URI}
+    issuer: ${GOOGLE_ISSUER}
+  raw-pass: ${DEFAULT_RAW_PASSWORD}

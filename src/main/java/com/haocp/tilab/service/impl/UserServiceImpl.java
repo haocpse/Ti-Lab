@@ -53,4 +53,12 @@ public class UserServiceImpl implements UserService {
         return userRepository.save(user);
     }
 
+    @Override
+    public User createUserForLoginByEmail(CreateUserRequest request) {
+        User user = userMapper.toUser(request);
+        user.setPassword(passwordEncoder.encode(request.getRawPassword()));
+        user.setActive(true);
+        return userRepository.save(user);
+    }
+
 }

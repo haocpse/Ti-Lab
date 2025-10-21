@@ -38,7 +38,8 @@ public enum ErrorCode {
     AMOUNT_NOT_MATCH_TOTAL(400, "Amount not match total", HttpStatus.BAD_REQUEST),
     ACCESS_TOKEN_EXPIRED(419, "Access token is expired", HttpStatus.UNAUTHORIZED),
     INVALID_TOKEN(401, "Invalid token", HttpStatus.UNAUTHORIZED),
-    WRONG_IMAGE_TYPE(400, "Image type is wrong", HttpStatus.BAD_REQUEST),;
+    WRONG_IMAGE_TYPE(400, "Image type is wrong", HttpStatus.BAD_REQUEST),
+    INVALID_EMAIL(401, "Invalid email", HttpStatus.UNAUTHORIZED),;
 
     int code;
     String message;

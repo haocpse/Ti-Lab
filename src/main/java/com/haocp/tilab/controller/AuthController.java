@@ -3,6 +3,7 @@ package com.haocp.tilab.controller;
 import com.haocp.tilab.dto.ApiResponse;
 import com.haocp.tilab.dto.request.Customer.LoginRequest;
 import com.haocp.tilab.dto.request.Customer.RegisterRequest;
+import com.haocp.tilab.dto.request.Customer.TokenLoginGmail;
 import com.haocp.tilab.dto.request.Token.RefreshTokenRequest;
 import com.haocp.tilab.dto.request.User.ChangePasswordRequest;
 import com.haocp.tilab.dto.request.User.ConfirmResetRequest;
@@ -35,6 +36,13 @@ public class AuthController {
     public ApiResponse<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
         return ApiResponse.<LoginResponse>builder()
                 .data(authService.login(loginRequest))
+                .build();
+    }
+
+    @PostMapping("login-email")
+    public ApiResponse<LoginResponse> loginEmail(@RequestBody TokenLoginGmail token) {
+        return ApiResponse.<LoginResponse>builder()
+                .data(authService.loginEmail(token))
                 .build();
     }
 

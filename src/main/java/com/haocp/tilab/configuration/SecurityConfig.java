@@ -12,6 +12,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtValidators;
@@ -33,6 +34,9 @@ public class SecurityConfig {
 
     @Value("${jwt.signerKey}")
     String SIGNER_KEY;
+
+    @Value("${app.google.jwt-uri}")
+    String GOOGLE_JWT_URI;
 
     private static final String[] PUBLIC_ENDPOINTS = {
             "/",
@@ -111,6 +115,13 @@ public class SecurityConfig {
         jwtDecoder.setJwtValidator(Jwt -> OAuth2TokenValidatorResult.success());
 
         return jwtDecoder;
+    }
+
+    @Bean("googleJWTDecoder")
+    JwtDecoder googleJWTDecoder(){
+        return NimbusJwtDecoder.withJwkSetUri(GOOGLE_JWT_URI)
+                .jwsAlgorithm(SignatureAlgorithm.RS256)
+                .build();
     }
 
     @Bean

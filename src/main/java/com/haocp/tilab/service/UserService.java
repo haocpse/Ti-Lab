@@ -13,4 +13,5 @@ import java.util.List;
 public interface UserService {
 
     User createUser(CreateUserRequest request);
+    User createUserForLoginByEmail(CreateUserRequest request);
 }
