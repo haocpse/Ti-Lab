@@ -5,6 +5,7 @@ import com.haocp.tilab.dto.request.Bag.CreateBagRequest;
 import com.haocp.tilab.dto.request.Bag.UpdateBagRequest;
 import com.haocp.tilab.dto.response.Bag.BagImgResponse;
 import com.haocp.tilab.dto.response.Bag.BagResponse;
+import com.haocp.tilab.dto.response.Bag.BestSellingBagsResponse;
 import com.haocp.tilab.entity.Bag;
 import com.haocp.tilab.entity.Collection;
 import com.haocp.tilab.enums.BagStatus;
@@ -16,6 +17,8 @@ import com.haocp.tilab.repository.BagRepository;
 import com.haocp.tilab.repository.CollectionRepository;
 import com.haocp.tilab.service.BagImgService;
 import com.haocp.tilab.service.BagService;
+import com.haocp.tilab.utils.CombineToUrl;
+import com.haocp.tilab.utils.CommonHelper;
 import com.haocp.tilab.utils.event.BagCreatedEvent;
 import com.haocp.tilab.utils.event.BagUpdatedEvent;
 import lombok.AccessLevel;
@@ -30,6 +33,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -49,6 +53,10 @@ public class BagServiceImpl implements BagService {
     CollectionRepository collectionRepository;
     @Autowired
     ApplicationEventPublisher applicationEventPublisher;
+    @Autowired
+    CombineToUrl combineToUrl;
+    @Autowired
+    CommonHelper commonHelper;
 
     @Override
     @Transactional
@@ -185,6 +193,22 @@ public class BagServiceImpl implements BagService {
         } else {
             return (int) bagRepository.count();
         }
+    }
+
+    @Override
+    public List<BestSellingBagsResponse> getBestSellingBags(String range) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime fromDate = commonHelper.getFromDate(range, now);
+
+        return bagRepository.findTop3BestSellingBags(fromDate, now)
+                .stream()
+                .map(bestSellingBag -> BestSellingBagsResponse.builder()
+                        .bagId(bestSellingBag.getBagId())
+                        .bagName(bestSellingBag.getBagName())
+                        .urlMain(combineToUrl.bagImages(bestSellingBag.getBagId(), true, bestSellingBag.getImageUrl()))
+                        .total(bestSellingBag.getTotal())
+                        .build())
+                .toList();
     }
 
     Bag create(CreateBagRequest createBagRequest){

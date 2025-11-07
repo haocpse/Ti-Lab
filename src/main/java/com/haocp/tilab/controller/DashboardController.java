@@ -1,8 +1,10 @@
 package com.haocp.tilab.controller;
 
 import com.haocp.tilab.dto.ApiResponse;
+import com.haocp.tilab.dto.response.Bag.BestSellingBagsResponse;
 import com.haocp.tilab.dto.response.Order.OrderStatByStatusResponse;
 import com.haocp.tilab.dto.response.Order.OrderStatResponse;
+import com.haocp.tilab.service.BagService;
 import com.haocp.tilab.service.OrderService;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -26,6 +28,8 @@ public class DashboardController {
 
     @Autowired
     OrderService orderService;
+    @Autowired
+    BagService bagService;
 
     @GetMapping("/order-stat")
     public ApiResponse<OrderStatResponse> getOrderStat(@RequestParam(defaultValue = "1w") String range) {
@@ -45,4 +49,12 @@ public class DashboardController {
                 .build();
     }
 
+    @GetMapping("/best-selling")
+    public ApiResponse<List<BestSellingBagsResponse>> getBestSellingBags(@RequestParam(defaultValue = "1w") String range) {
+        return ApiResponse.<List<BestSellingBagsResponse>>builder()
+                .code(200)
+                .message("Get best selling bags successfully")
+                .data(bagService.getBestSellingBags(range))
+                .build();
+    }
 }

@@ -23,6 +23,7 @@ import com.haocp.tilab.service.BagImgService;
 import com.haocp.tilab.service.CartService;
 import com.haocp.tilab.service.OrderService;
 import com.haocp.tilab.service.PaymentService;
+import com.haocp.tilab.utils.CommonHelper;
 import com.haocp.tilab.utils.IdentifyUser;
 import com.haocp.tilab.utils.WeekRangeUtil;
 import com.haocp.tilab.utils.event.OrderCreatedEvent;
@@ -76,6 +77,8 @@ public class OrderServiceImpl implements OrderService {
     PaymentService paymentService;
     @Autowired
     BagImgService bagImgService;
+    @Autowired
+    CommonHelper commonHelper;
 
     @Override
     @Transactional
@@ -165,7 +168,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderStatResponse getOrderStat(String range) {
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime from = getFromDate(range, now);
+        LocalDateTime from = commonHelper.getFromDate(range, now);
         long daysBetween = ChronoUnit.DAYS.between(from, now);
         String typePeriod;
         List<OrderStatDetailResponse> details;
@@ -206,7 +209,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<OrderStatByStatusResponse> getOrderStatByStatus(String range) {
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime from = getFromDate(range, now);
+        LocalDateTime from = commonHelper.getFromDate(range, now);
         return orderRepository.getOrderStatusSummary(from, now)
                 .stream()
                 .map(os -> OrderStatByStatusResponse.builder()
@@ -214,19 +217,6 @@ public class OrderServiceImpl implements OrderService {
                         .total(os.getTotal())
                         .build())
                 .toList();
-    }
-
-    LocalDateTime getFromDate(String range, LocalDateTime to) {
-        LocalDateTime fromDate;
-        switch (range.toLowerCase()) {
-            case "1w" -> fromDate = to.minusWeeks(1);
-            case "1m" -> fromDate = to.minusMonths(1);
-            case "3m" -> fromDate = to.minusMonths(3);
-            case "6m" -> fromDate = to.minusMonths(6);
-            case "1y" -> fromDate = to.minusYears(1);
-            default -> throw new IllegalArgumentException("Invalid range: " + range);
-        }
-        return fromDate;
     }
 
     Page<OrderResponse> buildOrderResponses(Page<Order> orders) {

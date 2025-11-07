@@ -5,6 +5,7 @@ import com.haocp.tilab.dto.request.Bag.CreateBagRequest;
 import com.haocp.tilab.dto.request.Bag.SaveImageBagRequest;
 import com.haocp.tilab.dto.request.Bag.UpdateBagRequest;
 import com.haocp.tilab.dto.response.Bag.BagResponse;
+import com.haocp.tilab.dto.response.Bag.BestSellingBagsResponse;
 import com.haocp.tilab.entity.Collection;
 import com.haocp.tilab.enums.BagStatus;
 import com.haocp.tilab.enums.BagType;
@@ -29,5 +30,6 @@ public interface BagService {
 
 
     int totalBagByTypeAndStatus(BagType type, BagStatus status);
+    List<BestSellingBagsResponse> getBestSellingBags(String range);
 
 }
