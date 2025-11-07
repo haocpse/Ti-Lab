@@ -8,6 +8,8 @@ import com.haocp.tilab.dto.response.Bag.BagResponse;
 import com.haocp.tilab.dto.response.Customer.CustomerInOrderResponse;
 import com.haocp.tilab.dto.response.Order.OrderDetailResponse;
 import com.haocp.tilab.dto.response.Order.OrderResponse;
+import com.haocp.tilab.dto.response.Order.OrderStatDetailResponse;
+import com.haocp.tilab.dto.response.Order.OrderStatResponse;
 import com.haocp.tilab.dto.response.Payment.PaymentResponse;
 import com.haocp.tilab.entity.*;
 import com.haocp.tilab.enums.OrderStatus;
@@ -25,6 +27,7 @@ import com.haocp.tilab.service.CartService;
 import com.haocp.tilab.service.OrderService;
 import com.haocp.tilab.service.PaymentService;
 import com.haocp.tilab.utils.IdentifyUser;
+import com.haocp.tilab.utils.WeekRangeUtil;
 import com.haocp.tilab.utils.event.OrderCreatedEvent;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
@@ -38,6 +41,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -158,6 +163,55 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<OrderSummary> getOrderSummary(LocalDate from, LocalDate to) {
         return orderRepository.getOrderSummary(from, to);
+    }
+
+    @Override
+    public OrderStatResponse getOrderStat(String range) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime from;
+        switch (range.toLowerCase()) {
+            case "1w" -> from = now.minusWeeks(1);
+            case "1m" -> from = now.minusMonths(1);
+            case "3m" -> from = now.minusMonths(3);
+            case "6m" -> from = now.minusMonths(6);
+            case "1y" -> from = now.minusYears(1);
+            default -> throw new IllegalArgumentException("Invalid range: " + range);
+        }
+        long daysBetween = ChronoUnit.DAYS.between(from, now);
+        String typePeriod;
+        List<OrderStatDetailResponse> details;
+        if (daysBetween <= 31) {
+            details =  orderRepository.getOrderStatsByDay(from, now)
+                    .stream()
+                    .map(os -> OrderStatDetailResponse.builder()
+                            .totalOrders(os.getTotalOrders())
+                            .period(os.getPeriod())
+                            .build())
+                    .toList();
+            typePeriod = "DAY";
+        } else if (daysBetween <= 92) {
+            details =  orderRepository.getOrderStatsByWeek(from, now)
+                    .stream()
+                    .map(os -> OrderStatDetailResponse.builder()
+                            .totalOrders(os.getTotalOrders())
+                            .period(WeekRangeUtil.formatYearWeek(os.getPeriod()))
+                            .build())
+                    .toList();
+            typePeriod = "WEEK";
+        } else {
+            details = orderRepository.getOrderStatsByMonth(from, now)
+                    .stream()
+                    .map(os -> OrderStatDetailResponse.builder()
+                            .totalOrders(os.getTotalOrders())
+                            .period(os.getPeriod())
+                            .build())
+                    .toList();
+            typePeriod = "MONTH";
+        }
+        return OrderStatResponse.builder()
+                .typePeriod(typePeriod)
+                .details(details)
+                .build();
     }
 
     Page<OrderResponse> buildOrderResponses(Page<Order> orders) {
