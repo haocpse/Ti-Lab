@@ -3,6 +3,7 @@ package com.haocp.tilab.repository;
 import com.haocp.tilab.entity.Order;
 import com.haocp.tilab.enums.OrderStatus;
 import com.haocp.tilab.repository.Projection.NumberOrderSummary;
+import com.haocp.tilab.repository.Projection.OrderStatusSummary;
 import com.haocp.tilab.repository.Projection.OrderSummary;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -108,5 +109,36 @@ public interface OrderRepository extends JpaRepository<Order, String> {
     """, nativeQuery = true)
     List<NumberOrderSummary> getOrderStatsByMonth(@Param("fromDate") LocalDateTime fromDate,
                                                   @Param("toDate") LocalDateTime toDate);
+
+
+    @Query(value = """
+    WITH status_group AS (
+        SELECT 'PREPARING' AS grouped_status
+        UNION ALL
+        SELECT 'DELIVERING'
+        UNION ALL
+        SELECT 'COMPLETED'
+        UNION ALL
+        SELECT 'CANCELLED'
+    )
+    SELECT 
+        sg.grouped_status AS groupedStatus,
+        COALESCE(COUNT(o.id), 0) AS total
+    FROM status_group sg
+    LEFT JOIN orders o ON
+        CASE
+            WHEN o.status IN ('PREPARING') THEN 'PREPARING'
+            WHEN o.status IN ('DELIVERING') THEN 'DELIVERING'
+            WHEN o.status IN ('DELIVERED', 'COMPLETED') THEN 'COMPLETED'
+            WHEN o.status IN ('CANCELLED', 'FAILED', 'REFUNDED', 'RETURNED') THEN 'CANCELLED'
+            ELSE NULL
+        END = sg.grouped_status
+        AND o.created_at BETWEEN :fromDate AND :toDate
+    GROUP BY sg.grouped_status
+    ORDER BY sg.grouped_status
+    """, nativeQuery = true)
+    List<OrderStatusSummary> getOrderStatusSummary(
+            @Param("fromDate") LocalDateTime fromDate,
+            @Param("toDate") LocalDateTime toDate);
 
 }

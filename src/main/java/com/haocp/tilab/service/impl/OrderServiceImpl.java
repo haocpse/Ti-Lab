@@ -6,10 +6,7 @@ import com.haocp.tilab.dto.request.Payment.CreatePaymentRequest;
 import com.haocp.tilab.dto.response.Bag.BagImgResponse;
 import com.haocp.tilab.dto.response.Bag.BagResponse;
 import com.haocp.tilab.dto.response.Customer.CustomerInOrderResponse;
-import com.haocp.tilab.dto.response.Order.OrderDetailResponse;
-import com.haocp.tilab.dto.response.Order.OrderResponse;
-import com.haocp.tilab.dto.response.Order.OrderStatDetailResponse;
-import com.haocp.tilab.dto.response.Order.OrderStatResponse;
+import com.haocp.tilab.dto.response.Order.*;
 import com.haocp.tilab.dto.response.Payment.PaymentResponse;
 import com.haocp.tilab.entity.*;
 import com.haocp.tilab.enums.OrderStatus;
@@ -168,15 +165,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderStatResponse getOrderStat(String range) {
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime from;
-        switch (range.toLowerCase()) {
-            case "1w" -> from = now.minusWeeks(1);
-            case "1m" -> from = now.minusMonths(1);
-            case "3m" -> from = now.minusMonths(3);
-            case "6m" -> from = now.minusMonths(6);
-            case "1y" -> from = now.minusYears(1);
-            default -> throw new IllegalArgumentException("Invalid range: " + range);
-        }
+        LocalDateTime from = getFromDate(range, now);
         long daysBetween = ChronoUnit.DAYS.between(from, now);
         String typePeriod;
         List<OrderStatDetailResponse> details;
@@ -212,6 +201,32 @@ public class OrderServiceImpl implements OrderService {
                 .typePeriod(typePeriod)
                 .details(details)
                 .build();
+    }
+
+    @Override
+    public List<OrderStatByStatusResponse> getOrderStatByStatus(String range) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime from = getFromDate(range, now);
+        return orderRepository.getOrderStatusSummary(from, now)
+                .stream()
+                .map(os -> OrderStatByStatusResponse.builder()
+                        .status(os.getGroupedStatus())
+                        .total(os.getTotal())
+                        .build())
+                .toList();
+    }
+
+    LocalDateTime getFromDate(String range, LocalDateTime to) {
+        LocalDateTime fromDate;
+        switch (range.toLowerCase()) {
+            case "1w" -> fromDate = to.minusWeeks(1);
+            case "1m" -> fromDate = to.minusMonths(1);
+            case "3m" -> fromDate = to.minusMonths(3);
+            case "6m" -> fromDate = to.minusMonths(6);
+            case "1y" -> fromDate = to.minusYears(1);
+            default -> throw new IllegalArgumentException("Invalid range: " + range);
+        }
+        return fromDate;
     }
 
     Page<OrderResponse> buildOrderResponses(Page<Order> orders) {

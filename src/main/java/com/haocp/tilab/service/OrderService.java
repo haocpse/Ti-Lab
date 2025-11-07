@@ -4,6 +4,7 @@ import com.haocp.tilab.dto.request.Cart.AddToCartRequest;
 import com.haocp.tilab.dto.request.Order.CreateOrderRequest;
 import com.haocp.tilab.dto.response.Cart.CartResponse;
 import com.haocp.tilab.dto.response.Order.OrderResponse;
+import com.haocp.tilab.dto.response.Order.OrderStatByStatusResponse;
 import com.haocp.tilab.dto.response.Order.OrderStatResponse;
 import com.haocp.tilab.enums.OrderStatus;
 import com.haocp.tilab.repository.Projection.OrderSummary;
@@ -23,4 +24,5 @@ public interface OrderService {
     List<OrderSummary> getOrderSummary(LocalDate from, LocalDate to);
 
     OrderStatResponse getOrderStat(String range);
+    List<OrderStatByStatusResponse> getOrderStatByStatus(String range);
 }
