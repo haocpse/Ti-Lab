@@ -86,7 +86,8 @@ public class AuthServiceImpl implements AuthService {
         CreateUserRequest request = userMapper.toCreateUserRequest(registerRequest);
         request.setRole(UserRole.CUSTOMER);
         User user = userService.createUser(request);
-        Customer customer = customerRepository.save(Customer.builder()
+        user.setActive(true);
+        customerRepository.save(Customer.builder()
                 .user(user)
                 .firstName(registerRequest.getFirstName())
                 .lastName(registerRequest.getLastName())
@@ -94,8 +95,8 @@ public class AuthServiceImpl implements AuthService {
                 .membership(membershipRepository.findByMin(0)
                         .orElseThrow(() -> new AppException(ErrorCode.THERE_NO_MEMBERSHIP)))
                 .build());
-        String token = verificationTokenService.createToken(TokenType.EMAIL_VERIFY, user, user.getId());
-        applicationEventPublisher.publishEvent(new ConfirmRegisterEvent(this, token, customer));
+ //       String token = verificationTokenService.createToken(TokenType.EMAIL_VERIFY, user, user.getId());
+ //       applicationEventPublisher.publishEvent(new ConfirmRegisterEvent(this, token, customer));
     }
 
     @Override
