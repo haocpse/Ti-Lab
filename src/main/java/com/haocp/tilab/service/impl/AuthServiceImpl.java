@@ -175,7 +175,7 @@ public class AuthServiceImpl implements AuthService {
         String lastName = jwt.getClaim("family_name").toString();
         String firstName = jwt.getClaim("given_name").toString();
         User user = userRepository.findByEmail(email)
-                .orElse((createUserForFirstTime(email, firstName, lastName)));
+                .orElseGet(() -> createUserForFirstTime(email, firstName, lastName));
         if (!user.isActive())
             throw new AppException(ErrorCode.ACCOUNT_BANNED);
         return LoginResponse.builder()
