@@ -1,9 +1,7 @@
 package com.haocp.tilab.service.impl;
 
 import com.haocp.tilab.dto.request.SePay.SePayWebhookRequest;
-import com.haocp.tilab.dto.response.Payment.CheckPaymentStatusResponse;
-import com.haocp.tilab.dto.response.Payment.PaymentResponse;
-import com.haocp.tilab.dto.response.Payment.QRPaymentResponse;
+import com.haocp.tilab.dto.response.Payment.*;
 import com.haocp.tilab.entity.Customer;
 import com.haocp.tilab.entity.Order;
 import com.haocp.tilab.entity.Payment;
@@ -16,11 +14,14 @@ import com.haocp.tilab.exception.AppException;
 import com.haocp.tilab.exception.ErrorCode;
 import com.haocp.tilab.mapper.PaymentMapper;
 import com.haocp.tilab.repository.PaymentRepository;
+import com.haocp.tilab.repository.Projection.PaymentStatOverview;
 import com.haocp.tilab.repository.Projection.PaymentSummary;
 import com.haocp.tilab.repository.UserRepository;
 import com.haocp.tilab.service.PaymentService;
 import com.haocp.tilab.service.VerificationTokenService;
+import com.haocp.tilab.utils.CommonHelper;
 import com.haocp.tilab.utils.IdentifyUser;
+import com.haocp.tilab.utils.WeekRangeUtil;
 import com.haocp.tilab.utils.event.ConfirmPaidEvent;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
@@ -28,10 +29,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -56,6 +63,8 @@ public class PaymentServiceImpl implements PaymentService {
     UserRepository userRepository;
     @Autowired
     ApplicationEventPublisher applicationEventPublisher;
+    @Autowired
+    CommonHelper commonHelper;
 
     @Override
     public void createPayment(Order order, PayMethod method) {
@@ -102,7 +111,7 @@ public class PaymentServiceImpl implements PaymentService {
     public void sePayConfirm(String authorization, SePayWebhookRequest request) {
         UUID token = validAuthorization(authorization, request.getContent());
         VerificationTokenResponse verificationTokenResponse = verificationTokenService.validateToken(String.valueOf(token));
-        if(verificationTokenResponse.isValid()) {
+        if (verificationTokenResponse.isValid()) {
             String paymentId = verificationTokenResponse.getReferenceId().replace("paymentId=", "");
             Payment payment = paymentRepository.findById(paymentId)
                     .orElseThrow(() -> new AppException(ErrorCode.PAYMENT_NOT_FOUND));
@@ -143,8 +152,97 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
+    @Transactional
+    public Page<PaymentResponse> getPayments(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Payment> payments = paymentRepository.findPaymentByStatusOrderByPayAtDesc(PaymentStatus.PAID, pageable);
+        return payments.map(payment -> {
+            Order order = payment.getOrder();
+           return PaymentResponse.builder()
+                   .paymentId(payment.getId())
+                   .phone(order.getPhone())
+                   .fullCustomerName(order.getCustomer().getFirstName() + " " + order.getCustomer().getLastName())
+                   .total(payment.getTotal())
+                   .paymentDate(payment.getPayAt())
+                   .method(payment.getMethod())
+                   .status(payment.getStatus())
+                   .build();
+        });
+    }
+
+    @Override
     public List<PaymentSummary> getPaymentSummary(LocalDate from, LocalDate to) {
         return paymentRepository.getPaymentSummary(from, to);
+    }
+
+    @Override
+    public PaymentStatResponse getPaymentStat(String range) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime from = commonHelper.getFromDate(range, now);
+        long daysBetween = ChronoUnit.DAYS.between(from, now);
+        List<PaymentStatDetailResponse> details;
+        String type;
+        if (daysBetween <= 31) {
+            type = "DAY";
+            details = paymentRepository.getPaymentStatsByDay(from, now)
+                    .stream()
+                    .map(ps -> PaymentStatDetailResponse.builder()
+                            .totalPayments(ps.getTotalPayments())
+                            .amount(ps.getAmount())
+                            .period(ps.getPeriod())
+                            .build())
+                    .toList();
+        } else if (daysBetween <= 92) {
+            type = "WEEK";
+            details = paymentRepository.getPaymentStatsByWeek(from, now)
+                    .stream()
+                    .map(ps -> PaymentStatDetailResponse.builder()
+                            .totalPayments(ps.getTotalPayments())
+                            .amount(ps.getAmount())
+                            .period(WeekRangeUtil.formatYearWeek(ps.getPeriod()))
+                            .build())
+                    .toList();
+        } else {
+            type = "MONTH";
+            details = paymentRepository.getPaymentStatsByMonth(from, now)
+                    .stream()
+                    .map(ps -> PaymentStatDetailResponse.builder()
+                            .totalPayments(ps.getTotalPayments())
+                            .amount(ps.getAmount())
+                            .period(ps.getPeriod())
+                            .build())
+                    .toList();
+        }
+        return PaymentStatResponse.builder()
+                .typeRange(type)
+                .details(details)
+                .build();
+    }
+
+    @Override
+    public List<PaymentMethodStatResponse> getPaymentMethodStat(String range) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime from = commonHelper.getFromDate(range, now);
+        return paymentRepository.getPaymentMethodStats(from, now)
+                .stream()
+                .map(pm -> PaymentMethodStatResponse.builder()
+                        .payMethod(pm.getMethod())
+                        .percentage(pm.getPercentage())
+                        .total(pm.getTotal())
+                        .build())
+                .toList();
+    }
+
+    @Override
+    public PaymentStatOverviewResponse getPaymentStatOverview(String range) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime from = commonHelper.getFromDate(range, now);
+        PaymentStatOverview pso = paymentRepository.getPaymentOverview(from, now);
+        return PaymentStatOverviewResponse.builder()
+                .total(pso.getTotal())
+                .totalPrice(pso.getTotalPrice())
+                .avgPrice(pso.getAvgPrice())
+                .build();
     }
 
     UUID validAuthorization(String authorization, String content) {
@@ -152,7 +250,7 @@ public class PaymentServiceImpl implements PaymentService {
             throw new AppException(ErrorCode.API_WEBHOOK_MISSING);
         }
         String apiKey = authorization.substring("Apikey ".length());
-        if (!exceptedKey.equals(apiKey)){
+        if (!exceptedKey.equals(apiKey)) {
             throw new AppException(ErrorCode.INVALID_API_WEBHOOK);
         }
         Pattern TOKEN_PATTERN = Pattern.compile("TKPEXE([0-9a-fA-F]{32})");

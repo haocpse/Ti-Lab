@@ -35,4 +35,13 @@ public class OrderController {
                 .build();
     }
 
+    @GetMapping("/{id}")
+    public ApiResponse<OrderResponse> getOrder(@PathVariable String id) {
+        return ApiResponse.<OrderResponse>builder()
+                .code(200)
+                .data(orderService.getOrderById(id))
+                .message("Get order by id successfully")
+                .build();
+    }
+
 }

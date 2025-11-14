@@ -4,11 +4,16 @@ import com.haocp.tilab.dto.ApiResponse;
 import com.haocp.tilab.dto.response.Bag.BestSellingBagsResponse;
 import com.haocp.tilab.dto.response.Order.OrderStatByStatusResponse;
 import com.haocp.tilab.dto.response.Order.OrderStatResponse;
+import com.haocp.tilab.dto.response.Payment.PaymentMethodStatResponse;
+import com.haocp.tilab.dto.response.Payment.PaymentStatOverviewResponse;
+import com.haocp.tilab.dto.response.Payment.PaymentStatResponse;
 import com.haocp.tilab.service.BagService;
 import com.haocp.tilab.service.OrderService;
+import com.haocp.tilab.service.PaymentService;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.FieldDefaults;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,6 +35,8 @@ public class DashboardController {
     OrderService orderService;
     @Autowired
     BagService bagService;
+    @Autowired
+    PaymentService paymentService;
 
     @GetMapping("/order-stat")
     public ApiResponse<OrderStatResponse> getOrderStat(@RequestParam(defaultValue = "1w") String range) {
@@ -55,6 +62,33 @@ public class DashboardController {
                 .code(200)
                 .message("Get best selling bags successfully")
                 .data(bagService.getBestSellingBags(range))
+                .build();
+    }
+
+    @GetMapping("/payment-stat")
+    public ApiResponse<PaymentStatResponse> getPaymentStat(@RequestParam(defaultValue = "1w") String range) {
+        return ApiResponse.<PaymentStatResponse>builder()
+                .code(200)
+                .message("Get payment stat successfully")
+                .data(paymentService.getPaymentStat(range))
+                .build();
+    }
+
+    @GetMapping("/payment-method-stat")
+    public ApiResponse<List<PaymentMethodStatResponse>> getPaymentMethodStat(@RequestParam(defaultValue = "1w") String range) {
+        return ApiResponse.<List<PaymentMethodStatResponse>>builder()
+                .code(200)
+                .message("Get payment method stat successfully")
+                .data(paymentService.getPaymentMethodStat(range))
+                .build();
+    }
+
+    @GetMapping("/payment-stat-overview")
+    public ApiResponse<PaymentStatOverviewResponse> getPaymentStatOverview(@RequestParam(defaultValue = "1w") String range) {
+        return ApiResponse.<PaymentStatOverviewResponse>builder()
+                .code(200)
+                .message("Get payment stat overview successfully")
+                .data(paymentService.getPaymentStatOverview(range))
                 .build();
     }
 }

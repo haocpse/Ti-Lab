@@ -5,6 +5,9 @@ import com.haocp.tilab.enums.PaymentStatus;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
@@ -13,7 +16,10 @@ import lombok.experimental.FieldDefaults;
 public class PaymentResponse {
 
     String paymentId;
+    String fullCustomerName;
+    String phone;
     double total;
+    Instant paymentDate;
     PaymentStatus status;
     PayMethod method;
 

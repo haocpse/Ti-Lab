@@ -25,4 +25,6 @@ public interface OrderService {
 
     OrderStatResponse getOrderStat(String range);
     List<OrderStatByStatusResponse> getOrderStatByStatus(String range);
+
+    OrderResponse getOrderById(String id);
 }

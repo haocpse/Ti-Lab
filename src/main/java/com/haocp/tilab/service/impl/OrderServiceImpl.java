@@ -219,6 +219,14 @@ public class OrderServiceImpl implements OrderService {
                 .toList();
     }
 
+    @Override
+    @Transactional
+    public OrderResponse getOrderById(String id) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+        return buildOrderResponse(order, true);
+    }
+
     Page<OrderResponse> buildOrderResponses(Page<Order> orders) {
         return orders.map(order -> {
             OrderResponse response = orderMapper.toResponseWithoutCoupon(order);
@@ -228,12 +236,19 @@ public class OrderServiceImpl implements OrderService {
         });
     }
 
+    OrderResponse buildOrderResponse(Order order, boolean buildDetails) {
+        OrderResponse response = orderMapper.toResponseWithoutCoupon(order);
+        response.setOrderId(order.getId());
+        if (buildDetails){
+            response.setOrderDetailResponseList(buildOrderDetailResponses(order.getDetails()));
+        }
+        return response;
+    }
+
     Page<OrderResponse> buildMyOrderResponses(Page<Order> orders) {
-        return orders.map(order -> {
-            OrderResponse response = orderMapper.toResponseWithoutCoupon(order);
-            response.setOrderId(order.getId());
-            return response;
-        });
+        return orders.map(
+                order -> buildOrderResponse(order, false)
+        );
     }
 
     Set<OrderDetailResponse> buildOrderDetailResponses(Set<OrderDetail> orderDetails) {

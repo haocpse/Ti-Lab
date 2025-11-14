@@ -39,7 +39,8 @@ public enum ErrorCode {
     ACCESS_TOKEN_EXPIRED(419, "Access token is expired", HttpStatus.UNAUTHORIZED),
     INVALID_TOKEN(401, "Invalid token", HttpStatus.UNAUTHORIZED),
     WRONG_IMAGE_TYPE(400, "Image type is wrong", HttpStatus.BAD_REQUEST),
-    INVALID_EMAIL(401, "Invalid email", HttpStatus.UNAUTHORIZED),;
+    INVALID_EMAIL(401, "Invalid email", HttpStatus.UNAUTHORIZED),
+    ORDER_NOT_FOUND(404, "Order not found", HttpStatus.NOT_FOUND);
 
     int code;
     String message;
