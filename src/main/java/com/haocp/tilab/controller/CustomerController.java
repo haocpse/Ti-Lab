@@ -8,14 +8,18 @@ import com.haocp.tilab.dto.response.Cart.CartNumberResponse;
 import com.haocp.tilab.dto.response.Cart.CartResponse;
 import com.haocp.tilab.dto.response.Customer.CustomerAddressResponse;
 import com.haocp.tilab.dto.response.Customer.CustomerResponse;
+import com.haocp.tilab.dto.response.Membership.MembershipResponse;
+import com.haocp.tilab.dto.response.Membership.MyMembershipResponse;
 import com.haocp.tilab.dto.response.Order.OrderResponse;
 import com.haocp.tilab.dto.response.User.UserResponse;
 import com.haocp.tilab.enums.OrderStatus;
 import com.haocp.tilab.service.CartService;
 import com.haocp.tilab.service.CustomerService;
+import com.haocp.tilab.service.MembershipService;
 import com.haocp.tilab.service.OrderService;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
@@ -33,6 +37,8 @@ public class CustomerController {
     OrderService orderService;
     @Autowired
     CartService cartService;
+    @Autowired
+    MembershipService membershipService;
 
     @GetMapping
     public ApiResponse<Page<CustomerResponse>> getAllCustomer(@RequestParam(defaultValue = "0") int page,
@@ -77,6 +83,13 @@ public class CustomerController {
     public ApiResponse<CartNumberResponse> getMyCartNumber(){
         return ApiResponse.<CartNumberResponse>builder()
                 .data(cartService.getCartNumber())
+                .build();
+    }
+
+    @GetMapping("/me/membership")
+    public ApiResponse<MyMembershipResponse> getMyMembership(){
+        return ApiResponse.<MyMembershipResponse>builder()
+                .data(membershipService.getMyMembership())
                 .build();
     }
 

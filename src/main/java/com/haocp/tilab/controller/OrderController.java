@@ -44,4 +44,12 @@ public class OrderController {
                 .build();
     }
 
+    @PutMapping("/{id}/complete")
+    public ApiResponse<OrderResponse> completeOrder(@PathVariable String id) {
+        return ApiResponse.<OrderResponse>builder()
+                .code(200)
+                .data(orderService.getOrderById(id))
+                .message("Complete order by id successfully")
+                .build();
+    }
 }

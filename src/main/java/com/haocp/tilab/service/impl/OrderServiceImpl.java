@@ -85,6 +85,8 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public OrderResponse createOrder(CreateOrderRequest request) {
         Customer customer = IdentifyUser.getCurrentCustomer(customerRepository, userRepository);
+        customer.setPoint(customer.getPoint() + 1);
+        customerRepository.save(customer);
         List<CreateOrderDetailRequest> orderDetailRequests = request.getCreateDetailRequests();
         Order order = orderRepository.save(Order.builder()
                         .numberOfBag(orderDetailRequests.size())
