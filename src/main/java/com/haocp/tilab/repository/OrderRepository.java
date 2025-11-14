@@ -22,7 +22,7 @@ import java.util.Optional;
 public interface OrderRepository extends JpaRepository<Order, String> {
 
     @EntityGraph(attributePaths = {"customer.user", "details.bag"})
-    @Query("SELECT o FROM Order o")
+    @Query("SELECT o FROM Order o ORDER BY o.createdAt desc ")
     Page<Order> findAllWithDetails(Pageable pageable);
 
     @EntityGraph(attributePaths = {"customer.user", "details.bag"})
