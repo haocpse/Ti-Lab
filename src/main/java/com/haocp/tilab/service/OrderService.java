@@ -27,4 +27,7 @@ public interface OrderService {
     List<OrderStatByStatusResponse> getOrderStatByStatus(String range);
 
     OrderResponse getOrderById(String id);
+
+    List<OrderResponse> getOrderByCustomerId(String customerId);
+    OrderResponse completeOrder(String id);
 }

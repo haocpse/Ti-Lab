@@ -11,6 +11,7 @@ import com.haocp.tilab.dto.response.Payment.PaymentResponse;
 import com.haocp.tilab.entity.*;
 import com.haocp.tilab.enums.OrderStatus;
 import com.haocp.tilab.enums.PayMethod;
+import com.haocp.tilab.enums.PaymentStatus;
 import com.haocp.tilab.exception.AppException;
 import com.haocp.tilab.exception.ErrorCode;
 import com.haocp.tilab.mapper.*;
@@ -35,6 +36,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -228,6 +230,31 @@ public class OrderServiceImpl implements OrderService {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
         return buildOrderResponse(order, true);
+    }
+
+    @Override
+    @Transactional
+    public List<OrderResponse> getOrderByCustomerId(String customerId) {
+        List<Order> orders = orderRepository.findAllByCustomer_Id(customerId);
+        return orders.stream()
+                .map(o -> buildOrderResponse(o, false))
+                .toList();
+    }
+
+    @Override
+    @Transactional
+    public OrderResponse completeOrder(String id) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+        order.setStatus(OrderStatus.COMPLETED);
+        paymentRepository.findPaymentByOrder_IdAndMethod(id, PayMethod.COD)
+                .ifPresent(payment -> {
+                    payment.setStatus(PaymentStatus.PAID);
+                    payment.setPayAt(Instant.now());
+                    paymentRepository.save(payment);
+                });
+        orderRepository.save(order);
+        return buildOrderResponse(order, false);
     }
 
     Page<OrderResponse> buildOrderResponses(Page<Order> orders) {

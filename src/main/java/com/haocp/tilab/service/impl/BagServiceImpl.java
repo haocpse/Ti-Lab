@@ -29,6 +29,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -77,7 +78,7 @@ public class BagServiceImpl implements BagService {
     @Override
     @Transactional(readOnly = true)
     public Page<BagResponse> getAllBag(int page, int size, String name, Boolean available) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         Page<Bag> bags;
         if (!name.isEmpty() || !name.isBlank()){
             if (available != null && available)

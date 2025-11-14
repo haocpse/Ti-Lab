@@ -21,6 +21,7 @@ import java.util.Optional;
 public interface PaymentRepository extends JpaRepository<Payment, String> {
 
     Optional<Payment> findPaymentByOrder_Id(String orderId);
+    Optional<Payment> findPaymentByOrder_IdAndMethod(String orderId, PayMethod method);
 
     @Query("SELECT FUNCTION('YEAR', p.payAt) as year, " +
             "FUNCTION('MONTH', p.payAt) as month, " +

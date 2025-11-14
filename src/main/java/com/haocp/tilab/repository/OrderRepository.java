@@ -33,6 +33,8 @@ public interface OrderRepository extends JpaRepository<Order, String> {
     @Query("SELECT o FROM Order o")
     Page<Order> findAllByCustomer_IdAndStatusWithDetails(String customerId, OrderStatus status, Pageable pageable);
 
+    List<Order> findAllByCustomer_Id(String customerId);
+
     @EntityGraph(attributePaths = {"coupon", "customer.user", "details.bag"})
     @Query("SELECT o FROM Order o")
     Optional<Order> findOrderById(String id);

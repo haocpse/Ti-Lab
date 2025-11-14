@@ -48,7 +48,7 @@ public class OrderController {
     public ApiResponse<OrderResponse> completeOrder(@PathVariable String id) {
         return ApiResponse.<OrderResponse>builder()
                 .code(200)
-                .data(orderService.getOrderById(id))
+                .data(orderService.completeOrder(id))
                 .message("Complete order by id successfully")
                 .build();
     }

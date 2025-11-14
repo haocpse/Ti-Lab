@@ -107,4 +107,10 @@ public class CustomerController {
                 .build();
     }
 
+    @GetMapping("/{id}/orders")
+    public ApiResponse<List<OrderResponse>> getAllCustomerOrder(@PathVariable String id) {
+        return ApiResponse.<List<OrderResponse>>builder()
+                .data(orderService.getOrderByCustomerId(id))
+                .build();
+    }
 }
