@@ -59,14 +59,39 @@ public class BagImgServiceImpl implements BagImgService {
 
     @Override
     @Transactional
-    public void updateImage(Bag bag, List<MultipartFile> imageBags, List<Long> removeIds) {
-        List<BagImg> bagImages = bag.getImages();
-        bagImages.removeIf(img -> removeIds.contains(img.getId()));
-        if (imageBags != null) {
-            for (MultipartFile image : imageBags) {
-                bagImages.add(saveBagImg(image, bag, false));
+    public void updateImage(Bag bag, List<MultipartFile> imageBags, List<Long> removeIds, Integer mainPosition) {
+
+        List<BagImg> oldImages = bag.getImages();
+
+        oldImages.removeIf(img -> removeIds.contains(img.getId()));
+
+        int oldCount = oldImages.size();
+
+        if (imageBags != null && !imageBags.isEmpty()) {
+
+            for (int i = 0; i < imageBags.size(); i++) {
+                MultipartFile file = imageBags.get(i);
+
+                boolean isMain = false;
+
+                if (mainPosition != null && mainPosition >= oldCount) {
+                    int mainIndexInNew = mainPosition - oldCount;
+                    if (i == mainIndexInNew) {
+                        isMain = true;
+                    }
+                }
+
+                BagImg newImg = saveBagImg(file, bag, isMain);
+                oldImages.add(newImg);
             }
         }
+
+        if (mainPosition < oldCount) {
+            for (int i = 0; i < oldImages.size(); i++) {
+                oldImages.get(i).setMain(i == mainPosition);
+            }
+        }
+
         bagRepository.save(bag);
     }
 
@@ -94,7 +119,7 @@ public class BagImgServiceImpl implements BagImgService {
 
     @Override
     public BagImgResponse fetchMainImage(String bagId, List<BagImg> bagImages) {
-        if (bagImages != null && !bagImages.isEmpty()){
+        if (bagImages != null && !bagImages.isEmpty()) {
             BagImg img = bagImgRepository.findByBag_IdAndMainIsTrue(bagId)
                     .orElseThrow(() -> new AppException(ErrorCode.THERE_NO_MAIN_IMG));
             return BagImgResponse.builder()

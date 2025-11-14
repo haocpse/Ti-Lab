@@ -12,7 +12,7 @@ import java.util.Set;
 public interface BagImgService {
 
     void saveImage(Bag bag, List<MultipartFile> imageBags, Integer imagePosition);
-    void updateImage(Bag bag, List<MultipartFile> imageBags, List<Long> removeIds);
+    void updateImage(Bag bag, List<MultipartFile> imageBags, List<Long> removeIds, Integer imagePosition);
     List<BagImgResponse> fetchImage(Bag bag);
     BagImgResponse fetchMainImage(String bagId, List<BagImg> bagImages);
 }
