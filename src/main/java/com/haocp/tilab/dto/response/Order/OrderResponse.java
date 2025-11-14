@@ -28,6 +28,7 @@ public class OrderResponse {
     double subTotal;
     int feeOfDelivery;
     double total;
+    String phone;
     OrderStatus status;
     Instant createdAt;
     Set<OrderDetailResponse> orderDetailResponseList;

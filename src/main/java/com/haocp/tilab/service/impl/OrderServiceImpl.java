@@ -13,10 +13,7 @@ import com.haocp.tilab.enums.OrderStatus;
 import com.haocp.tilab.enums.PayMethod;
 import com.haocp.tilab.exception.AppException;
 import com.haocp.tilab.exception.ErrorCode;
-import com.haocp.tilab.mapper.BagMapper;
-import com.haocp.tilab.mapper.CouponMapper;
-import com.haocp.tilab.mapper.OrderDetailMapper;
-import com.haocp.tilab.mapper.OrderMapper;
+import com.haocp.tilab.mapper.*;
 import com.haocp.tilab.repository.*;
 import com.haocp.tilab.repository.Projection.OrderSummary;
 import com.haocp.tilab.service.BagImgService;
@@ -79,6 +76,10 @@ public class OrderServiceImpl implements OrderService {
     BagImgService bagImgService;
     @Autowired
     CommonHelper commonHelper;
+    @Autowired
+    PaymentMapper paymentMapper;
+    @Autowired
+    PaymentRepository paymentRepository;
 
     @Override
     @Transactional
@@ -231,7 +232,7 @@ public class OrderServiceImpl implements OrderService {
         return orders.map(order -> {
             OrderResponse response = orderMapper.toResponseWithoutCoupon(order);
             response.setOrderId(order.getId());
-            response.setOrderDetailResponseList(buildOrderDetailResponses(order.getDetails()));
+            response.setOrderDetailResponseList(buildOrderDetailResponses(order.getDetails(), false));
             return response;
         });
     }
@@ -239,8 +240,11 @@ public class OrderServiceImpl implements OrderService {
     OrderResponse buildOrderResponse(Order order, boolean buildDetails) {
         OrderResponse response = orderMapper.toResponseWithoutCoupon(order);
         response.setOrderId(order.getId());
+        response.setPhone(order.getPhone());
         if (buildDetails){
-            response.setOrderDetailResponseList(buildOrderDetailResponses(order.getDetails()));
+            response.setOrderDetailResponseList(buildOrderDetailResponses(order.getDetails(), true));
+            paymentRepository.findPaymentByOrder_Id(order.getId())
+                    .ifPresent(payment -> response.setPaymentResponse(paymentMapper.toResponse(payment)));
         }
         return response;
     }
@@ -251,12 +255,17 @@ public class OrderServiceImpl implements OrderService {
         );
     }
 
-    Set<OrderDetailResponse> buildOrderDetailResponses(Set<OrderDetail> orderDetails) {
+    Set<OrderDetailResponse> buildOrderDetailResponses(Set<OrderDetail> orderDetails, boolean buildImg) {
         Set<OrderDetailResponse> responses = new HashSet<>();
         for (OrderDetail orderDetail : orderDetails) {
             Bag bag = orderDetail.getBag();
             OrderDetailResponse response = orderDetailMapper.toResponse(orderDetail);
-            response.setBagResponse(bagMapper.toResponse(bag));
+            BagResponse bagResponse = bagMapper.toResponse(bag);
+            if (buildImg) {
+                BagImgResponse bagImgResponse = bagImgService.fetchMainImage(bag.getId(), bag.getImages());
+                bagResponse.setBagImages(bagImgResponse != null ? List.of(bagImgResponse) : List.of());
+            }
+            response.setBagResponse(bagResponse);
             responses.add(response);
         }
         return responses;

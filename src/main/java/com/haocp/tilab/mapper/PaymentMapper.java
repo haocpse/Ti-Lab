@@ -10,6 +10,7 @@ import org.mapstruct.Mapping;
 public interface PaymentMapper {
 
     @Mapping(target = "paymentId", source = "id")
+    @Mapping(target = "paymentDate", source = "payAt")
     PaymentResponse toResponse(Payment payment);
 
     CheckPaymentStatusResponse toCheckResponse(Payment payment);
