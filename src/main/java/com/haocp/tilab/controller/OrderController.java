@@ -29,9 +29,10 @@ public class OrderController {
 
     @GetMapping
     public ApiResponse<Page<OrderResponse>> getAllOrder(@RequestParam(defaultValue = "0") int page,
-                                                        @RequestParam(defaultValue = "10") int size) {
+                                                        @RequestParam(defaultValue = "10") int size,
+                                                        @RequestParam Boolean unCompleted) {
         return ApiResponse.<Page<OrderResponse>>builder()
-                .data(orderService.getAllOrder(page, size))
+                .data(orderService.getAllOrder(page, size, unCompleted))
                 .build();
     }
 

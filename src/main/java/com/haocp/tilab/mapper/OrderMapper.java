@@ -18,9 +18,11 @@ public interface OrderMapper {
 
     @Mapping(target = "couponResponse", source = "coupon")
     @Mapping(target = "customerResponse", expression = "java(toCustomerResponse(order.getCustomer()))")
+    @Mapping(target = "address", source = "addressToDelivery")
     OrderResponse toResponse(Order order);
 
     @Mapping(target = "customerResponse", expression = "java(toCustomerResponse(order.getCustomer()))")
+    @Mapping(target = "address", source = "addressToDelivery")
     @Mapping(target = "couponResponse", ignore = true)
     OrderResponse toResponseWithoutCoupon(Order order);
 

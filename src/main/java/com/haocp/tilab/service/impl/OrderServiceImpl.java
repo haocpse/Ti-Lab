@@ -138,9 +138,13 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Page<OrderResponse> getAllOrder(int page, int size) {
+    public Page<OrderResponse> getAllOrder(int page, int size, boolean unCompleted) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Order> orders = orderRepository.findAllWithDetails(pageable);
+        Page<Order> orders;
+        if (unCompleted)
+            orders = orderRepository.findUnCompletedWithDetails(pageable);
+        else
+            orders = orderRepository.findAllWithDetails(pageable);
         return buildOrderResponses(orders);
     }
 

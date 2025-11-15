@@ -49,6 +49,9 @@ public class Order {
     @Enumerated(EnumType.STRING)
     OrderStatus status;
 
+    @Column(name = "delivered_at")
+    Instant deliveredAt;
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "coupon_id")
     @ToString.Exclude

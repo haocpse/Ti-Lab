@@ -27,10 +27,12 @@ public class OrderResponse {
     int numberOfBag;
     double subTotal;
     int feeOfDelivery;
+    String address;
     double total;
     String phone;
     OrderStatus status;
     Instant createdAt;
+    Instant deliveredAt;
     Set<OrderDetailResponse> orderDetailResponseList;
     CouponResponse couponResponse;
     PaymentResponse paymentResponse;

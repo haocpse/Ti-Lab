@@ -13,6 +13,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,6 +25,10 @@ public interface OrderRepository extends JpaRepository<Order, String> {
     @EntityGraph(attributePaths = {"customer.user", "details.bag"})
     @Query("SELECT o FROM Order o ORDER BY o.createdAt desc ")
     Page<Order> findAllWithDetails(Pageable pageable);
+
+    @EntityGraph(attributePaths = {"customer.user", "details.bag"})
+    @Query("SELECT o FROM Order o WHERE o.status <> 'COMPLETED' ORDER BY o.createdAt desc ")
+    Page<Order> findUnCompletedWithDetails(Pageable pageable);
 
     @EntityGraph(attributePaths = {"customer.user", "details.bag"})
     @Query("SELECT o FROM Order o WHERE o.customer.id = :customerId")
@@ -38,6 +43,9 @@ public interface OrderRepository extends JpaRepository<Order, String> {
     @EntityGraph(attributePaths = {"coupon", "customer.user", "details.bag"})
     @Query("SELECT o FROM Order o")
     Optional<Order> findOrderById(String id);
+
+
+    List<Order> findOrderByCreatedAtAfterAndStatusIs(Instant createdAt, OrderStatus status);
 
     int countOrderByStatusIn(List<OrderStatus> statuses);
 

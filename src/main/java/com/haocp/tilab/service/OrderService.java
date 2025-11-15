@@ -17,7 +17,7 @@ import java.util.List;
 public interface OrderService {
 
     OrderResponse createOrder(CreateOrderRequest request);
-    Page<OrderResponse> getAllOrder(int page, int size);
+    Page<OrderResponse> getAllOrder(int page, int size, boolean unCompleted);
     Page<OrderResponse> getAllMyOrder(OrderStatus status, int page, int size);
 
     int totalOrderByStatus(List<OrderStatus> statuses);
